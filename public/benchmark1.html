@@ -1,95 +1,929 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-   <title>Ditto Run - Benchmark 3</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ditto Run : Game Design Document</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0d0d1a;
+      --panel:     #12122a;
+      --border:    #6a5acd;
+      --accent1:   #a78bfa;
+      --accent2:   #f472b6;
+      --accent3:   #34d399;
+      --accent4:   #fbbf24;
+      --text:      #e2e8f0;
+      --muted:     #94a3b8;
+      --pixel:     4px;
+    }
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/12.11.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/12.11.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/12.11.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <!-- <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'VT323', monospace;
+      font-size: 23px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Scanline overlay ── */
+    body::before {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0,0,0,0.18) 3px,
+        rgba(0,0,0,0.18) 4px
+      );
+    }
+
+    /* ── Star field ── */
+    body::after {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 60%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 55% 15%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 70% 75%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 85% 40%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 95% 90%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 85%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 45% 45%, #fff 0%, transparent 100%);
+    }
+
+    /* ── Pixel box mixin ── */
+    .pixel-box {
+      border: var(--pixel) solid var(--border);
+      box-shadow:
+        inset -4px -4px 0 0 #2a2250,
+        inset  4px  4px 0 0 #4a3a8a,
+        4px 4px 0 0 rgba(0,0,0,0.6);
+      background: var(--panel);
+      position: relative;
+    }
+
+    /* ── Hero ── */
+    #hero {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: linear-gradient(180deg, #0d0d1a 0%, #1a0a2e 60%, #0d0d1a 100%);
+      border-bottom: var(--pixel) solid var(--border);
+    }
+
+    #hero .icon-wrap {
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+    #hero .icon-wrap img {
+      width: 80px;
+      height: 80px;
+      image-rendering: pixelated;
+      border: var(--pixel) solid var(--accent1);
+      box-shadow: 4px 4px 0 #2a2250;
+      background: #1e1540;
+    }
+    #hero .icon-placeholder {
+      width: 80px;
+      height: 80px;
+      border: var(--pixel) solid var(--accent1);
+      box-shadow: 4px 4px 0 #2a2250;
+      background: #1e1540;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--muted);
+      font-family: 'Press Start 2P', monospace;
+      line-height: 1.4;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .hero-splash {
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto 28px;
+      display: block;
+      border: var(--pixel) solid var(--border);
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.7);
+      image-rendering: pixelated;
+      background: #0a081a;
+      min-height: 220px;
+    }
+    .hero-splash img {
+      width: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+    .hero-splash .splash-placeholder {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      color: var(--muted);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 17px;
+      text-align: center;
+      padding: 20px;
+    }
+    .hero-splash .splash-placeholder span {
+      color: var(--accent1);
+      font-size: 17px;
+    }
+
+    #hero h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(20px, 4vw, 34px);
+      color: var(--accent1);
+      text-shadow:
+        4px 4px 0 #4a1a8a,
+        0 0 20px rgba(167,139,250,0.5);
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      animation: flicker 6s infinite;
+    }
+    @keyframes flicker {
+      0%,100%  { opacity: 1; }
+      92%      { opacity: 1; }
+      93%      { opacity: 0.7; }
+      94%      { opacity: 1; }
+      96%      { opacity: 0.85; }
+      97%      { opacity: 1; }
+    }
+
+    .subtitle {
+      font-size: 20px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .authors {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 16px;
+      color: var(--accent3);
+      letter-spacing: 1px;
+    }
+
+    /* ── Pixel divider ── */
+    .px-divider {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 40px 0 20px;
+    }
+    .px-divider::before,
+    .px-divider::after {
+      content: '';
+      flex: 1;
+      height: 4px;
+      background: repeating-linear-gradient(
+        to right,
+        var(--border) 0px, var(--border) 8px,
+        transparent 8px, transparent 12px
+      );
+    }
+    .px-divider-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 16px;
+      color: var(--accent2);
+      white-space: nowrap;
+      padding: 0 8px;
+    }
+
+    /* ── Main layout ── */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── Nav bar ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #0d0d1a;
+      border-bottom: var(--pixel) solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    nav a {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 17px;
+      color: var(--accent1);
+      text-decoration: none;
+      padding: 6px 10px;
+      border: 2px solid var(--border);
+      background: var(--panel);
+      transition: background 0.1s, color 0.1s;
+      display: inline-block;
+    }
+    nav a:hover {
+      background: var(--border);
+      color: #fff;
+    }
+
+    /* ── Section titles ── */
+    .section-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: clamp(11px, 2vw, 15px);
+      color: var(--accent2);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: var(--pixel) dashed var(--border);
+      text-shadow: 2px 2px 0 #5a1a3a;
+    }
+    .section-title::before {
+      content: '▶ ';
+      color: var(--accent4);
+    }
+
+    section {
+      margin-bottom: 48px;
+    }
+
+    /* ── Pixel card ── */
+    .card {
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    p { margin-bottom: 14px; }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── Tag badges ── */
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0;
+    }
+    .badge {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 17px;
+      padding: 5px 10px;
+      border: 2px solid;
+      display: inline-block;
+    }
+    .badge-purple { border-color: var(--accent1); color: var(--accent1); }
+    .badge-pink   { border-color: var(--accent2); color: var(--accent2); }
+    .badge-green  { border-color: var(--accent3); color: var(--accent3); }
+    .badge-yellow { border-color: var(--accent4); color: var(--accent4); }
+
+    /* ── Level cards ── */
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 16px;
+    }
+    .level-card {
+      padding: 18px;
+      border: var(--pixel) solid;
+      background: var(--panel);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    }
+    .level-card h3 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .level-card p { font-size: 17px; color: var(--muted); }
+
+    .lvl-plains  { border-color: #86efac; } .lvl-plains  h3 { color: #86efac; }
+    .lvl-ice     { border-color: #93c5fd; } .lvl-ice     h3 { color: #93c5fd; }
+    .lvl-forest  { border-color: #4ade80; } .lvl-forest  h3 { color: #4ade80; }
+    .lvl-volcano { border-color: #f97316; } .lvl-volcano h3 { color: #f97316; }
+    .lvl-dragon  { border-color: #e879f9; } .lvl-dragon  h3 { color: #e879f9; }
+    .lvl-dark    { border-color: #818cf8; } .lvl-dark    h3 { color: #818cf8; }
+
+    /* ── Energy bar ── */
+    .energy-demo {
+      margin: 16px 0;
+    }
+    .energy-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      color: var(--accent4);
+      margin-bottom: 6px;
+    }
+    .energy-bar-track {
+      height: 20px;
+      background: #0a0815;
+      border: 3px solid var(--accent4);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .energy-bar-fill {
+      height: 100%;
+      background: repeating-linear-gradient(
+        to right,
+        var(--accent4) 0px,
+        var(--accent4) 10px,
+        #d97706 10px,
+        #d97706 12px
+      );
+      width: 72%;
+      animation: pulse-bar 2s ease-in-out infinite;
+    }
+    @keyframes pulse-bar {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.75; }
+    }
+
+    /* ── Controls table ── */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border: 2px solid var(--border);
+      background: #0a0815;
+    }
+    .key {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      background: var(--border);
+      color: #fff;
+      padding: 5px 8px;
+      box-shadow: 2px 2px 0 #2a2250;
+      min-width: 40px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .control-desc { font-size: 17px; color: var(--muted); }
+
+    /* ── Character cards ── */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .char-card {
+      padding: 20px;
+      text-align: center;
+      border: var(--pixel) solid var(--accent1);
+      background: var(--panel);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    }
+    .char-avatar {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 12px;
+      border: 3px solid var(--accent1);
+      background: #0a0815;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+    }
+    .char-avatar img {
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      object-fit: contain;
+    }
+    .char-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 19px;
+      color: var(--accent1);
+      margin-bottom: 8px;
+    }
+    .char-desc { font-size: 16px; color: var(--muted); }
+
+    /* ── UI mockup section ── */
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 580px) {
+      .mockup-grid { grid-template-columns: 1fr; }
+      .controls-grid { grid-template-columns: 1fr; }
+    }
+    .mockup-slot {
+      border: var(--pixel) solid var(--accent2);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      background: #0a0815;
+      overflow: hidden;
+    }
+    .mockup-slot-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 17px;
+      color: var(--accent2);
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--accent2);
+      background: #12122a;
+    }
+    .mockup-slot img {
+      width: 100%;
+      display: block;
+      image-rendering: pixelated;
+    }
+    .mockup-slot .img-placeholder {
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--muted);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 17px;
+      text-align: center;
+      padding: 16px;
+    }
+    .mockup-slot .img-placeholder .ph-icon { font-size: 28px; }
+
+    /* ── Boss section ── */
+    .boss-box {
+      border: var(--pixel) solid var(--accent2);
+      background: #0f0518;
+      padding: 24px;
+      box-shadow: 0 0 20px rgba(244,114,182,0.2), 4px 4px 0 rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .boss-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent 0px,
+        transparent 12px,
+        rgba(244,114,182,0.03) 12px,
+        rgba(244,114,182,0.03) 13px
+      );
+      pointer-events: none;
+    }
+    .boss-mechanic-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    @media(max-width: 540px) { .boss-mechanic-list { grid-template-columns: 1fr; } }
+    .boss-mechanic {
+      font-size: 17px;
+      padding: 8px 12px;
+      border-left: 3px solid var(--accent2);
+      color: var(--muted);
+      background: rgba(244,114,182,0.05);
+    }
+    .boss-mechanic::before { content: '☠ '; color: var(--accent2); }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 30px 20px;
+      border-top: var(--pixel) solid var(--border);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--muted);
+      line-height: 2;
+    }
+    footer span { color: var(--accent3); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      box-shadow: inset 0 0 0 2px #2a2250;
+    }
+
+    /* ── Blinking cursor ── */
+    .blink {
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0; }
+    }
+
+    /* ── Pixel walking sprite (CSS art) ── */
+    .sprite-row {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    .sprite-block {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .sprite-block .sprite-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* tag accent */
+    strong { color: var(--accent3); }
+    em     { color: var(--accent4); font-style: normal; }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="#overview">OVERVIEW</a>
+  <a href="#gameplay">GAMEPLAY</a>
+  <a href="#levels">LEVELS</a>
+  <a href="#characters">CHARS</a>
+  <a href="#controls">CONTROLS</a>
+  <a href="#boss">BOSS</a>
+  <a href="#ui-mockup">UI</a>
+  <a href="#audio">AUDIO</a>
+</nav>
+
+<!-- ── HERO ── -->
+<div id="hero">
+
+  <!-- ICON: swap src with the icon image path -->
+  <div class="icon-wrap">
+    <div class="icon-placeholder">
+      GAME<br>ICON
     </div>
-    <p id="load">Firebase SDK Loading&hellip;</p> -->
-  <h2>Hello</h2>
-      <h1>Welcome to Kush and Chris's Project</h1>
-      <p>This page is still under developmen
-        This is Benchmark 1
+    <!-- Uncomment and replace with the icon:
+    <img src="icon.png" alt="Ditto Run Icon" />
+    -->
+  </div>
+
+  <!-- SPLASH: swap src with the splash screen image path -->
+  <div class="hero-splash pixel-box">
+    <div class="splash-placeholder">
+      <span>SPLASH SCREEN</span>
+      Place the title screen / splash art here<br>
+      <code style="color:var(--accent3); font-size:14px;">src="splash.png"</code>
+    </div>
+    <!-- Uncomment and replace with the splash image:
+    <img src="splash.png" alt="Ditto Run Splash Screen" />
+    -->
+  </div>
+
+  <h1>DITTO RUN<span class="blink">_</span></h1>
+  <p class="subtitle">A Pokémon 2D Sidescrolling Platformer</p>
+  <p class="authors">BY KUSHAGRA TANEJA &amp; CHRISTOPHER GUAYARA &nbsp;|&nbsp; BUILT IN WOLFIE2D</p>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<main>
+
+  <!-- OVERVIEW -->
+  <section id="overview">
+    <div class="px-divider"><span class="px-divider-label">I. GENERAL INFORMATION</span></div>
+    <h2 class="section-title">Overview</h2>
+    <div class="card pixel-box">
+      <p>
+        <strong>Ditto Run</strong> is a fast-paced 2D sidescrolling platformer built around
+        <em>transformation &amp; experimentation</em>. The player controls Ditto, a short amorphous blob,
+        as it morphs through themed levels, overcoming obstacles, defeating enemies, and surviving
+        increasingly dangerous environments.
+      </p>
+      <p>
+        The game's main appeal is <em>discovery</em>: every new area introduces things to transform into,
+        and every transformation changes how Ditto moves, fights, and interacts with the world.
+      </p>
+      <p>
+        The journey takes Ditto from pleasant plains → icy mountains → dense forest → active volcano
+        → dragon nest, before a portal drops the player into a corrupted dark forest for the final boss.
+      </p>
+      <div class="badge-row">
+        <span class="badge badge-purple">2D PLATFORMER</span>
+        <span class="badge badge-pink">TRANSFORMATION</span>
+        <span class="badge badge-green">WOLFIE2D</span>
+        <span class="badge badge-yellow">KEYBOARD ONLY</span>
+      </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:32px;">Background Story</h2>
+    <div class="card pixel-box">
+      <p>
+        Ditto wanders the world, repeatedly ending up in dangerous places, either searching for something
+        or simply getting into trouble. <strong>Rotom</strong> accompanies Ditto as an assistant,
+        helping store and manage transformation forms.
+      </p>
+      <p>
+        As the journey continues, environments become stranger and more dangerous.
+        The final area is a corrupted, unstable, ominous section of the dark forest which serves as the
+        climactic stage. The tone shifts from <em>adventurous</em> to <em>surreal and unsettling</em>
+        by the end.
+      </p>
+    </div>
+  </section>
+
+  <!-- GAMEPLAY -->
+  <section id="gameplay">
+    <div class="px-divider"><span class="px-divider-label">II. GAMEPLAY SYSTEMS</span></div>
+    <h2 class="section-title">Core Loop</h2>
+    <div class="card pixel-box">
+      <p>The central gameplay loop, step by step:</p>
+      <div class="badge-row" style="flex-direction:column; align-items:flex-start; gap:10px;">
+        <div><span class="badge badge-purple" style="margin-right:10px;">01</span> Move through the level with WASD</div>
+        <div><span class="badge badge-pink"   style="margin-right:10px;">02</span> Discover objects, tiles, or Pokémon to morph into</div>
+        <div><span class="badge badge-green"  style="margin-right:10px;">03</span> Activate a transformation (press E)</div>
+        <div><span class="badge badge-yellow" style="margin-right:10px;">04</span> Use that form to traverse, avoid hazards, or attack</div>
+        <div><span class="badge badge-purple" style="margin-right:10px;">05</span> Store useful forms via Rotom</div>
+        <div><span class="badge badge-pink"   style="margin-right:10px;">06</span> Reach the level exit or miniboss</div>
+      </div>
+    </div>
+
+    <h2 class="section-title" style="margin-top:32px;">Transformation Energy System</h2>
+    <div class="card pixel-box">
+      <p>
+        Ditto has a finite <em>Energy Bar</em> that governs how long it can hold a Pokémon form.
+        More powerful forms drain energy faster. Weaker forms are cheaper and last longer.
+        The bar recharges over time, and <strong>berries</strong> hidden in levels restore it quickly.
+      </p>
+      <p>
+        Environmental tile transformations cost far less energy. They're utility-based and should feel
+        accessible. Pokémon forms are the big spenders, and knowing <em>when</em> to use them is a core
+        strategic decision.
+      </p>
+      <div class="energy-demo">
+        <div class="energy-label">ENERGY ████████████░░░░ 72%</div>
+        <div class="energy-bar-track">
+          <div class="energy-bar-fill"></div>
+        </div>
+      </div>
+      <p style="margin-top:12px; font-size:16px; color:var(--muted);">
+        Players cancel transforms manually or get auto-reverted when energy hits zero.
+        The cost scales with the Pokémon's power level.
       </p>
     </div>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+    <h2 class="section-title" style="margin-top:32px;">Combat</h2>
+    <div class="card pixel-box">
+      <p>
+        Combat is tied directly to transformation, not a separate system. The best way to defeat an
+        enemy is often to <strong>become something that counters it</strong>. Approaches include:
+      </p>
+      <div class="boss-mechanic-list" style="margin-top:10px;">
+        <div class="boss-mechanic" style="border-color:var(--accent3);">Direct attacks from transformed forms</div>
+        <div class="boss-mechanic" style="border-color:var(--accent3);">Environment-based damage (e.g. crush with rock form)</div>
+        <div class="boss-mechanic" style="border-color:var(--accent3);">Temporary offensive Pokémon abilities</div>
+        <div class="boss-mechanic" style="border-color:var(--accent3);">Right form causes specific enemy weakness</div>
+      </div>
+      <p style="margin-top:14px;">Each level ends with a <em>miniboss</em> that tests the mechanics introduced in that area.</p>
+    </div>
+  </section>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
-  </body>
+  <!-- LEVELS -->
+  <section id="levels">
+    <div class="px-divider"><span class="px-divider-label">III. LEVEL STRUCTURE</span></div>
+    <h2 class="section-title">World Map</h2>
+    <div class="levels-grid">
+      <div class="level-card lvl-plains">
+        <h3>01 · PLEASANT PLAINS</h3>
+        <p>The opening area. Basic movement, simple hazards, low-risk morphing. Tutorial zone.</p>
+      </div>
+      <div class="level-card lvl-ice">
+        <h3>02 · ICY MOUNTAINS</h3>
+        <p>Slippery surfaces, frozen terrain, and precise platforming under cold conditions.</p>
+      </div>
+      <div class="level-card lvl-forest">
+        <h3>03 · FOREST</h3>
+        <p>Organic, exploratory layout. Hidden routes, natural hazards, wide terrain variety.</p>
+      </div>
+      <div class="level-card lvl-volcano">
+        <h3>04 · ACTIVE VOLCANO</h3>
+        <p>Heat, lava, strict timing, and survival under constant pressure.</p>
+      </div>
+      <div class="level-card lvl-dragon">
+        <h3>05 · DRAGON NEST</h3>
+        <p>Powerful enemies, vertical challenges, intense pacing. A portal awaits at the end.</p>
+      </div>
+      <div class="level-card lvl-dark" style="border-style: dashed;">
+        <h3>?? · HIDDEN DARK FOREST</h3>
+        <p>Corrupted and unstable. Accessed only via the Dragon Nest portal. Final boss arena.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARACTERS -->
+  <section id="characters">
+    <div class="px-divider"><span class="px-divider-label">IV. CHARACTERS</span></div>
+    <h2 class="section-title">Cast</h2>
+    <div class="char-grid">
+
+      <div class="char-card">
+        <!-- Swap src for the Ditto sprite -->
+        <div class="char-avatar">🟣</div>
+        <!-- <div class="char-avatar"><img src="ditto-sprite.png" alt="Ditto"></div> -->
+        <div class="char-name">DITTO</div>
+        <p class="char-desc">Player character. Playful, curious, adaptable. Transforms into anything it encounters.</p>
+      </div>
+
+      <div class="char-card" style="border-color:var(--accent3);">
+        <!-- Swap src for the Rotom sprite -->
+        <div class="char-avatar" style="border-color:var(--accent3);">⚡</div>
+        <!-- <div class="char-avatar" style="border-color:var(--accent3);"><img src="rotom-sprite.png" alt="Rotom"></div> -->
+        <div class="char-name" style="color:var(--accent3);">ROTOM</div>
+        <p class="char-desc">Companion character. Stores morph forms and helps manage transformation options.</p>
+      </div>
+
+      <div class="char-card" style="border-color:var(--accent4);">
+        <div class="char-avatar" style="border-color:var(--accent4);">👾</div>
+        <div class="char-name" style="color:var(--accent4);">WILD POKÉMON</div>
+        <p class="char-desc">Hostile enemies. Fainted forms become storable for future transformation.</p>
+      </div>
+
+      <div class="char-card" style="border-color:var(--accent2);">
+        <!-- Swap src for the Darkrai sprite -->
+        <div class="char-avatar" style="border-color:var(--accent2);">🌑</div>
+        <!-- <div class="char-avatar" style="border-color:var(--accent2);"><img src="darkrai-sprite.png" alt="Darkrai"></div> -->
+        <div class="char-name" style="color:var(--accent2);">DARKRAI</div>
+        <p class="char-desc">Final boss (subject to change). Warps reality, distorts the battlefield, breaks the rules.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTROLS -->
+  <section id="controls">
+    <div class="px-divider"><span class="px-divider-label">V. CONTROLS</span></div>
+    <h2 class="section-title">Keyboard Layout</h2>
+    <div class="card pixel-box">
+      <div class="controls-grid">
+        <div class="control-row">
+          <span class="key">WASD</span>
+          <span class="control-desc">Movement</span>
+        </div>
+        <div class="control-row">
+          <span class="key">← → ↑ ↓</span>
+          <span class="control-desc">Attack / Transform actions</span>
+        </div>
+        <div class="control-row">
+          <span class="key">E</span>
+          <span class="control-desc">Activate transformation</span>
+        </div>
+        <div class="control-row">
+          <span class="key">TAB</span>
+          <span class="control-desc">Switch between stored forms</span>
+        </div>
+      </div>
+      <p style="margin-top:16px; font-size:16px; color:var(--muted);">No mouse input. Keyboard-only for fast, reactive play.</p>
+    </div>
+  </section>
+
+  <!-- BOSS -->
+  <section id="boss">
+    <div class="px-divider"><span class="px-divider-label">VI. FINAL BOSS</span></div>
+    <h2 class="section-title">Darkrai's Corruption</h2>
+    <div class="boss-box">
+      <p>
+        The final boss fight should feel <em>unlike the rest of the game</em>.
+        Darkrai warps the environment rather than simply standing in it. The battlefield feels
+        <strong>unstable, glitching, alive</strong>.
+      </p>
+      <p>
+        Each attack has a clear purpose: deal damage, disrupt movement, or reshape the space.
+        The key design goal is disorientation <em>without</em> confusion, every mechanic must remain
+        learnable.
+      </p>
+      <div class="boss-mechanic-list">
+        <div class="boss-mechanic">Glitch-like screen distortion effects</div>
+        <div class="boss-mechanic">Dark beams &amp; shadow projectiles</div>
+        <div class="boss-mechanic">Viewport shifts &amp; camera reframing</div>
+        <div class="boss-mechanic">Brief freeze / stagger interrupts</div>
+        <div class="boss-mechanic">Temporary darkness overlays</div>
+        <div class="boss-mechanic">False afterimages &amp; shadow clones</div>
+        <div class="boss-mechanic">Control disruption / input delay</div>
+        <div class="boss-mechanic">Surreal spatial distortion</div>
+      </div>
+      <p style="margin-top:16px; color:var(--accent2);">
+        ◈ "Ditto is fighting something that does not obey ordinary rules."
+      </p>
+    </div>
+  </section>
+
+  <!-- UI MOCKUP -->
+  <section id="ui-mockup">
+    <div class="px-divider"><span class="px-divider-label">VII. UI MOCKUP</span></div>
+    <h2 class="section-title">Interface Screens</h2>
+    <p style="margin-bottom:20px; color:var(--muted);">
+      UI is intentionally minimal.
+      Key HUD elements: current form, available transformations, energy bar, and health.
+    </p>
+    <div class="mockup-grid">
+
+      <div class="mockup-slot">
+        <div class="mockup-slot-label">HUD / IN-GAME UI</div>
+        <div class="img-placeholder">
+          <span class="ph-icon">🎮</span>
+          Add the HUD mockup image here<br>
+          <code style="color:var(--accent3); font-size:13px;">src="hud-mockup.png"</code>
+        </div>
+        <!-- <img src="hud-mockup.png" alt="HUD Mockup" /> -->
+      </div>
+
+      <div class="mockup-slot">
+        <div class="mockup-slot-label">TRANSFORMATION SELECT</div>
+        <div class="img-placeholder">
+          <span class="ph-icon">🔄</span>
+          Add the transform select UI here<br>
+          <code style="color:var(--accent3); font-size:13px;">src="transform-ui.png"</code>
+        </div>
+        <!-- <img src="transform-ui.png" alt="Transform Select UI" /> -->
+      </div>
+
+      <div class="mockup-slot">
+        <div class="mockup-slot-label">PAUSE / INVENTORY SCREEN</div>
+        <div class="img-placeholder">
+          <span class="ph-icon">📋</span>
+          Add the pause / inventory screen here<br>
+          <code style="color:var(--accent3); font-size:13px;">src="pause-screen.png"</code>
+        </div>
+        <!-- <img src="pause-screen.png" alt="Pause Screen" /> -->
+      </div>
+
+      <div class="mockup-slot">
+        <div class="mockup-slot-label">TITLE / MAIN MENU</div>
+        <div class="img-placeholder">
+          <span class="ph-icon">🏠</span>
+          Add main menu screenshot here<br>
+          <code style="color:var(--accent3); font-size:13px;">src="main-menu.png"</code>
+        </div>
+        <!-- <img src="main-menu.png" alt="Main Menu" /> -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- AUDIO -->
+  <section id="audio">
+    <div class="px-divider"><span class="px-divider-label">VIII. AUDIO &amp; VISUALS</span></div>
+    <h2 class="section-title">Sound &amp; Music</h2>
+    <div class="card pixel-box">
+      <p>
+        Sound effects reinforce movement and transformation, the player should hear when a morph
+        activates, when energy depletes, and when attacks land. Enemy attacks are also telegraphed
+        with audio cues.
+      </p>
+      <p>
+        Music shifts in tone as the world progresses: <em>light-hearted and optimistic</em> in early
+        areas, growing <strong>intense and threatening</strong> in later stages. The final boss theme
+        is unstable and ominous, with distortion effects that mirror the glitch mechanics of the fight.
+      </p>
+    </div>
+
+    <h2 class="section-title" style="margin-top:32px;">Visual Style</h2>
+    <div class="card pixel-box">
+      <p>Colorful, readable, expressive and each level has a distinct identity:</p>
+      <div class="badge-row" style="flex-direction:column; align-items:flex-start; gap:8px; margin-top:10px;">
+        <div><span class="badge badge-green">PLAINS</span>&nbsp;&nbsp; Bright, open, inviting</div>
+        <div><span class="badge" style="border-color:#93c5fd;color:#93c5fd;">ICE</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Cold, harsh, pale blue</div>
+        <div><span class="badge badge-green" style="border-color:#4ade80; color:#4ade80;">FOREST</span>&nbsp; Dense, layered, organic</div>
+        <div><span class="badge" style="border-color:#f97316;color:#f97316;">VOLCANO</span> Hot, dangerous, fiery red</div>
+        <div><span class="badge" style="border-color:#e879f9;color:#e879f9;">DRAGON</span>&nbsp; Dramatic, threatening, deep purples</div>
+        <div><span class="badge badge-purple" style="border-color:#818cf8;color:#818cf8;">DARK</span>&nbsp;&nbsp;&nbsp;&nbsp; Corrupted, glitchy, unstable</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div>DITTO RUN &nbsp;·&nbsp; GAME DESIGN DOCUMENT</div>
+  <div style="margin-top:6px;"><span>KUSHAGRA TANEJA</span> &amp; <span>CHRISTOPHER GUAYARA</span></div>
+  <div style="margin-top:6px; color:#4a3a6a;">BUILT WITH WOLFIE2D &nbsp;·&nbsp; ©2024</div>
+</footer>
+
+</body>
 </html>
