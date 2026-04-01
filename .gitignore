@@ -138,3 +138,6 @@ dist
 #Firebase
 .firebase/
 .claude/
+
+
+**DS_Store
