@@ -206,6 +206,7 @@ export default abstract class MBLevel extends Scene {
      * @param particleId the id of the particle
      */
     protected handleParticleHit(particleId: number): void {
+        if (!this.destructable) return;
         let particles = this.playerWeaponSystem.getPool();
 
         let particle = particles.find(particle => particle.id === particleId);
@@ -294,18 +295,22 @@ export default abstract class MBLevel extends Scene {
         // Add the tilemap to the scene
         this.add.tilemap(this.tilemapKey, this.tilemapScale);
 
-        if (this.destructibleLayerKey === undefined || this.wallsLayerKey === undefined) {
-            throw new Error("Make sure the keys for the destuctible layer and wall layer are both set");
+        if (this.wallsLayerKey === undefined) {
+            throw new Error("Make sure the keys for the wall layer are both set");
         }
 
         // Get the wall and destructible layers 
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
+        if (this.destructibleLayerKey !== undefined) {
         this.destructable = this.getTilemap(this.destructibleLayerKey) as OrthogonalTilemap;
 
         // Add physics to the destructible layer of the tilemap
-        this.destructable.addPhysics();
-        this.destructable.setGroup(MBPhysicsGroups.DESTRUCTABLE);
-        this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, null);
+        if (this.destructable){
+            this.destructable.addPhysics();
+            this.destructable.setGroup(MBPhysicsGroups.DESTRUCTABLE);
+            this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, null);
+            }
+        }
     }
     /**
      * Handles all subscriptions to events

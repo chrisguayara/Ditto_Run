@@ -4,6 +4,7 @@ import Button from "../../Wolfie2D/Nodes/UIElements/Button";
 import { UIElementType } from "../../Wolfie2D/Nodes/UIElements/UIElementTypes";
 import Scene from "../../Wolfie2D/Scene/Scene";
 import Color from "../../Wolfie2D/Utils/Color";
+import ForestLevel from "./ForestLevel";
 import Level1 from "./MBLevel1";
 
 
@@ -40,7 +41,7 @@ export default class MainMenu extends Scene {
 
         // When the play button is clicked, go to the next scene
         playBtn.onClick = () => {
-            this.sceneManager.changeToScene(Level1);
+            this.sceneManager.changeToScene(ForestLevel);
         }
 
         // Scene has started, so start playing music

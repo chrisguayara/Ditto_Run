@@ -1,0 +1,92 @@
+
+{
+  "name": "Ditto",
+  "spriteSheetImage": "ditto_still.png",
+  "spriteWidth": 16,
+  "spriteHeight": 16,
+  "columns": 1,
+  "rows": 1,
+  "durationType": "time",
+  "animations": [
+    {
+      "name": "IDLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "WALK",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "JUMP",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "ATTACK",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "FALL",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "TAKE_DAMAGE",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "DYING",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "DEAD",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 1,
+          "duration": 23
+        }
+      ]
+    }
+  ]
+}
