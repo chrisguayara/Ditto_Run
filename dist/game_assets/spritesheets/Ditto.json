@@ -13,7 +13,7 @@
       "repeat": true,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]
@@ -23,7 +23,7 @@
       "repeat": true,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]
@@ -33,7 +33,7 @@
       "repeat": false,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]
@@ -43,7 +43,7 @@
       "repeat": false,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]
@@ -53,7 +53,7 @@
       "repeat": true,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]
@@ -63,7 +63,7 @@
       "repeat": false,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]
@@ -73,7 +73,7 @@
       "repeat": false,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]
@@ -83,7 +83,7 @@
       "repeat": true,
       "frames": [
         {
-          "index": 1,
+          "index": 0,
           "duration": 23
         }
       ]

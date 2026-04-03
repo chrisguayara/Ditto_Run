@@ -17,7 +17,7 @@ export default class ForestLevel extends MBLevel {
 
     public static readonly TILEMAP_KEY = "ForestLevel";
     public static readonly TILEMAP_PATH = "game_assets/tilemaps/ForestLevel.json";
-    public static readonly TILEMAP_SCALE = new Vec2(2, 2);
+    public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
     public static readonly WALLS_LAYER_KEY = "Ground";
 
