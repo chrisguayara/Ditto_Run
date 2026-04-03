@@ -5,7 +5,7 @@ import OrthogonalTilemap from "../../Wolfie2D/Nodes/Tilemaps/OrthogonalTilemap";
 import Fall from "./PlayerStates/Fall";
 import Idle from "./PlayerStates/Idle";
 import Jump from "./PlayerStates/Jump";
-import Walk from "./PlayerStates/Walk";
+import Run from "./PlayerStates/Run";
 
 import PlayerWeapon from "./PlayerWeapon";
 import Input from "../../Wolfie2D/Input/Input";
@@ -15,13 +15,6 @@ import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import MathUtils from "../../Wolfie2D/Utils/MathUtils";
 import { MBEvents } from "../MBEvents";
 import Dead from "./PlayerStates/Dead";
-import Take_Damage from "./PlayerStates/Take_Damage";
-import Attack from "./PlayerStates/Attack";
-import { MBPhysicsGroups } from "../MBPhysicsGroups";
-import AABB from "../../Wolfie2D/DataTypes/Shapes/AABB";
-
-
-// TODO play your heros animations
 
 /**
  * Animation keys for the player spritesheet
@@ -30,11 +23,6 @@ export const PlayerAnimations = {
     IDLE: "IDLE",
     WALK: "WALK",
     JUMP: "JUMP",
-    ATTACK: "ATTACK",
-    FALL: "FALL",
-    TAKE_DAMAGE: "TAKE_DAMAGE",
-    DYING: "DYING",
-    DEAD: "DEAD"
 } as const
 
 /**
@@ -50,12 +38,10 @@ export const PlayerTweens = {
  */
 export const PlayerStates = {
     IDLE: "IDLE",
-    WALK: "WALK",
+    RUN: "RUN",
 	JUMP: "JUMP",
     FALL: "FALL",
     DEAD: "DEAD",
-    TAKE_DAMAGE: "TAKE_DAMAGE",
-    ATTACK: "ATTACK"
 } as const
 
 /**
@@ -80,8 +66,6 @@ export default class PlayerController extends StateMachineAI {
     protected weapon: PlayerWeapon;
 
     
-
-    
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>){
         this.owner = owner;
 
@@ -91,28 +75,19 @@ export default class PlayerController extends StateMachineAI {
         this.speed = 400;
         this.velocity = Vec2.ZERO;
 
-        this.health = 5
-        this.maxHealth = 5;
-        
+        this.health = 10
+        this.maxHealth = 10;
 
         // Add the different states the player can be in to the PlayerController 
 		this.addState(PlayerStates.IDLE, new Idle(this, this.owner));
-		this.addState(PlayerStates.WALK, new Walk(this, this.owner));
+		this.addState(PlayerStates.RUN, new Run(this, this.owner));
         this.addState(PlayerStates.JUMP, new Jump(this, this.owner));
         this.addState(PlayerStates.FALL, new Fall(this, this.owner));
         this.addState(PlayerStates.DEAD, new Dead(this, this.owner));
-        this.addState(PlayerStates.TAKE_DAMAGE, new Take_Damage(this, this.owner));
-        this.addState(PlayerStates.ATTACK, new Attack(this, this.owner));
-        
         
         // Start the player in the Idle state
         this.initialize(PlayerStates.IDLE);
-        this.owner.setGroup(MBPhysicsGroups.PLAYER);
-
-        
     }
-
-
 
     /** 
 	 * Get the inputs from the keyboard, or Vec2.Zero if nothing is being pressed
@@ -129,21 +104,27 @@ export default class PlayerController extends StateMachineAI {
     public get faceDir(): Vec2 { return this.owner.position.dirTo(Input.getGlobalMousePosition()); }
 
     public update(deltaT: number): void {
-        
 		super.update(deltaT);
+
+        // Update the rotation to apply the particles velocity vector
+        this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
 
         // If the player hits the attack button and the weapon system isn't running, restart the system and fire!
         if (Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
+            // Update the rotation to apply the particles velocity vector
+            this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
             // Start the particle system at the player's current position
             this.weapon.startSystem(500, 0, this.owner.position);
-            this.changeState(PlayerStates.ATTACK)
         }
-        if (Input.isPressed(MBControls.ATTACK)){
-            this.weapon.setDirection(this.faceDir) 
-            ;
-        }
-        
 
+        /*
+            This if-statement will place a tile wherever the user clicks on the screen. I have
+            left this here to make traversing the map a little easier, incase you accidently
+            destroy everything with the player's weapon.
+        */
+        if (Input.isMousePressed()) {
+            this.tilemap.setTileAtRowCol(this.tilemap.getColRowAt(Input.getGlobalMousePosition()),5);
+        }
 
 	}
 
@@ -154,11 +135,7 @@ export default class PlayerController extends StateMachineAI {
     public set speed(speed: number) { this._speed = speed; }
 
     public get maxHealth(): number { return this._maxHealth; }
-    public set maxHealth(maxHealth: number) { 
-        this._maxHealth = maxHealth; 
-        // When the health changes, fire an event up to the scene.
-        this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
-    }
+    public set maxHealth(maxHealth: number) { this._maxHealth = maxHealth; }
 
     public get health(): number { return this._health; }
     public set health(health: number) { 
@@ -166,12 +143,6 @@ export default class PlayerController extends StateMachineAI {
         // When the health changes, fire an event up to the scene.
         this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
         // If the health hit 0, change the state of the player
-        if (this.health === 0) { 
-            
-            this.changeState(PlayerStates.DEAD); 
-            
-        }
+        if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
     }
-
-    
 }

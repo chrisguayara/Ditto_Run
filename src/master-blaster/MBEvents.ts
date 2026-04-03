@@ -1,10 +1,10 @@
 /**
- * A set of events for the Master Blaster game
+ * A set of events for Master Blaster
  */
 export const MBEvents = {
-    // An event that tells the level to start. Has data: {}
+    // An event that tells the MB level to start. Has data: {}
     LEVEL_START: "LEVEL_START",
-    // An event that tells the level to end. Has data: {}
+    // An event that tells the MB level to end. Has data: {}
     LEVEL_END: "LEVEL_END",
 
     // An event triggered when the player enters an area designated as a "level end" location. Had data: {}
@@ -17,9 +17,10 @@ export const MBEvents = {
      */
     HEALTH_CHANGE: "HEALTH_CHANGE",
 
-    // The event sent when the player dies. Gets sent after the player's death animation
-    PLAYER_DEAD: "PLAYER_DEAD",
+    // The event sent when a particle hits a tile in the destructible tilemap layer
+    PARTICLE_HIT_DESTRUCTIBLE: "PARTICLE_HIT_DESTRUCTIBLE",
 
-    PARTICLE_DESTRUCT : "PARTICLE_DESTRUCT"
+    // The event sent when the player dies. Gets sent after the player's death animation
+    PLAYER_DEAD: "PLAYER_DEAD"
     
 } as const;

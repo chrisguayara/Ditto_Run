@@ -1,72 +1,43 @@
-import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
 import ParticleSystem from "../../Wolfie2D/Rendering/Animations/ParticleSystem";
 import Scene from "../../Wolfie2D/Scene/Scene";
 import Color from "../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../Wolfie2D/Utils/EaseFunctions";
-import MathUtils from "../../Wolfie2D/Utils/MathUtils";
 import RandUtils from "../../Wolfie2D/Utils/RandUtils";
-import { MBEvents } from "../MBEvents";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 
- 
-
 /**
- * // TODO get the particles to move towards the mouse when the player attacks
- * 
- * The particle system used for the player's attack. Particles in the particle system should
- * be spawned at the player's position and fired in the direction of the mouse's position.
+ * The particle system used for the player's weapon
  */
 export default class PlayerWeapon extends ParticleSystem {
-    public vector: Vec2;
 
-    public getPool(): Readonly<Array<Particle>> {
-        return this.particlePool;
-    }
+    /**
+     * The rotation (in radians) to apply to the velocity vector of the particles
+     */
+    protected _rotation: number = 0;
+    public get rotation(): number { return this._rotation; }
+    public set rotation(rotation: number) { this._rotation = rotation; }
 
     /**
      * @returns true if the particle system is running; false otherwise.
      */
     public isSystemRunning(): boolean { return this.systemRunning; }
+    /**
+     * 
+     * @returns the particles in the pool of particles used in this particles system
+     */
+    public getPool(): Array<Particle> { return this.particlePool; }
 
     /**
      * Sets the animations for a particle in the player's weapon
      * @param particle the particle to give the animation to
      */
-    public setDirection(vector : Vec2){
-        this.vector = vector.clone().normalize();
-    }
-    public getDirection(){
-        return this.vector;
-    }
-    public normalize(vec :Vec2){
-        return Math.sqrt( vec[0] * vec[0]+ vec[1] * vec[1] );
-    }
-    public initializePool(scene: Scene, layer: string): void {
-        super.initializePool(scene, layer);
-
-        for (let particle of this.particlePool) {
-            particle.addPhysics();
-            particle.setGroup(MBPhysicsGroups.PLAYER_WEAPON)
-        }
-    }
     public setParticleAnimation(particle: Particle) {
-        particle.setGroup(MBPhysicsGroups.PLAYER_WEAPON);
-        
-        
-
-        const spread = RandUtils.randFloat(-40,40);
-        const dir = this.vector ?? Vec2.RIGHT;
-
-        const speed = RandUtils.randFloat(140, 220);
-        const perp = new Vec2(-dir.y, dir.x);
-
-        particle.vel = dir.scaled(speed).add(perp.scaled(spread));
-
-        let pcolor = RandUtils.randFloat(0,1)
-        if (pcolor >= 0.5){particle.color = Color.fromStringHex("6848fc");}
-        else particle.color = Color.BLACK;
-        
+        // Give the particle a random velocity.
+        particle.vel = RandUtils.randVec(-32, 32, 100, 200);
+        // Rotate the particle's velocity vector
+        particle.vel.rotateCCW(this._rotation);
+        particle.color = Color.RED;
 
         // Give the particle tweens
         particle.tweens.add("active", {
@@ -78,15 +49,26 @@ export default class PlayerWeapon extends ParticleSystem {
                     start: 1,
                     end: 0,
                     ease: EaseFunctionType.IN_OUT_SINE
-                },
-                {
-                    property: "rotation",
-                    start: 0,
-                    end: 2* Math.PI,
-                    ease: EaseFunctionType.IN_OUT_QUAD
                 }
             ]
         });
+    }
+
+    /**
+     * Initializes this particle system in the given scene and layer
+     * 
+     * All particles in the particle system should have their physics group set to 
+     * the MBPhysicsGroup.PLAYER_WEAPON.
+     * 
+     * @param scene the scene
+     * @param layer the layer in the scene
+     */
+    public initializePool(scene: Scene, layer: string) {
+        super.initializePool(scene, layer);
+        for (let i = 0; i < this.particlePool.length; i++) {
+            // Set particle physics group to the player's weapon
+            this.particlePool[i].setGroup(MBPhysicsGroups.PLAYER_WEAPON);
+        }
     }
 
 }

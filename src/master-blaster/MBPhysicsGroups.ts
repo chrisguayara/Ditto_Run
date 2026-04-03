@@ -1,5 +1,5 @@
 /**
- * An enum with all of the physics groups for the Master Blaster game
+ * An enum with all of the physics groups for Master Blaster
  */
 export const MBPhysicsGroups = {
     // Physics groups for the player and the player's weapon

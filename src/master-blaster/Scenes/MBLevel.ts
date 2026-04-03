@@ -40,13 +40,13 @@ export const MBLayers = {
 export type MBLayer = typeof MBLayers[keyof typeof MBLayers]
 
 /**
- * An abstract Master Blaster scene class combining all the things
- * all levels in the game will need.
+ * An abstract Master Blaster scene class.
  */
 export default abstract class MBLevel extends Scene {
 
     /** Overrride the factory manager */
     public add: MBFactoryManager;
+
 
     /** The particle system used for the player's weapon */
     protected playerWeaponSystem: PlayerWeapon
@@ -90,24 +90,22 @@ export default abstract class MBLevel extends Scene {
     /** Sound and music */
     protected levelMusicKey: string;
     protected jumpAudioKey: string;
-    protected deadAudioKey: string;
-    protected hurtAudioKey: string;
     protected tileDestroyedAudioKey: string;
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
         super(viewport, sceneManager, renderingManager, {...options, physics: {
             groupNames: [
-                MBPhysicsGroups.GROUND,
-                MBPhysicsGroups.PLAYER,
-                MBPhysicsGroups.PLAYER_WEAPON,
+                MBPhysicsGroups.GROUND, 
+                MBPhysicsGroups.PLAYER, 
+                MBPhysicsGroups.PLAYER_WEAPON, 
                 MBPhysicsGroups.DESTRUCTABLE
             ],
-            collisions: [
-                //  Ground  Player  Weapon  Destruct
-                    [0,     1,      1,      0],  
-                    [1,     0,      0,      1],  
-                    [1,     0,      0,      1], 
-                    [0,     1,      1,      0],  
+            collisions:
+            [
+                [0, 1, 1, 0],
+                [1, 0, 0, 1],
+                [1, 0, 0, 1],
+                [0, 1, 1, 0],
             ]
         }});
         this.add = new MBFactoryManager(this, this.tilemaps);
@@ -123,21 +121,20 @@ export default abstract class MBLevel extends Scene {
         // Initialize the sprite and particle system for the players weapon 
         this.initializeWeaponSystem();
 
-        this.initializeUI();
-
         // Initialize the player 
         this.initializePlayer(this.playerSpriteKey);
 
         // Initialize the viewport - this must come after the player has been initialized
         this.initializeViewport();
         this.subscribeToEvents();
+        this.initializeUI();
         
 
         // Initialize the ends of the levels - must be initialized after the primary layer has been added
         this.initializeLevelEnds();
 
         this.levelTransitionTimer = new Timer(500);
-        this.levelEndTimer = new Timer(10, () => {
+        this.levelEndTimer = new Timer(3000, () => {
             // After the level end timer ends, fade to black and then go to the next scene
             this.levelTransitionScreen.tweens.play("fadeIn");
         });
@@ -148,7 +145,7 @@ export default abstract class MBLevel extends Scene {
         // Start the black screen fade out
         this.levelTransitionScreen.tweens.play("fadeOut");
 
-        // Start playing the level music for the game level
+        // Start playing the level music for the Master Blaster level
         this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.levelMusicKey, loop: true, holdReference: true});
     }
 
@@ -178,7 +175,12 @@ export default abstract class MBLevel extends Scene {
             }
             // When the level ends, change the scene to the next level
             case MBEvents.LEVEL_END: {
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
                 this.sceneManager.changeToScene(this.nextLevel);
+                break;
+            }
+            case MBEvents.PARTICLE_HIT_DESTRUCTIBLE: {
+                this.handleParticleHit(event.data.get("node"));
                 break;
             }
             case MBEvents.HEALTH_CHANGE: {
@@ -186,12 +188,8 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.PLAYER_DEAD: {
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
                 this.sceneManager.changeToScene(MainMenu);
-                
-                break;
-            }
-            case MBEvents.PARTICLE_DESTRUCT: {
-                this.handleParticleHit(event.data.get("node"));
                 break;
             }
             // Default: Throw an error! No unhandled events allowed.
@@ -227,35 +225,24 @@ export default abstract class MBLevel extends Scene {
                 for(let row = minIndex.y; row <= maxIndex.y; row++){
                     // If the tile is collideable -> check if this particle is colliding with the tile
                     if(tilemap.isTileCollidable(col, row) && this.particleHitTile(tilemap, particle, col, row)){
-                        this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.tileDestroyedAudioKey, loop: false, holdReference: false });
+                        // We had a collision - delete the tile in the tilemap
                         tilemap.setTileAtRowCol(new Vec2(col, row), 0);
+                        // Play a sound when we destroy the tile
+                        this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.tileDestroyedAudioKey, loop: false, holdReference: false });
                     }
                 }
             }
         }
     }
 
-    /**
-     * Checks if a particle hit the tile at the (col, row) coordinates in the tilemap.
-     * 
-     * @param tilemap the tilemap
-     * @param particle the particle
-     * @param col the column the 
-     * @param row the row 
-     * @returns true of the particle hit the tile; false otherwise
-     */
     protected particleHitTile(tilemap: OrthogonalTilemap, particle: Particle, col: number, row: number): boolean {
         let tileSize = tilemap.getTileSize();
-        let tileCenter = new Vec2(
-            col * tileSize.x + tileSize.x / 2,
-            row * tileSize.y + tileSize.y / 2
-        );
-        let halfSize = tileSize.scaled(0.5);
-        let collider = new AABB(tileCenter, tileSize);
-        return particle.boundary.overlaps(collider);
-
-
-        
+        // Get the position of this tile
+        let tilePos = new Vec2(col * tileSize.x + tileSize.x/2, row * tileSize.y + tileSize.y/2);
+        // Create a new collider for this tile
+        let collider = new AABB(tilePos, tileSize.scaled(1/2));
+        // Calculate collision area between the node and the tile
+        return particle.sweptRect.overlapArea(collider) > 0;
     }
 
     /**
@@ -269,7 +256,7 @@ export default abstract class MBLevel extends Scene {
         }
     }
     /**
-     * This is the same healthbar found in The Yellow Submarine. I've adapted it slightly to account for the zoom factor. Other than that, the
+     * This is the same healthbar I used for hw2. I've adapted it slightly to account for the zoom factor. Other than that, the
      * code is basically the same.
      * 
      * @param currentHealth the current health of the player
@@ -315,14 +302,10 @@ export default abstract class MBLevel extends Scene {
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
         this.destructable = this.getTilemap(this.destructibleLayerKey) as OrthogonalTilemap;
 
-        // Add physicss to the wall layer
-        this.walls.addPhysics();
-        this.walls.setGroup(MBPhysicsGroups.GROUND);
         // Add physics to the destructible layer of the tilemap
         this.destructable.addPhysics();
         this.destructable.setGroup(MBPhysicsGroups.DESTRUCTABLE);
-        this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_DESTRUCT, null);
-
+        this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, null);
     }
     /**
      * Handles all subscriptions to events
@@ -331,10 +314,9 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_LEVEL_END);
         this.receiver.subscribe(MBEvents.LEVEL_START);
         this.receiver.subscribe(MBEvents.LEVEL_END);
+        this.receiver.subscribe(MBEvents.PARTICLE_HIT_DESTRUCTIBLE);
         this.receiver.subscribe(MBEvents.HEALTH_CHANGE);
         this.receiver.subscribe(MBEvents.PLAYER_DEAD);
-        this.receiver.subscribe(MBEvents.PARTICLE_DESTRUCT);
-        
     }
     /**
      * Adds in any necessary UI to the game
@@ -440,11 +422,23 @@ export default abstract class MBLevel extends Scene {
         this.player.scale.set(1, 1);
         this.player.position.copy(this.playerSpawn);
         
-        // Give the player physics
+        // Give the player physics and setup collision groups and triggers for the player
         this.player.addPhysics(new AABB(this.player.position.clone(), this.player.boundary.getHalfSize().clone()));
+        this.player.setGroup(MBPhysicsGroups.PLAYER);
 
-        // TODO - give the player their flip tween
-
+        // Give the player a flip animation
+        this.player.tweens.add(PlayerTweens.FLIP, {
+            startDelay: 0,
+            duration: 500,
+            effects: [
+                {
+                    property: "rotation",
+                    start: 0,
+                    end: 2*Math.PI,
+                    ease: EaseFunctionType.IN_OUT_QUAD
+                }
+            ]
+        });
         // Give the player a death animation
         this.player.tweens.add(PlayerTweens.DEATH, {
             startDelay: 0,
@@ -464,19 +458,6 @@ export default abstract class MBLevel extends Scene {
                 }
             ],
             onEnd: MBEvents.PLAYER_DEAD
-        });
-        this.player.tweens.add(PlayerTweens.FLIP, {
-            startDelay: 0,
-            duration: 200,
-            effects: [
-                {
-                    property: "rotation",
-                    start: 0,
-                    end: -2*Math.PI,
-                    ease: EaseFunctionType.IN_OUT_QUAD
-                },
-            ]
-            // onEnd: MBEvents.PLAYER_DEAD
         });
 
         // Give the player it's AI
@@ -516,13 +497,5 @@ export default abstract class MBLevel extends Scene {
     // Get the key of the player's jump audio file
     public getJumpAudioKey(): string {
         return this.jumpAudioKey
-    }
-
-    public getDeadAudioKey(): string {
-        return this.deadAudioKey
-    }
-
-    public getHurtAudioKey(): string {
-        return this.hurtAudioKey
     }
 }

@@ -5,16 +5,15 @@ import RenderingManager from "../../Wolfie2D/Rendering/RenderingManager";
 import SceneManager from "../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
 import MBLevel2 from "./MBLevel2";
-import { GameEventType } from "../../Wolfie2D/Events/GameEventType";
 
 /**
- * The first level for Master Blaster - should be the one with the grass and the clouds.
+ * The first level for MB - should be the one with the grass and the clouds.
  */
 export default class Level1 extends MBLevel {
 
     public static readonly PLAYER_SPAWN = new Vec2(32, 32);
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
-    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Darkrai.json";
+    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Hero.json";
 
     public static readonly TILEMAP_KEY = "LEVEL1";
     public static readonly TILEMAP_PATH = "game_assets/tilemaps/MBLevel1.json";
@@ -28,14 +27,8 @@ export default class Level1 extends MBLevel {
     public static readonly JUMP_AUDIO_KEY = "PLAYER_JUMP";
     public static readonly JUMP_AUDIO_PATH = "game_assets/sounds/jump.wav";
 
-    public static readonly DEAD_AUDIO_KEY = "PLAYER_DEAD";
-    public static readonly DEAD_AUDIO_PATH = "game_assets/sounds/death.mp3";
-
     public static readonly TILE_DESTROYED_KEY = "TILE_DESTROYED";
     public static readonly TILE_DESTROYED_PATH = "game_assets/sounds/switch.wav";
-
-    public static readonly HURT_AUDIO_KEY = "PLAYER_HURT";
-    public static readonly HURT_AUDIO_PATH = "game_assets/sounds/hurt.mp3";
 
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
 
@@ -56,12 +49,10 @@ export default class Level1 extends MBLevel {
         // Music and sound
         this.levelMusicKey = Level1.LEVEL_MUSIC_KEY
         this.jumpAudioKey = Level1.JUMP_AUDIO_KEY;
-        this.deadAudioKey = Level1.DEAD_AUDIO_KEY;
         this.tileDestroyedAudioKey = Level1.TILE_DESTROYED_KEY;
-        this.hurtAudioKey = Level1.HURT_AUDIO_KEY;
 
         // Level end size and position
-        this.levelEndPosition = new Vec2(128, 232).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(32, 216).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
     }
 
@@ -76,28 +67,22 @@ export default class Level1 extends MBLevel {
         // Audio and music
         this.load.audio(this.levelMusicKey, Level1.LEVEL_MUSIC_PATH);
         this.load.audio(this.jumpAudioKey, Level1.JUMP_AUDIO_PATH);
-        this.load.audio(this.deadAudioKey, Level1.DEAD_AUDIO_PATH);
         this.load.audio(this.tileDestroyedAudioKey, Level1.TILE_DESTROYED_PATH);
-        this.load.audio(this.hurtAudioKey, Level1.HURT_AUDIO_PATH);
     }
 
     /**
-     * Unload resources for level 1
+     * Unload resources for level 1 - decide what to keep
      */
     public unloadScene(): void {
-       //
-       this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
-       this.load.keepSpritesheet(this.playerSpriteKey);
-       this.load.keepAudio(this.deadAudioKey);
-       this.load.keepAudio(this.jumpAudioKey);
-       this.load.keepAudio(this.tileDestroyedAudioKey);
+        this.load.keepSpritesheet(this.playerSpriteKey);
+        this.load.keepAudio(this.levelMusicKey);
+        this.load.keepAudio(this.jumpAudioKey);
+        this.load.keepAudio(this.tileDestroyedAudioKey);
     }
 
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
-
-        
         this.nextLevel = MBLevel2;
     }
 
@@ -105,6 +90,7 @@ export default class Level1 extends MBLevel {
      * I had to override this method to adjust the viewport for the first level. I screwed up 
      * when I was making the tilemap for the first level is what it boils down to.
      * 
+     * - Peter
      */
     protected initializeViewport(): void {
         super.initializeViewport();

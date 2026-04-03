@@ -1,5 +1,5 @@
 /**
- * A set of controls for the Master Blaster keybinding
+ * A set of controls for the MB keybinding
  */
 export const MBControls = {
     MOVE_LEFT: "MOVE_LEFT",

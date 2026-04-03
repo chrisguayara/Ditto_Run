@@ -1,7 +1,5 @@
-import AnimationManager from "../../../Wolfie2D/Rendering/Animations/AnimationManager";
-import { AnimationState } from "../../../Wolfie2D/Rendering/Animations/AnimationTypes";
 import MathUtils from "../../../Wolfie2D/Utils/MathUtils";
-import { PlayerAnimations, PlayerStates } from "../PlayerController";
+import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 
 export default class Fall extends PlayerState {
@@ -15,18 +13,8 @@ export default class Fall extends PlayerState {
 
         // If the player hits the ground, start idling and check if we should take damage
         if (this.owner.onGround) {
-            //CHANGE THIS BACK TO 200
-
-            let damage_taken = Math.floor(this.parent.velocity.y / 200);
-
-            
-            this.parent.health -= damage_taken;
-            if (this.parent.health <= 0) {
-                return;
-            }
-            
-            if (damage_taken != 0) {this.finished(PlayerStates.TAKE_DAMAGE);}
-            else {this.finished(PlayerStates.IDLE);}
+            this.parent.health -= Math.floor(this.parent.velocity.y / 300);
+            this.finished(PlayerStates.IDLE);
         } 
         // Otherwise, keep moving
         else {
@@ -38,9 +26,6 @@ export default class Fall extends PlayerState {
             this.parent.velocity.y += this.gravity*deltaT;
             // Move the player
             this.owner.move(this.parent.velocity.scaled(deltaT));
-
-            this.owner.animation.playIfNotAlready(PlayerAnimations.FALL);    
-
         }
 
     }

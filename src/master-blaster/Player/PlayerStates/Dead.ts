@@ -1,50 +1,23 @@
-import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 import GameEvent from "../../../Wolfie2D/Events/GameEvent";
-import { PlayerAnimations, PlayerTweens } from "../PlayerController";
-import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
-
+import { PlayerTweens } from "../PlayerController";
 import PlayerState from "./PlayerState";
 
+/**
+ * The Dead state for the player's FSM AI. 
+ */
 export default class Dead extends PlayerState {
 
-    private time: number = 0;
-    private startedTween: boolean = false;
-    private startedDeath: boolean = false;
-
+    // Trigger the player's death animation when we enter the dead state
     public onEnter(options: Record<string, any>): void {
-
-        // Play the dying animation
-        
-        this.owner.animation.play(PlayerAnimations.DYING);
-        let deathAudio = this.owner.getScene().getDeadAudioKey();
-        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: deathAudio, loop: false, holdReference: false});
-        
-        
-
-        this.time = 0;
-        this.startedDeath = false;
-        this.startedTween = false;
+        this.owner.tweens.play(PlayerTweens.DEATH);
     }
 
+    // Ignore all events from the rest of the game
     public handleInput(event: GameEvent): void { }
 
-    public update(deltaT: number): void {
-        
+    // Empty update method - if the player is dead, don't update anything
+    public update(deltaT: number): void {}
 
-        if (!this.owner.animation.isPlaying(PlayerAnimations.DYING) && !this.startedDeath ){
-            this.owner.animation.play(PlayerAnimations.DEAD);
-            this.startedDeath = true;
-            
-            
-        }
-        if (!this.startedTween && this.time > .7){
-            this.owner.tweens.play(PlayerTweens.DEATH);
-            this.startedTween = true;
-        }
-        this.time += deltaT;
-        }
-        
-    
-        
     public onExit(): Record<string, any> { return {}; }
+    
 }

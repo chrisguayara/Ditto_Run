@@ -8,10 +8,10 @@ import MBLevel from "../Scenes/MBLevel";
  */
 export default class MBCanvasNodeFactory extends CanvasNodeFactory {
 
-    // Reference to the current Level
+    // Reference to the MBLevel
     protected scene: MBLevel;
     
-    // Overriden to only accept Levels for the Master Blaster game
+    // Overriden to only accept MBLevels
     public init(scene: MBLevel): void { super.init(scene); }
 
     // Overriden to return MBAnimatedSprites instead of regular AnimatedSprites
