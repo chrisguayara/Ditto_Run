@@ -87,14 +87,11 @@ export default class ForestLevel extends MBLevel {
     }
 
     /**
-     * I had to override this method to adjust the viewport for the first level. I screwed up 
-     * when I was making the tilemap for the first level is what it boils down to.
-     * 
-     * - Peter
+     *  Current map size are the viewport limits
      */
     protected initializeViewport(): void {
         super.initializeViewport();
-        this.viewport.setBounds(16, 16, 496, 512);
+        this.viewport.setBounds(0, 128, 960, 960);
     }
 
 }

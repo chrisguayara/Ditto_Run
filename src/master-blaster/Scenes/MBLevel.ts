@@ -479,8 +479,8 @@ export default abstract class MBLevel extends Scene {
             throw new Error("Player must be initialized before setting the viewport to folow the player");
         }
         this.viewport.follow(this.player);
-        this.viewport.setZoomLevel(4);
-        this.viewport.setBounds(0, 0, 512, 512);
+        this.viewport.setZoomLevel(3);
+        this.viewport.setBounds(0, 0, 960, 960);
     }
     /**
      * Initializes the level end area

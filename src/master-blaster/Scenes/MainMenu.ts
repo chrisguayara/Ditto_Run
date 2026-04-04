@@ -21,6 +21,7 @@ export default class MainMenu extends Scene {
     public loadScene(): void {
         // Load the menu song
         this.load.audio(MainMenu.MUSIC_KEY, MainMenu.MUSIC_PATH);
+        
     }
 
     public startScene(): void {
@@ -32,8 +33,9 @@ export default class MainMenu extends Scene {
         this.viewport.setZoomLevel(1);
 
         // Create a play button
+        
         let playBtn = <Button>this.add.uiElement(UIElementType.BUTTON, MenuLayers.MAIN, {position: new Vec2(size.x, size.y), text: "Play Game"});
-        playBtn.backgroundColor = Color.TRANSPARENT;
+        playBtn.backgroundColor = Color.RED;
         playBtn.borderColor = Color.WHITE;
         playBtn.borderRadius = 0;
         playBtn.setPadding(new Vec2(50, 10));
