@@ -52,18 +52,18 @@ export default class PlayerController extends StateMachineAI {
     public readonly MIN_SPEED: number = 100;
 
     /** Health and max health for the player */
-    protected _health: number;
-    protected _maxHealth: number;
+    protected _health!: number;
+    protected _maxHealth!: number;
 
     /** The players game node */
-    protected owner: MBAnimatedSprite;
+    protected owner!: MBAnimatedSprite;
 
-    protected _velocity: Vec2;
-	protected _speed: number;
+    protected _velocity!: Vec2;
+	protected _speed!: number;
 
-    protected tilemap: OrthogonalTilemap;
+    protected tilemap!: OrthogonalTilemap;
     // protected cannon: Sprite;
-    protected weapon: PlayerWeapon;
+    protected weapon!: PlayerWeapon;
 
     
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>){
