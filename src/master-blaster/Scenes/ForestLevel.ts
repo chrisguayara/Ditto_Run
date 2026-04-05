@@ -38,7 +38,7 @@ export default class ForestLevel extends MBLevel {
         // Set the keys for the different layers of the tilemap
         this.tilemapKey = ForestLevel.TILEMAP_KEY;
         this.tilemapScale = ForestLevel.TILEMAP_SCALE;
-        this.destructibleLayerKey = ForestLevel.DESTRUCTIBLE_LAYER_KEY;
+        // this.destructibleLayerKey = ForestLevel.DESTRUCTIBLE_LAYER_KEY;
         this.wallsLayerKey = ForestLevel.WALLS_LAYER_KEY;
 
         // Set the key for the player's sprite
