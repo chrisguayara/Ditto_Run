@@ -144,4 +144,4 @@ dist
 
 package-lock.json
 package.json
-dist/bundle.js
+dist/bundle.jsdist/
