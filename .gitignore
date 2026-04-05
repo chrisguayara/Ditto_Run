@@ -142,5 +142,6 @@ dist
 
 **DS_Store
 
-!dist/
-!dist/**
+package-lock.json
+package.json
+dist/bundle.js
