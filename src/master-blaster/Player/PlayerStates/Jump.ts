@@ -10,7 +10,7 @@ export default class Jump extends PlayerState {
         let scene = this.owner.getScene()
         
         // Give the player a burst of upward momentum
-        this.parent.velocity.y = -200;
+        this.parent.velocity.y = this.parent.effectiveJumpForce;
 
         // If the player is moving to the left or right, make them do a flip
         if(this.parent.velocity.x !== 0){
@@ -22,26 +22,20 @@ export default class Jump extends PlayerState {
 	}
 
 	public update(deltaT: number): void {
-        // Update the direction the player is facing
         super.update(deltaT);
 
-        // If the player hit the ground, start idling
         if (this.owner.onGround) {
 			this.finished(PlayerStates.IDLE);
 		} 
-        // If the player hit the ceiling or their velocity is >= to zero, 
         else if(this.owner.onCeiling || this.parent.velocity.y >= 0){
             this.finished(PlayerStates.FALL);
 		}
-        // Otherwise move the player
         else {
-            // Get the input direction from the player
             let dir = this.parent.inputDir;
-            // Update the horizontal velocity of the player
-            this.parent.velocity.x += dir.x * this.parent.speed/3.5 - 0.3*this.parent.velocity.x;
-            // Update the vertical velocity of the player
-            this.parent.velocity.y += this.gravity*deltaT;
-            // Move the player
+            // ↓ effectiveSpeed instead of speed
+            this.parent.velocity.x += dir.x * this.parent.effectiveSpeed/3.5 - 0.3*this.parent.velocity.x;
+            // ↓ effectiveGravity instead of this.gravity
+            this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
             this.owner.move(this.parent.velocity.scaled(deltaT));
         }
 	}

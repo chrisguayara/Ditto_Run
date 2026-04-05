@@ -14,7 +14,7 @@ import MBLevel from "../Scenes/MBLevel";
  */
 export default class MBAnimatedSprite extends AnimatedSprite {
 
-    protected scene: MBLevel;
+    protected scene!: MBLevel;
     
     public setScene(scene: MBLevel): void { this.scene = scene; }
     public getScene(): MBLevel { return this.scene; }

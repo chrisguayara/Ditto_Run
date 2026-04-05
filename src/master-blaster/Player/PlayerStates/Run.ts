@@ -32,8 +32,8 @@ export default class Walk extends PlayerState {
         // Otherwise, move the player
         else {
             // Update the vertical velocity of the player
-            this.parent.velocity.y += this.gravity*deltaT; 
-            this.parent.velocity.x = dir.x * this.parent.speed
+            this.parent.velocity.y += this.parent.effectiveGravity*deltaT; 
+            this.parent.velocity.x = dir.x * this.parent.effectiveSpeed
             this.owner.move(this.parent.velocity.scaled(deltaT));
         }
 

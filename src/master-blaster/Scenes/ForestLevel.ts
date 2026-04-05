@@ -5,12 +5,13 @@ import RenderingManager from "../../Wolfie2D/Rendering/RenderingManager";
 import SceneManager from "../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
 import MBLevel2 from "./MBLevel2";
+import PlayerController from "../Player/PlayerController";
 
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
 export default class ForestLevel extends MBLevel {
-
+    
     public static readonly PLAYER_SPAWN = new Vec2(32, 32);
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
@@ -40,7 +41,7 @@ export default class ForestLevel extends MBLevel {
         this.tilemapScale = ForestLevel.TILEMAP_SCALE;
         // this.destructibleLayerKey = ForestLevel.DESTRUCTIBLE_LAYER_KEY;
         this.wallsLayerKey = ForestLevel.WALLS_LAYER_KEY;
-
+        
         // Set the key for the player's sprite
         this.playerSpriteKey = ForestLevel.PLAYER_SPRITE_KEY;
         // Set the player's spawn
@@ -84,14 +85,15 @@ export default class ForestLevel extends MBLevel {
         super.startScene();
         // Set the next level to be Level2
         this.nextLevel = MBLevel2;
+        (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
     }
 
     /**
      *  Current map size are the viewport limits
      */
     protected initializeViewport(): void {
-        super.initializeViewport();
-        this.viewport.setBounds(0, 128, 960, 960);
-    }
+    super.initializeViewport();
+    this.viewport.setBounds(0, 0, 960, 960); // was 0, 128
+}
 
 }

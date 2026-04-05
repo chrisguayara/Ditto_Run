@@ -191,6 +191,12 @@ export default abstract class MBLevel extends Scene {
                 this.sceneManager.changeToScene(MainMenu);
                 break;
             }
+            case MBEvents.TRANSFORM_START:
+            case MBEvents.TRANSFORM_END:
+            case MBEvents.ENERGY_CHANGE: {
+                // TODO: update UI when energy bar is built
+                break;
+            }
             // Default: Throw an error! No unhandled events allowed.
             default: {
                 throw new Error(`Unhandled event caught in scene with type ${event.type}`)
@@ -321,6 +327,9 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.PARTICLE_HIT_DESTRUCTIBLE);
         this.receiver.subscribe(MBEvents.HEALTH_CHANGE);
         this.receiver.subscribe(MBEvents.PLAYER_DEAD);
+        this.receiver.subscribe(MBEvents.TRANSFORM_START);
+        this.receiver.subscribe(MBEvents.TRANSFORM_END);
+        this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
     }
     /**
      * Adds in any necessary UI to the game

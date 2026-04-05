@@ -21,6 +21,11 @@ export const MBEvents = {
     PARTICLE_HIT_DESTRUCTIBLE: "PARTICLE_HIT_DESTRUCTIBLE",
 
     // The event sent when the player dies. Gets sent after the player's death animation
-    PLAYER_DEAD: "PLAYER_DEAD"
-    
+    PLAYER_DEAD: "PLAYER_DEAD",
+    // Has data: { form: string }
+    TRANSFORM_START: "TRANSFORM_START",
+    // Has data: {}
+    TRANSFORM_END: "TRANSFORM_END",
+    // Has data: { cur: number, max: number }
+    ENERGY_CHANGE: "ENERGY_CHANGE",
 } as const;

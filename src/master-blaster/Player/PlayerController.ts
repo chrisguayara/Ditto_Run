@@ -15,122 +15,105 @@ import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import MathUtils from "../../Wolfie2D/Utils/MathUtils";
 import { MBEvents } from "../MBEvents";
 import Dead from "./PlayerStates/Dead";
+import TransformationManager from "./TransformationManager";
 
-/**
- * Animation keys for the player spritesheet
- */
 export const PlayerAnimations = {
     IDLE: "IDLE",
     WALK: "WALK",
     JUMP: "JUMP",
 } as const
 
-/**
- * Tween animations the player can player.
- */
 export const PlayerTweens = {
     FLIP: "FLIP",
     DEATH: "DEATH"
 } as const
 
-/**
- * Keys for the states the PlayerController can be in.
- */
 export const PlayerStates = {
     IDLE: "IDLE",
     RUN: "RUN",
-	JUMP: "JUMP",
+    JUMP: "JUMP",
     FALL: "FALL",
     DEAD: "DEAD",
 } as const
 
-/**
- * The controller that controls the player.
- */
 export default class PlayerController extends StateMachineAI {
     public readonly MAX_SPEED: number = 200;
     public readonly MIN_SPEED: number = 100;
+    public readonly BASE_JUMP_FORCE: number = -200;
+    public readonly BASE_GRAVITY: number = 500;
 
-    /** Health and max health for the player */
-    protected _health: number;
-    protected _maxHealth: number;
+    protected _health!: number;
+    protected _maxHealth!: number;
+    protected _transformations!: TransformationManager;
+    protected owner!: MBAnimatedSprite;
+    protected _velocity!: Vec2;
+    protected _speed!: number;
+    protected tilemap!: OrthogonalTilemap;
+    protected weapon!: PlayerWeapon;
 
-    /** The players game node */
-    protected owner: MBAnimatedSprite;
-
-    protected _velocity: Vec2;
-	protected _speed: number;
-
-    protected tilemap: OrthogonalTilemap;
-    // protected cannon: Sprite;
-    protected weapon: PlayerWeapon;
-
-    
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>){
         this.owner = owner;
-
         this.weapon = options.weaponSystem;
-
+        this._transformations = new TransformationManager();
         this.tilemap = this.owner.getScene().getTilemap(options.tilemap) as OrthogonalTilemap;
+        
         this.speed = 400;
-        this.health = 20;
-        this.maxHealth = 100;
         this.velocity = Vec2.ZERO;
-
-        this.health = 10
+        this.health = 10;
         this.maxHealth = 10;
 
-        // Add the different states the player can be in to the PlayerController 
-		this.addState(PlayerStates.IDLE, new Idle(this, this.owner));
-		this.addState(PlayerStates.RUN, new Run(this, this.owner));
+        this.addState(PlayerStates.IDLE, new Idle(this, this.owner));
+        this.addState(PlayerStates.RUN, new Run(this, this.owner));
         this.addState(PlayerStates.JUMP, new Jump(this, this.owner));
         this.addState(PlayerStates.FALL, new Fall(this, this.owner));
         this.addState(PlayerStates.DEAD, new Dead(this, this.owner));
         
-        // Start the player in the Idle state
         this.initialize(PlayerStates.IDLE);
     }
 
-    /** 
-	 * Get the inputs from the keyboard, or Vec2.Zero if nothing is being pressed
-	 */
     public get inputDir(): Vec2 {
         let direction = Vec2.ZERO;
-		direction.x = (Input.isPressed(MBControls.MOVE_LEFT) ? -1 : 0) + (Input.isPressed(MBControls.MOVE_RIGHT) ? 1 : 0);
-		direction.y = (Input.isJustPressed(MBControls.JUMP) ? -1 : 0);
-		return direction;
+        direction.x = (Input.isPressed(MBControls.MOVE_LEFT) ? -1 : 0) + (Input.isPressed(MBControls.MOVE_RIGHT) ? 1 : 0);
+        direction.y = (Input.isJustPressed(MBControls.JUMP) ? -1 : 0);
+        return direction;
     }
-    /** 
-     * Gets the direction of the mouse from the player's position as a Vec2
-     */
+
     public get faceDir(): Vec2 { return this.owner.position.dirTo(Input.getGlobalMousePosition()); }
 
     public update(deltaT: number): void {
-		super.update(deltaT);
+        super.update(deltaT);
 
-        // Update the rotation to apply the particles velocity vector
+        this._transformations.update(deltaT);
+
+        if (Input.isJustPressed(MBControls.TRANSFORM)) {
+            this._transformations.toggle();
+        }
+        if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
+            this._transformations.cycleNext();
+        }
+
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
 
-        // If the player hits the attack button and the weapon system isn't running, restart the system and fire!
         if (Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
-            // Update the rotation to apply the particles velocity vector
             this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-            // Start the particle system at the player's current position
             this.weapon.startSystem(500, 0, this.owner.position);
         }
+    }
 
-        /*
-            This if-statement will place a tile wherever the user clicks on the screen. I have
-            left this here to make traversing the map a little easier, incase you accidently
-            destroy everything with the player's weapon.
-        */
-        if (Input.isMousePressed()) {
-           // spawns block
-            // this.tilemap.setTileAtRowCol(this.tilemap.getColRowAt(Input.getGlobalMousePosition()),5);
-        }
+    // ── Transformation passthrough ────────────────────────────────
+    public get transformations(): TransformationManager { return this._transformations; }
 
-	}
+    public get effectiveSpeed(): number {
+        return this._speed * this._transformations.speedMultiplier;
+    }
+    public get effectiveGravity(): number {
+        return this.BASE_GRAVITY * this._transformations.gravityMultiplier;
+    }
+    public get effectiveJumpForce(): number {
+        return this._transformations.jumpForce ?? this.BASE_JUMP_FORCE;
+    }
 
+    // ── Standard getters/setters ──────────────────────────────────
     public get velocity(): Vec2 { return this._velocity; }
     public set velocity(velocity: Vec2) { this._velocity = velocity; }
 
@@ -141,11 +124,9 @@ export default class PlayerController extends StateMachineAI {
     public set maxHealth(maxHealth: number) { this._maxHealth = maxHealth; }
 
     public get health(): number { return this._health; }
-    public set health(health: number) { 
+    public set health(health: number) {
         this._health = MathUtils.clamp(health, 0, this.maxHealth);
-        // When the health changes, fire an event up to the scene.
         this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
-        // If the health hit 0, change the state of the player
         if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
     }
 }
