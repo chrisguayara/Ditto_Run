@@ -19,7 +19,6 @@ import Color from "../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../Wolfie2D/Utils/EaseFunctions";
 import PlayerController, { PlayerTweens } from "../Player/PlayerController";
 import PlayerWeapon from "../Player/PlayerWeapon";
-
 import { MBEvents } from "../MBEvents";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import MBFactoryManager from "../Factory/MBFactoryManager";
@@ -49,48 +48,48 @@ export default abstract class MBLevel extends Scene {
 
 
     /** The particle system used for the player's weapon */
-    protected playerWeaponSystem: PlayerWeapon
+    protected playerWeaponSystem!: PlayerWeapon
     /** The key for the player's animated sprite */
-    protected playerSpriteKey: string;
+    protected playerSpriteKey!: string;
     /** The animated sprite that is the player */
-    protected player: AnimatedSprite;
+    protected player!: AnimatedSprite;
     /** The player's spawn position */
-    protected playerSpawn: Vec2;
+    protected playerSpawn!: Vec2;
 
-    private healthLabel: Label;
-	private healthBar: Label;
-	private healthBarBg: Label;
+    private healthLabel!: Label;
+	private healthBar!: Label;
+	private healthBarBg!: Label;
 
 
     /** The end of level stuff */
 
-    protected levelEndPosition: Vec2;
-    protected levelEndHalfSize: Vec2;
+    protected levelEndPosition!: Vec2;
+    protected levelEndHalfSize!: Vec2;
 
-    protected levelEndArea: Rect;
-    protected nextLevel: new (...args: any) => Scene;
-    protected levelEndTimer: Timer;
-    protected levelEndLabel: Label;
+    protected levelEndArea!: Rect;
+    protected nextLevel!: new (...args: any) => Scene;
+    protected levelEndTimer!: Timer;
+    protected levelEndLabel!: Label;
 
     // Level end transition timer and graphic
-    protected levelTransitionTimer: Timer;
-    protected levelTransitionScreen: Rect;
+    protected levelTransitionTimer!: Timer;
+    protected levelTransitionScreen!: Rect;
 
     /** The keys to the tilemap and different tilemap layers */
-    protected tilemapKey: string;
-    protected destructibleLayerKey: string;
-    protected wallsLayerKey: string;
+    protected tilemapKey!: string;
+    protected destructibleLayerKey!: string;
+    protected wallsLayerKey!: string;
     /** The scale for the tilemap */
-    protected tilemapScale: Vec2;
+    protected tilemapScale!: Vec2;
     /** The destrubtable layer of the tilemap */
-    protected destructable: OrthogonalTilemap;
+    protected destructable: OrthogonalTilemap | undefined;
     /** The wall layer of the tilemap */
-    protected walls: OrthogonalTilemap;
+    protected walls!: OrthogonalTilemap;
 
     /** Sound and music */
-    protected levelMusicKey: string;
-    protected jumpAudioKey: string;
-    protected tileDestroyedAudioKey: string;
+    protected levelMusicKey!: string;
+    protected jumpAudioKey!: string;
+    protected tileDestroyedAudioKey!: string;
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
         super(viewport, sceneManager, renderingManager, {...options, physics: {
@@ -308,7 +307,7 @@ export default abstract class MBLevel extends Scene {
         if (this.destructable){
             this.destructable.addPhysics();
             this.destructable.setGroup(MBPhysicsGroups.DESTRUCTABLE);
-            this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, null);
+            this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, "");
             }
         }
     }
@@ -468,7 +467,7 @@ export default abstract class MBLevel extends Scene {
         // Give the player it's AI
         this.player.addAI(PlayerController, { 
             weaponSystem: this.playerWeaponSystem, 
-            tilemap: "Destructable" 
+            tilemap: this.destructibleLayerKey ?? this.wallsLayerKey
         });
     }
     /**
@@ -478,6 +477,7 @@ export default abstract class MBLevel extends Scene {
         if (this.player === undefined) {
             throw new Error("Player must be initialized before setting the viewport to folow the player");
         }
+        
         this.viewport.follow(this.player);
         this.viewport.setZoomLevel(3);
         this.viewport.setBounds(0, 0, 960, 960);
@@ -492,7 +492,7 @@ export default abstract class MBLevel extends Scene {
         
         this.levelEndArea = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.PRIMARY, { position: this.levelEndPosition, size: this.levelEndHalfSize });
         this.levelEndArea.addPhysics(undefined, undefined, false, true);
-        this.levelEndArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_LEVEL_END, null);
+        this.levelEndArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_LEVEL_END, "");
         this.levelEndArea.color = new Color(255, 0, 255, .20);
         
     }

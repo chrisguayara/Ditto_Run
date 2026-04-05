@@ -73,6 +73,8 @@ export default class PlayerController extends StateMachineAI {
 
         this.tilemap = this.owner.getScene().getTilemap(options.tilemap) as OrthogonalTilemap;
         this.speed = 400;
+        this.health = 20;
+        this.maxHealth = 100;
         this.velocity = Vec2.ZERO;
 
         this.health = 10
@@ -123,7 +125,8 @@ export default class PlayerController extends StateMachineAI {
             destroy everything with the player's weapon.
         */
         if (Input.isMousePressed()) {
-            this.tilemap.setTileAtRowCol(this.tilemap.getColRowAt(Input.getGlobalMousePosition()),5);
+           // spawns block
+            // this.tilemap.setTileAtRowCol(this.tilemap.getColRowAt(Input.getGlobalMousePosition()),5);
         }
 
 	}
