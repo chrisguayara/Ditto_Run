@@ -9,40 +9,44 @@ import { MBEvents } from "../MBEvents";
 export const PokemonAnimations = {
     WALK: "WALK",
     ATTACK: "ATTACK",
-    FAINTED: "FAINTED"
+    FAINTED: "DEAD"
 } as const;
 
 export const PokemonStates = {
     PATROL: "PATROL",
-    FAINTED: "FAINTED"
+    FAINTED: "FAINTED",
+    FLEE : "FLEE"
 } as const
 
 export default abstract class PokemonController extends StateMachineAI {
     protected owner: MBAnimatedSprite;
-    protected health: number;
-    protected maxHealth: number;
-    protected velocity: Vec2;
-    protected speed!: number;
+    protected _health: number;
+    protected _maxHealth: number;
+    protected _velocity: Vec2;
+    protected _speed!: number;
 
     public playerRef: MBAnimatedSprite;
 
     public patrolLeft: number = 0;
     public patrolRight: number = 100;
 
-    initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
+    // PokemonController.ts — initializeAI
+    public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
         this.owner = owner;
-        this.patrolLeft = options.patrolLeft ?? owner.position.x - 100;
+        this.playerRef = options.playerRef;
+        this.patrolLeft  = options.patrolLeft  ?? owner.position.x - 100;
         this.patrolRight = options.patrolRight ?? owner.position.x + 100;
+        this.speed       = options.speed       ?? 60;
+        this.maxHealth   = options.maxHealth   ?? 5;
+        this.health      = this.maxHealth;      // always full health on spawn
+        this.velocity    = Vec2.ZERO;
 
-        this.speed = options.speed ?? 60;
-        this.maxHealth = options.maxHealth ?? 5;
-        this.health = this.maxHealth;
-        this.velocity = Vec2.ZERO;
-
-        this.addStates();
+        this.addStates();                        // concrete class registers its states
         this.initialize(PokemonStates.PATROL);
     }
     protected abstract addStates(): void;
+
+    
 
     /**
      * Called by the scene (or a weapon collision) when this pokemon takes damage.
@@ -54,25 +58,25 @@ export default abstract class PokemonController extends StateMachineAI {
         super.update(deltaT);
     }
 
-    public get isFainted(): boolean { return this.health === 0; }
+    public get isFainted(): boolean { return this._health === 0; }
 
-    public get velocity(): Vec2 { return this.velocity; }
-    public set velocity(v: Vec2) { this.velocity = v; }
+    public get velocity(): Vec2 { return this._velocity; }
+    public set velocity(v: Vec2) { this._velocity = v; }
 
-    public get speed(): number { return this.speed; }
-    public set speed(s: number) { this.speed = s; }
+    public get speed(): number { return this._speed; }
+    public set speed(s: number) { this._speed = s; }
 
-    public get maxHealth(): number { return this.maxHealth; }
-    public set maxHealth(v: number) { this.maxHealth = v; }
+    public get maxHealth(): number { return this._maxHealth; }
+    public set maxHealth(v: number) { this._maxHealth = v; }
 
-    public get health(): number { return this.health; }
+    public get health(): number { return this._health; }
     public set health(v: number) {
-        this.health = MathUtils.clamp(v, 0, this.maxHealth);
+        this._health = MathUtils.clamp(v, 0, this.maxHealth);
         this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {
-            curhp: this.health,
-            maxhp: this.maxHealth,
+            curhp: this._health,
+            maxhp: this._maxHealth,
         });
-        if (this.health <= 0) {
+        if (this._health <= 0) {
             this.changeState(PokemonStates.FAINTED);
         }
     }

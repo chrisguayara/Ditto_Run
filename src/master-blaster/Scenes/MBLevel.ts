@@ -434,9 +434,12 @@ export default abstract class MBLevel extends Scene {
         this.player = this.add.animatedSprite(key, MBLayers.PRIMARY);
         this.player.scale.set(1, 1);
         this.player.position.copy(this.playerSpawn);
+
+        
         
         // Give the player physics and setup collision groups and triggers for the player
-        this.player.addPhysics(new AABB(this.player.position.clone(), this.player.boundary.getHalfSize().clone()));
+        this.player.addPhysics(new AABB(this.player.position.clone(), new Vec2(6,8)));
+        // this.player.addPhysics(new AABB(this.player.position.clone(), this.player.boundary.getHalfSize().clone()));
         this.player.setGroup(MBPhysicsGroups.PLAYER);
 
         // Give the player a flip animation

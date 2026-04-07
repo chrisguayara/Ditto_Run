@@ -10,10 +10,24 @@
     "fileStates": {
         "forest.tsx": {
             "scaleInDock": 4,
-            "scaleInEditor": 4.9479
+            "scaleInEditor": 4.94
+        },
+        "forest_tiles.tsx": {
+            "scaleInDock": 3.7267,
+            "scaleInEditor": 4.72
+        },
+        "tilemap_forest.tmx": {
+            "scale": 0.9544,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 1064.5431684828163,
+                "y": 571.0393964794637
+            }
         }
     },
+    "last.exportedFilePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/tiled",
     "last.imagePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps",
+    "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
@@ -21,7 +35,9 @@
     "openFiles": [
     ],
     "project": "dittomaps.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
+        "forest_tiles.tsx",
         "forest.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
