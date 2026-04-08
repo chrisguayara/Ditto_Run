@@ -11,17 +11,17 @@ export default class Walk extends PlayerState {
 	}
 
 	update(deltaT: number): void {
-        // Call the update method in the parent class - updates the direction the player is facing
+        // Call the update method in the parent class : updates the direction the player is facing
         super.update(deltaT);
 
         // Get the input direction from the player controller
 		let dir = this.parent.inputDir;
 
-        // If the player is not moving - transition to the Idle state
+        // If the player is not moving : transition to the Idle state
 		if(dir.isZero()){
 			this.finished(PlayerStates.IDLE);
 		} 
-        // If the player hits the jump key - transition to the Jump state
+        // If the player hits the jump key : transition to the Jump state
         else if (Input.isJustPressed(MBControls.JUMP)) {
             this.finished(PlayerStates.JUMP);
         } 

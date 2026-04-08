@@ -19,6 +19,7 @@ import Color from "../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../Wolfie2D/Utils/EaseFunctions";
 import PlayerController, { PlayerTweens } from "../Player/PlayerController";
 import PlayerWeapon from "../Player/PlayerWeapon";
+import PhantumpWeapon from "../Player/PhantumpWeapon";
 import { MBEvents } from "../MBEvents";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import MBFactoryManager from "../Factory/MBFactoryManager";
@@ -39,33 +40,33 @@ export const MBLayers = {
 export type MBLayer = typeof MBLayers[keyof typeof MBLayers]
 
 /**
- * An abstract Master Blaster scene class.
+ * An abstract scene class.
  */
 export default abstract class MBLevel extends Scene {
 
     /** Overrride the factory manager */
     public add: MBFactoryManager;
 
+    // ── Weapon systems ────────────────────────────────────────────
+    protected playerWeaponSystem!: PlayerWeapon;
+    protected phantumpWeaponSystem!: PhantumpWeapon;
+    protected originalWeaponSystem!: PlayerWeapon;
 
-    /** The particle system used for the player's weapon */
-    protected playerWeaponSystem!: PlayerWeapon
-    /** The key for the player's animated sprite */
+    // ── Player ────────────────────────────────────────────────────
     protected playerSpriteKey!: string;
     /** The animated sprite that is the player */
     protected player!: AnimatedSprite;
     /** The player's spawn position */
     protected playerSpawn!: Vec2;
 
+    // ── UI ────────────────────────────────────────────────────────
     private healthLabel!: Label;
-	private healthBar!: Label;
-	private healthBarBg!: Label;
+    private healthBar!: Label;
+    private healthBarBg!: Label;
 
-
-    /** The end of level stuff */
-
+    // ── Level end ─────────────────────────────────────────────────
     protected levelEndPosition!: Vec2;
     protected levelEndHalfSize!: Vec2;
-
     protected levelEndArea!: Rect;
     protected nextLevel!: new (...args: any) => Scene;
     protected levelEndTimer!: Timer;
@@ -75,18 +76,19 @@ export default abstract class MBLevel extends Scene {
     protected levelTransitionTimer!: Timer;
     protected levelTransitionScreen!: Rect;
 
-    /** The keys to the tilemap and different tilemap layers */
+    // ── Tilemap ───────────────────────────────────────────────────
     protected tilemapKey!: string;
     protected destructibleLayerKey!: string;
     protected wallsLayerKey!: string;
-    /** The scale for the tilemap */
+    protected phantomWallLayerKey!: string;
     protected tilemapScale!: Vec2;
     /** The destrubtable layer of the tilemap */
     protected destructable: OrthogonalTilemap | undefined;
     /** The wall layer of the tilemap */
     protected walls!: OrthogonalTilemap;
+    protected phantomWalls!: OrthogonalTilemap;
 
-    /** Sound and music */
+    // ── Audio ─────────────────────────────────────────────────────
     protected levelMusicKey!: string;
     protected jumpAudioKey!: string;
     protected tileDestroyedAudioKey!: string;
@@ -94,17 +96,22 @@ export default abstract class MBLevel extends Scene {
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
         super(viewport, sceneManager, renderingManager, {...options, physics: {
             groupNames: [
-                MBPhysicsGroups.GROUND, 
-                MBPhysicsGroups.PLAYER, 
-                MBPhysicsGroups.PLAYER_WEAPON, 
-                MBPhysicsGroups.DESTRUCTABLE
+                MBPhysicsGroups.GROUND,
+                MBPhysicsGroups.PLAYER,
+                MBPhysicsGroups.PLAYER_PHANTUMP,
+                MBPhysicsGroups.PLAYER_WEAPON,
+                MBPhysicsGroups.DESTRUCTABLE,
+                MBPhysicsGroups.PHANTOM_WALL,
             ],
             collisions:
             [
-                [0, 1, 1, 0],
-                [1, 0, 0, 1],
-                [1, 0, 0, 1],
-                [0, 1, 1, 0],
+            //   GND  PLR  PHP  WPN  DST  PHT
+                [0,   1,   1,   1,   0,   0],  // GROUND
+                [1,   0,   0,   0,   1,   1],  // PLAYER - collides with phantom walls
+                [1,   0,   0,   0,   1,   0],  // PLAYER_PHANTUMP - phases through phantom walls
+                [1,   0,   0,   0,   1,   0],  // WEAPON
+                [0,   1,   1,   1,   0,   0],  // DESTRUCTABLE
+                [0,   1,   0,   0,   0,   0],  // PHANTOM_WALL
             ]
         }});
         this.add = new MBFactoryManager(this, this.tilemaps);
@@ -123,7 +130,7 @@ export default abstract class MBLevel extends Scene {
         // Initialize the player 
         this.initializePlayer(this.playerSpriteKey);
 
-        // Initialize the viewport - this must come after the player has been initialized
+        // Initialize the viewportm after the player has been initialized
         this.initializeViewport();
         this.subscribeToEvents();
         this.initializeUI();
@@ -191,10 +198,25 @@ export default abstract class MBLevel extends Scene {
                 this.sceneManager.changeToScene(MainMenu);
                 break;
             }
-            case MBEvents.TRANSFORM_START:
-            case MBEvents.TRANSFORM_END:
+            case MBEvents.TRANSFORM_START: {
+                const form = event.data.get("form");
+                if (form === "PHANTUMP") {
+                    // Swap to PLAYER_PHANTUMP group so phantom walls are passable
+                    this.player.setGroup(MBPhysicsGroups.PLAYER_PHANTUMP);
+                    // Swap to purple weapon
+                    this.playerWeaponSystem.stopSystem();
+                    this.playerWeaponSystem = this.phantumpWeaponSystem;
+                }
+                break;
+            }
+            case MBEvents.TRANSFORM_END: {
+                // Restore normal collision and original weapon
+                this.player.setGroup(MBPhysicsGroups.PLAYER);
+                this.playerWeaponSystem = this.originalWeaponSystem;
+                break;
+            }
             case MBEvents.ENERGY_CHANGE: {
-                // TODO: update UI when energy bar is built
+                // TODO: hook up energy bar UI
                 break;
             }
             // Default: Throw an error! No unhandled events allowed.
@@ -261,21 +283,13 @@ export default abstract class MBLevel extends Scene {
             this.levelEndLabel.tweens.play("slideIn");
         }
     }
-    /**
-     * This is the same healthbar I used for hw2. I've adapted it slightly to account for the zoom factor. Other than that, the
-     * code is basically the same.
-     * 
-     * @param currentHealth the current health of the player
-     * @param maxHealth the maximum health of the player
-     */
-    protected handleHealthChange(currentHealth: number, maxHealth: number): void {
-		let unit = this.healthBarBg.size.x / maxHealth;
-        
-		this.healthBar.size.set(this.healthBarBg.size.x - unit * (maxHealth - currentHealth), this.healthBarBg.size.y);
-		this.healthBar.position.set(this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth), this.healthBarBg.position.y);
 
-		this.healthBar.backgroundColor = currentHealth < maxHealth * 1/4 ? Color.RED: currentHealth < maxHealth * 3/4 ? Color.YELLOW : Color.GREEN;
-	}
+    protected handleHealthChange(currentHealth: number, maxHealth: number): void {
+        let unit = this.healthBarBg.size.x / maxHealth;
+        this.healthBar.size.set(this.healthBarBg.size.x - unit * (maxHealth - currentHealth), this.healthBarBg.size.y);
+        this.healthBar.position.set(this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth), this.healthBarBg.position.y);
+        this.healthBar.backgroundColor = currentHealth < maxHealth * 1/4 ? Color.RED: currentHealth < maxHealth * 3/4 ? Color.YELLOW : Color.GREEN;
+    }
 
     /* Initialization methods for everything in the scene */
 
@@ -288,38 +302,39 @@ export default abstract class MBLevel extends Scene {
         // Add a layer for players and enemies
         this.addLayer(MBLayers.PRIMARY);
     }
-    /**
-     * Initializes the tilemaps
-     * @param key the key for the tilemap data
-     * @param scale the scale factor for the tilemap
-     */
+
     protected initializeTilemap(): void {
         if (this.tilemapKey === undefined || this.tilemapScale === undefined) {
-            throw new Error("Cannot add the homework 4 tilemap unless the tilemap key and scale are set.");
+            throw new Error("Cannot add tilemap unless the tilemap key and scale are set.");
         }
         // Add the tilemap to the scene
         this.add.tilemap(this.tilemapKey, this.tilemapScale);
 
         if (this.wallsLayerKey === undefined) {
-            throw new Error("Make sure the keys for the wall layer are both set");
+            throw new Error("Make sure the key for the wall layer is set");
         }
 
         // Get the wall and destructible layers 
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
-        if (this.destructibleLayerKey !== undefined) {
-        this.destructable = this.getTilemap(this.destructibleLayerKey) as OrthogonalTilemap;
 
-        // Add physics to the destructible layer of the tilemap
-        if (this.destructable){
-            this.destructable.addPhysics();
-            this.destructable.setGroup(MBPhysicsGroups.DESTRUCTABLE);
-            this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, "");
+        // Phantom walls - independent of destructible layer
+        if (this.phantomWallLayerKey !== undefined) {
+            this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
+            this.phantomWalls.addPhysics();
+            this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
+        }
+
+        // Destructible layer
+        if (this.destructibleLayerKey !== undefined) {
+            this.destructable = this.getTilemap(this.destructibleLayerKey) as OrthogonalTilemap;
+            if (this.destructable) {
+                this.destructable.addPhysics();
+                this.destructable.setGroup(MBPhysicsGroups.DESTRUCTABLE);
+                this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, "");
             }
         }
     }
-    /**
-     * Handles all subscriptions to events
-     */
+
     protected subscribeToEvents(): void {
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_LEVEL_END);
         this.receiver.subscribe(MBEvents.LEVEL_START);
@@ -331,26 +346,20 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.TRANSFORM_END);
         this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
     }
-    /**
-     * Adds in any necessary UI to the game
-     */
+
     protected initializeUI(): void {
+        this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(205, 20), text: "HP "});
+        this.healthLabel.size.set(300, 30);
+        this.healthLabel.fontSize = 24;
+        this.healthLabel.font = "Courier";
 
-        // HP Label
-		this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(205, 20), text: "HP "});
-		this.healthLabel.size.set(300, 30);
-		this.healthLabel.fontSize = 24;
-		this.healthLabel.font = "Courier";
+        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(250, 20), text: ""});
+        this.healthBar.size = new Vec2(300, 25);
+        this.healthBar.backgroundColor = Color.GREEN;
 
-        // HealthBar
-		this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(250, 20), text: ""});
-		this.healthBar.size = new Vec2(300, 25);
-		this.healthBar.backgroundColor = Color.GREEN;
-
-        // HealthBar Border
-		this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(250, 20), text: ""});
-		this.healthBarBg.size = new Vec2(300, 25);
-		this.healthBarBg.borderColor = Color.BLACK;
+        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(250, 20), text: ""});
+        this.healthBarBg.size = new Vec2(300, 25);
+        this.healthBarBg.borderColor = Color.BLACK;
 
         // End of level label (start off screen)
         this.levelEndLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, { position: new Vec2(-300, 100), text: "Level Complete" });
@@ -411,17 +420,16 @@ export default abstract class MBLevel extends Scene {
             onEnd: MBEvents.LEVEL_START
         });
     }
-    /**
-     * Initializes the particles system used by the player's weapon.
-     */
+
     protected initializeWeaponSystem(): void {
         this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
         this.playerWeaponSystem.initializePool(this, MBLayers.PRIMARY);
+        this.originalWeaponSystem = this.playerWeaponSystem;
+
+        this.phantumpWeaponSystem = new PhantumpWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
+        this.phantumpWeaponSystem.initializePool(this, MBLayers.PRIMARY);
     }
-    /**
-     * Initializes the player, setting the player's initial position to the given position.
-     * @param position the player's spawn position
-     */
+
     protected initializePlayer(key: string): void {
         if (this.playerWeaponSystem === undefined) {
             throw new Error("Player weapon system must be initialized before initializing the player!");
@@ -434,8 +442,7 @@ export default abstract class MBLevel extends Scene {
         this.player = this.add.animatedSprite(key, MBLayers.PRIMARY);
         this.player.scale.set(1, 1);
         this.player.position.copy(this.playerSpawn);
-        
-        // Give the player physics and setup collision groups and triggers for the player
+
         this.player.addPhysics(new AABB(this.player.position.clone(), this.player.boundary.getHalfSize().clone()));
         this.player.setGroup(MBPhysicsGroups.PLAYER);
 
@@ -452,7 +459,7 @@ export default abstract class MBLevel extends Scene {
                 }
             ]
         });
-        // Give the player a death animation
+
         this.player.tweens.add(PlayerTweens.DEATH, {
             startDelay: 0,
             duration: 500,
@@ -473,27 +480,22 @@ export default abstract class MBLevel extends Scene {
             onEnd: MBEvents.PLAYER_DEAD
         });
 
-        // Give the player it's AI
-        this.player.addAI(PlayerController, { 
-            weaponSystem: this.playerWeaponSystem, 
+        this.player.addAI(PlayerController, {
+            weaponSystem: this.playerWeaponSystem,
             tilemap: this.destructibleLayerKey ?? this.wallsLayerKey
         });
     }
-    /**
-     * Initializes the viewport
-     */
+
     protected initializeViewport(): void {
         if (this.player === undefined) {
-            throw new Error("Player must be initialized before setting the viewport to folow the player");
+            throw new Error("Player must be initialized before setting the viewport to follow the player");
         }
         
         this.viewport.follow(this.player);
         this.viewport.setZoomLevel(3);
         this.viewport.setBounds(0, 0, 960, 960);
     }
-    /**
-     * Initializes the level end area
-     */
+
     protected initializeLevelEnds(): void {
         if (!this.layers.has(MBLayers.PRIMARY)) {
             throw new Error("Can't initialize the level ends until the primary layer has been added to the scene!");
@@ -510,6 +512,6 @@ export default abstract class MBLevel extends Scene {
 
     // Get the key of the player's jump audio file
     public getJumpAudioKey(): string {
-        return this.jumpAudioKey
+        return this.jumpAudioKey;
     }
 }
