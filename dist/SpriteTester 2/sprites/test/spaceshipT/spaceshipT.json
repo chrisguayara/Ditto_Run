@@ -1,0 +1,136 @@
+{
+    "name": "spaceshipT",
+    "spriteSheetImage": "spaceshipT.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 6,
+    "rows": 6,
+    "animations": [
+        {
+            "name": "IDLE",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 0,
+                    "duration": 10
+                }  
+            ]
+        },
+        {
+            "name": "BOOST",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 6,
+                    "duration": 10
+                },
+                {
+                    "index": 7,
+                    "duration": 10
+                },
+                {
+                    "index": 8,
+                    "duration": 10
+                },
+                {
+                    "index": 9,
+                    "duration": 10
+                },
+                {
+                    "index": 10,
+                    "duration": 10
+                }
+            ]
+        },
+        {
+            "name": "FIRING",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 12,
+                    "duration": 10
+                },
+                {
+                    "index": 13,
+                    "duration": 10
+                }
+            ]
+        },
+        {
+            "name": "TAKING_DAMAGE",
+            "repeat": true,
+            "frames": [
+                
+                {
+                    "index": 18,
+                    "duration": 5
+                },
+                {
+                    "index": 19,
+                    "duration": 5
+                },
+                {
+                    "index": 20,
+                    "duration": 10
+                },
+                {
+                    "index": 21,
+                    "duration": 5
+                },
+                {
+                    "index": 22,
+                    "duration": 5
+                }
+            ]
+        },
+        {
+            "name": "DYING",
+            "repeat": false,
+            "next": "DEAD",
+            "frames": [
+                {
+                    "index": 24,
+                    "duration": 7
+                },
+                {
+                    "index": 25,
+                    "duration": 7
+                },
+                {
+                    "index": 26,
+                    "duration": 7
+                },
+                {
+                    "index": 27,
+                    "duration": 7
+                },
+                {
+                    "index": 28,
+                    "duration": 6
+                },
+                {
+                    "index": 29,
+                    "duration": 5
+                },
+                {
+                    "index": 30,
+                    "duration": 4
+                }
+            ]
+        },
+        {
+            "name": "DEAD",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 30,
+                    "duration": 20
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,134 @@
+{
+	"name" : "RedWidow",
+	"spriteSheetImage" : "spaceship_redwidow.png",
+	"spriteWidth": 256,
+	"spriteHeight" : 256,
+	"leftBuffer" : 0,
+	"rightBuffer" : 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+	"columns": 5,
+	"rows" : 5,
+	"animations" : [
+		{
+            "name" : "IDLE",
+            "repeat" : true,
+            "frames" : [
+                {
+                    "index": 0,
+                    "duration" : 40
+                },
+                {
+                    "index" : 1,
+                    "duration" : 40
+                },
+                {
+                    "index" : 2,
+                    "duration" : 50
+                },
+                {
+                    "index" : 3,
+                    "duration" : 40
+                },
+                {
+                    "index" : 4,
+                    "duration" : 43
+                },
+                {
+                    "index" : 5,
+                    "duration" : 30
+                },
+                
+                {
+                    "index" : 6,
+                    "duration" : 30
+                }
+                
+            ]
+        },
+        {
+            "name" : "BOOST",
+            "repeat" : true,
+            "frames" : [
+                {
+                    "index": 7,
+                    "duration" : 60
+                },
+                {
+                    "index" : 8,
+                    "duration" : 60
+                },
+                {
+                    "index" : 9,
+                    "duration" : 60
+                }
+                
+            ]
+        },
+        {
+            "name" : "FIRING",
+            "repeat" : true,
+            "frames" : [
+                {
+                    "index": 10,
+                    "duration" : 50
+                },
+                {
+                    "index" : 11,
+                    "duration" : 50
+                },
+                
+                {
+                    "index" : 12,
+                    "duration" : 50
+                },
+                {
+                    "index" : 13,
+                    "duration" : 50
+                }
+                
+            ]
+        },
+        {
+            "name" : "DYING",
+            "repeat" : true,
+            "frames" : [
+                {
+                    "index": 14,
+                    "duration": 30
+                },
+                {
+                    "index" : 15,
+                    "duration" : 30
+                },
+                {
+                    "index": 16,
+                    "duration": 30
+                },
+                {
+                    "index": 17,
+                    "duration" :30
+                }
+            ]
+        },
+        {
+            "name" : "DEAD",
+            "repeat" : true,
+            "frames" : [
+                {
+                    "index" : 18,
+                    "duration" : 40
+
+                },
+                {
+                    "index" : 19,
+                    "duration" :34
+                },
+                {
+                    "index" : 20,
+                    "duration" : 35
+                } 
+            ]
+        }
+    ]
+}

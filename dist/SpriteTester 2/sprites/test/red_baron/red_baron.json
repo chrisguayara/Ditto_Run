@@ -1,0 +1,230 @@
+{
+    "name": "red_baron",
+    "spriteSheetImage": "red_baron.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 12,
+    "rows": 5,
+    "animations": [
+        {
+            "name": "IDLE",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 0,
+                    "duration": 10
+                },
+                {
+                    "index": 1,
+                    "duration": 11
+                },
+                {
+                    "index": 2,
+                    "duration": 12
+                },
+                {
+                    "index": 3,
+                    "duration": 13
+                },
+                {
+                    "index": 4,
+                    "duration": 8
+                },
+                {
+                    "index": 5,
+                    "duration": 13
+                },
+                {
+                    "index": 6,
+                    "duration": 13
+                },
+                {
+                    "index": 7,
+                    "duration": 13
+                }
+            ]
+        },
+        {
+            "name": "BOOST",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 12,
+                    "duration": 12
+                },
+                {
+                    "index": 13,
+                    "duration": 12
+                },
+                {
+                    "index": 14,
+                    "duration": 12
+                },
+                {
+                    "index": 15,
+                    "duration": 12
+                },
+                {
+                    "index": 16,
+                    "duration": 12
+                },
+                {
+                    "index": 17,
+                    "duration": 12
+                },
+                {
+                    "index": 18,
+                    "duration": 12
+                },
+                {
+                    "index": 19,
+                    "duration": 12
+                },
+                {
+                    "index": 20,
+                    "duration": 12
+                },
+                {
+                    "index": 21,
+                    "duration": 12
+                },
+                {
+                    "index": 22,
+                    "duration": 12
+                },
+                {
+                    "index": 23,
+                    "duration": 12
+                }
+            ]
+        },
+        {
+            "name": "FIRING",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 24,
+                    "duration": 10
+                },
+                {
+                    "index": 25,
+                    "duration": 11
+                },
+                {
+                    "index": 26,
+                    "duration": 12
+                },
+                {
+                    "index": 27,
+                    "duration": 13
+                },
+                {
+                    "index": 28,
+                    "duration": 8
+                },
+                {
+                    "index": 29,
+                    "duration": 13
+                },
+                {
+                    "index": 31,
+                    "duration": 13
+                },
+                {
+                    "index": 30,
+                    "duration": 13
+                }
+            ]
+        },
+        {
+            "name": "DYING",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 39,
+                    "duration": 10
+                },
+                {
+                    "index": 40,
+                    "duration": 11
+                },
+                {
+                    "index": 41,
+                    "duration": 12
+                },
+                {
+                    "index": 42,
+                    "duration": 13
+                },
+                {
+                    "index": 43,
+                    "duration": 8
+                },
+                {
+                    "index": 44,
+                    "duration": 13
+                },
+                {
+                    "index": 45,
+                    "duration": 13
+                }
+            ]
+        },
+        {
+            "name": "DEAD",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 60,
+                    "duration": 13
+                }
+            ]
+        },
+        {
+            "name": "TAKING_DAMAGE",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 49,
+                    "duration": 13
+                },
+                {
+                    "index": 50,
+                    "duration": 13
+                },
+                {
+                    "index": 51,
+                    "duration": 13
+                },
+                {
+                    "index": 52,
+                    "duration": 13
+                },
+                {
+                    "index": 53,
+                    "duration": 13
+                },
+                {
+                    "index": 54,
+                    "duration": 13
+                },
+                {
+                    "index": 55,
+                    "duration": 13
+                },
+                {
+                    "index": 56,
+                    "duration": 13
+                },
+                {
+                    "index": 57,
+                    "duration": 13
+                }
+            ]
+        }
+    ]
+}

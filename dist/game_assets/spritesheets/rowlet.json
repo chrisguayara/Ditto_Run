@@ -1,0 +1,61 @@
+
+{
+    "name": "Rowlet",
+    "spriteSheetImage": "rowlet.png",
+    "spriteWidth": 16,
+    "spriteHeight": 16,
+    "columns": 2,
+    "rows": 1,
+    "durationType": "time",
+    "animations": [
+      {
+        "name": "IDLE",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 23
+          }
+        ]
+      },
+      {
+        "name": "FALL",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 1,
+            "duration": 23
+          }
+        ]
+      },
+      {
+        "name": "WALK",
+        "repeat": false,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 23
+          }
+        ]
+      },{
+      "name": "ATTACK",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 0,
+          "duration": 23
+        }
+      ]
+    },
+      {
+        "name": "DEAD",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 23
+          }
+        ]
+      }
+    ]
+  }

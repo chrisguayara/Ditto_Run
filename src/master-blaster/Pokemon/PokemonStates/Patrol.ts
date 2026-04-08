@@ -3,11 +3,16 @@ import PokemonState from "./PokemonState";
 import { PokemonStates, PokemonAnimations } from "../PokemonController";
 import { HostileStates } from "../PokemonBehavior/HostileBehavior";
 import HostileBehavior from "../PokemonBehavior/HostileBehavior";
-
+import MBAnimatedSprite from "../../Nodes/MBAnimatedSprite";
+import PokemonController from "../PokemonController";
 
 export default class Patrol extends PokemonState {
 
     private movingRight: boolean = true;
+
+    public constructor(parent: PokemonController, owner: MBAnimatedSprite) {
+        super(parent, owner);
+    }
 
     public onEnter(options: Record<string, any>): void {
         this.owner.animation.play(PokemonAnimations.WALK, true);

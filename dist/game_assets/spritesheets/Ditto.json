@@ -1,7 +1,7 @@
 
 {
   "name": "Ditto",
-  "spriteSheetImage": "ditto_still.png",
+  "spriteSheetImage": "ditto.png",
   "spriteWidth": 16,
   "spriteHeight": 16,
   "columns": 1,

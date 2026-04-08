@@ -1,0 +1,389 @@
+{
+    "name": "oddish_pokemon",
+    "spriteSheetImage": "pokemon.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 8,
+    "rows": 9,
+    "animations": [
+        {
+            "name": "IDLE",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 0,
+                    "duration": 6
+                },
+                {
+                    "index": 1,
+                    "duration": 6
+                },
+                {
+                    "index": 2,
+                    "duration": 6
+                },
+                {
+                    "index": 3,
+                    "duration": 6
+                },
+                {
+                    "index": 4,
+                    "duration": 6
+                },
+                {
+                    "index": 5,
+                    "duration": 6
+                },
+                {
+                    "index": 6,
+                    "duration": 6
+                },
+                {
+                    "index": 7,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "WALKING_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 8,
+                    "duration": 6
+                },
+                {
+                    "index": 9,
+                    "duration": 6
+                },
+                {
+                    "index": 10,
+                    "duration": 6
+                },
+                {
+                    "index": 11,
+                    "duration": 6
+                },
+                {
+                    "index": 12,
+                    "duration": 6
+                },
+                {
+                    "index": 13,
+                    "duration": 6
+                },
+                {
+                    "index": 14,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "WALKING_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 15,
+                    "duration": 6
+                },
+                {
+                    "index": 16,
+                    "duration": 6
+                },
+                {
+                    "index": 17,
+                    "duration": 6
+                },
+                {
+                    "index": 18,
+                    "duration": 6
+                },
+                {
+                    "index": 19,
+                    "duration": 6
+                },
+                {
+                    "index": 21,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "JUMPING_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 22,
+                    "duration": 6
+                },
+                {
+                    "index": 23,
+                    "duration": 6
+                },
+                {
+                    "index": 24,
+                    "duration": 6
+                },
+                {
+                    "index": 25,
+                    "duration": 6
+                },
+                {
+                    "index": 26,
+                    "duration": 6
+                },
+                {
+                    "index": 27,
+                    "duration": 6
+                },
+                {
+                    "index": 28,
+                    "duration": 6
+                },
+                {
+                    "index": 29,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "JUMPING_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 30,
+                    "duration": 6
+                },
+                {
+                    "index": 31,
+                    "duration": 6
+                },
+                {
+                    "index": 32,
+                    "duration": 6
+                },
+                {
+                    "index": 33,
+                    "duration": 6
+                },
+                {
+                    "index": 34,
+                    "duration": 6
+                },
+                {
+                    "index": 35,
+                    "duration": 6
+                },
+                {
+                    "index": 36,
+                    "duration": 6
+                },
+                {
+                    "index": 37,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "ATTACK_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 38,
+                    "duration": 6
+                },
+                {
+                    "index": 39,
+                    "duration": 6
+                },
+                {
+                    "index": 40,
+                    "duration": 6
+                },
+                {
+                    "index": 41,
+                    "duration": 6
+                },
+                {
+                    "index": 42,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "ATTACK_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 43,
+                    "duration": 6
+                },
+                {
+                    "index": 44,
+                    "duration": 6
+                },
+                {
+                    "index": 45,
+                    "duration": 6
+                },
+                {
+                    "index": 46,
+                    "duration": 6
+                },
+                {
+                    "index": 47,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "FALL_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 48,
+                    "duration": 6
+                },
+                {
+                    "index": 49,
+                    "duration": 6
+                },
+                {
+                    "index": 50,
+                    "duration": 6
+                },
+                {
+                    "index": 51,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "FALL_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 52,
+                    "duration": 6
+                },
+                {
+                    "index": 53,
+                    "duration": 6
+                },
+                {
+                    "index": 54,
+                    "duration": 6
+                },
+                {
+                    "index": 55,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "DAMAGE_LEFT",
+            "repeat": false,
+            "frames": [
+                {
+                    "index": 56,
+                    "duration": 6
+                },
+                {
+                    "index": 57,
+                    "duration": 6
+                },
+                {
+                    "index": 58,
+                    "duration": 6
+                },
+                {
+                    "index": 59,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "DAMAGE_RIGHT",
+            "repeat": false,
+            "frames": [
+                {
+                    "index": 61,
+                    "duration": 6
+                },
+                {
+                    "index": 62,
+                    "duration": 6
+                },
+                {
+                    "index": 63,
+                    "duration": 6
+                },
+                {
+                    "index": 64,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "DYING",
+            "repeat": false,
+            "next": "DEAD",
+            "frames": [
+                {
+                    "index": 65,
+                    "duration": 6
+                },
+                {
+                    "index": 66,
+                    "duration": 6
+                },
+                {
+                    "index": 67,
+                    "duration": 6
+                },
+                {
+                    "index": 68,
+                    "duration": 6
+                },
+                {
+                    "index": 69,
+                    "duration": 6
+                },
+                {
+                    "index": 70,
+                    "duration": 6
+                },
+                {
+                    "index": 71,
+                    "duration": 6
+                },
+                {
+                    "index": 72,
+                    "duration": 6
+                },
+                {
+                    "index": 73,
+                    "duration": 6
+                },
+                {
+                    "index": 74,
+                    "duration": 6
+                }
+            ]
+        },
+        {
+            "name": "DEAD",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 74,
+                    "duration": 6
+                }
+            ]
+        }
+    ]
+}

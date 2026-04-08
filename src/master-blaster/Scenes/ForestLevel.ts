@@ -6,6 +6,9 @@ import SceneManager from "../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
 import MBLevel2 from "./MBLevel2";
 import PlayerController from "../Player/PlayerController";
+import PokemonController from "../Pokemon/PokemonController";
+import RowletController from "../Pokemon/PokemonActors/RowletController";
+import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
 
 /**
  * The first level for MB - should be the one with the grass and the clouds.
@@ -30,6 +33,12 @@ export default class ForestLevel extends MBLevel {
 
     public static readonly TILE_DESTROYED_KEY = "TILE_DESTROYED";
     public static readonly TILE_DESTROYED_PATH = "game_assets/sounds/switch.wav";
+
+    public static readonly ROWLET_SPRITE_KEY = "Rowlet"
+    public static readonly ROWLET_SPRITE_PATH = "game_assets/spritesheets/rowlet.json"
+
+    public static readonly PHANTUMP_SPRITE_KEY = "Phantump"
+    public static readonly PHANTUMP_SPRITE_PATH = "game_assets/spritesheets/phantump.json"
 
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
 
@@ -69,6 +78,9 @@ export default class ForestLevel extends MBLevel {
         this.load.audio(this.levelMusicKey, ForestLevel.LEVEL_MUSIC_PATH);
         this.load.audio(this.jumpAudioKey, ForestLevel.JUMP_AUDIO_PATH);
         this.load.audio(this.tileDestroyedAudioKey, ForestLevel.TILE_DESTROYED_PATH);
+        this.load.spritesheet(ForestLevel.ROWLET_SPRITE_KEY, ForestLevel.ROWLET_SPRITE_PATH);
+        this.load.spritesheet(ForestLevel.PHANTUMP_SPRITE_KEY, ForestLevel.PHANTUMP_SPRITE_PATH);
+        
     }
 
     /**
@@ -86,6 +98,32 @@ export default class ForestLevel extends MBLevel {
         // Set the next level to be Level2
         this.nextLevel = MBLevel2;
         (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
+        this.initializePKMN();
+    }
+    protected initializePKMN(): void {
+        let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
+        rowlet.position.set(352, 208);
+        rowlet.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+        rowlet.addAI(RowletController, {
+            playerRef: this.player,          
+            patrolLeft:  rowlet.position.x - 80,
+            patrolRight: rowlet.position.x + 80,
+            speed: 60,
+            maxHealth: 4,
+        });
+        rowlet.animation.play("IDLE");
+    
+        let phantump = this.add.animatedSprite(ForestLevel.PHANTUMP_SPRITE_KEY, "PRIMARY");
+        phantump.position.set(96,144);
+        phantump.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+        phantump.addAI(PhantumpController, {
+            playerRef: this.player,
+            patrolLeft:  phantump.position.x - 100,
+            patrolRight: phantump.position.x + 100,
+            speed: 80,
+            maxHealth: 8,
+        });
+        phantump.animation.play("IDLE");
     }
 
     /**
@@ -93,7 +131,7 @@ export default class ForestLevel extends MBLevel {
      */
     protected initializeViewport(): void {
     super.initializeViewport();
-    this.viewport.setBounds(0, 0, 960, 960); // was 0, 128
+    this.viewport.setBounds(0, 0, 1600, 1600); // was 0, 128
 }
 
 }

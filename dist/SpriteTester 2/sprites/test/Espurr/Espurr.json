@@ -1,0 +1,168 @@
+{
+    "name": "Espurr",
+    "spriteSheetImage": "Espurr.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 6,
+    "rows": 13,
+    "animations": [
+    {
+        "name": "IDLE",
+        "repeat": true,
+        "frames": [
+            { "index": 0, "duration": 4 },
+            { "index": 1, "duration": 4 },
+            { "index": 2, "duration": 4 },
+            { "index": 3, "duration": 4 },
+            { "index": 4, "duration": 4 },
+            { "index": 5, "duration": 4 }
+        ]
+    },
+    {
+        "name": "WALK_LEFT",
+        "repeat": true,
+        "frames": [
+            { "index": 6, "duration": 4 },
+            { "index": 7, "duration": 4 },
+            { "index": 8, "duration": 4 },
+            { "index": 9, "duration": 4 },
+            { "index": 10, "duration": 4 },
+            { "index": 11, "duration": 4 }
+        ]
+    },
+    {
+        "name": "WALK_RIGHT",
+        "repeat": true,
+        "frames": [
+            { "index": 12, "duration": 4 },
+            { "index": 13, "duration": 4 },
+            { "index": 14, "duration": 4 },
+            { "index": 15, "duration": 4 },
+            { "index": 16, "duration": 4 },
+            { "index": 17, "duration": 4 }
+        ]
+    },
+    {
+        "name": "JUMP_LEFT",
+        "repeat": false,
+        "frames": [
+            { "index": 18, "duration": 4 },
+            { "index": 19, "duration": 4 },
+            { "index": 20, "duration": 4 },
+            { "index": 21, "duration": 4 },
+            { "index": 22, "duration": 4 },
+            { "index": 23, "duration": 4 }
+        ]
+    },
+    {
+        "name": "JUMP_RIGHT",
+        "repeat": false,
+        "frames": [
+            { "index": 24, "duration": 4 },
+            { "index": 25, "duration": 4 },
+            { "index": 26, "duration": 4 },
+            { "index": 27, "duration": 4 },
+            { "index": 28, "duration": 4 },
+            { "index": 29, "duration": 4 }
+        ]
+    },
+    {
+        "name": "ATTACK_LEFT",
+        "repeat": false,
+        "frames": [
+            { "index": 30, "duration": 4 },
+            { "index": 31, "duration": 4 },
+            { "index": 32, "duration": 4 },
+            { "index": 33, "duration": 4 },
+            { "index": 34, "duration": 4 },
+            { "index": 35, "duration": 4 }
+        ]
+    },
+    {
+        "name": "ATTACK_RIGHT",
+        "repeat": false,
+        "frames": [
+            { "index": 36, "duration": 4 },
+            { "index": 37, "duration": 4 },
+            { "index": 38, "duration": 4 },
+            { "index": 39, "duration": 4 },
+            { "index": 40, "duration": 4 },
+            { "index": 41, "duration": 4 }
+        ]
+    },
+    {
+        "name": "FALL_LEFT",
+        "repeat": true,
+        "frames": [
+            { "index": 42, "duration": 4 },
+            { "index": 43, "duration": 4 },
+            { "index": 44, "duration": 4 },
+            { "index": 45, "duration": 4 },
+            { "index": 46, "duration": 4 },
+            { "index": 47, "duration": 4 }
+        ]
+    },
+    {
+        "name": "FALL_RIGHT",
+        "repeat": true,
+        "frames": [
+            { "index": 48, "duration": 4 },
+            { "index": 49, "duration": 4 },
+            { "index": 50, "duration": 4 },
+            { "index": 51, "duration": 4 },
+            { "index": 52, "duration": 4 },
+            { "index": 53, "duration": 4 }
+        ]
+    },
+    {
+        "name": "TAKE_DAMAGE_LEFT",
+        "repeat": false,
+        "frames": [
+            { "index": 54, "duration": 4 },
+            { "index": 55, "duration": 4 },
+            { "index": 56, "duration": 4 },
+            { "index": 57, "duration": 4 },
+            { "index": 58, "duration": 4 },
+            { "index": 59, "duration": 4 }
+        ]
+    },
+    {
+        "name": "TAKE_DAMAGE_RIGHT",
+        "repeat": false,
+        "frames": [
+            { "index": 60, "duration": 4 },
+            { "index": 61, "duration": 4 },
+            { "index": 62, "duration": 4 },
+            { "index": 63, "duration": 4 },
+            { "index": 64, "duration": 4 },
+            { "index": 65, "duration": 4 }
+        ]
+    },
+    {
+        "name": "DYING",
+        "repeat": false,
+        "frames": [
+            { "index": 66, "duration": 4 },
+            { "index": 67, "duration": 4 },
+            { "index": 68, "duration": 4 },
+            { "index": 69, "duration": 4 },
+            { "index": 70, "duration": 4 },
+            { "index": 71, "duration": 4 }
+        ]
+    },
+   {
+        "name": "DEAD",
+        "repeat": false,
+        "frames": [
+            { "index": 72, "duration": 4 },
+            { "index": 73, "duration": 4 },
+            { "index": 74, "duration": 4 },
+            { "index": 75, "duration": 4 }
+        ]
+    }
+]
+

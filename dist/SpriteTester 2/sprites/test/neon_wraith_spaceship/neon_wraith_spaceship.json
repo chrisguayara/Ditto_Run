@@ -1,0 +1,99 @@
+{
+    "name": "neon_wraith_spaceship",
+    "spriteSheetImage": "neon_wraith_spaceship.png",
+    "spriteWidth": 128,
+    "spriteHeight": 128,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 8,
+    "rows": 8,
+    "animations": [
+        {
+            "name": "IDLE",
+            "repeat": true,
+            "frames": [
+                {"index": 0, "duration": 12},
+                {"index": 1, "duration": 12},
+                {"index": 2, "duration": 12},
+                {"index": 3, "duration": 12},
+                {"index": 4, "duration": 12},
+                {"index": 5, "duration": 12},
+                {"index": 6, "duration": 12},
+                {"index": 7, "duration": 12}
+            ]
+        },
+        {
+            "name": "BOOST",
+            "repeat": true,
+            "frames": [
+                {"index": 8, "duration": 6},
+                {"index": 9, "duration": 6},
+                {"index": 10, "duration": 6},
+                {"index": 11, "duration": 6},
+                {"index": 12, "duration": 6},
+                {"index": 13, "duration": 6},
+                {"index": 14, "duration": 6}
+            ]
+        },
+        {
+            "name": "FIRING",
+            "repeat": true,
+            "frames": [
+                {"index": 15, "duration": 5},
+                {"index": 16, "duration": 5},
+                {"index": 17, "duration": 5},
+                {"index": 18, "duration": 5},
+                {"index": 19, "duration": 5},
+                {"index": 20, "duration": 5},
+                {"index": 21, "duration": 5},
+                {"index": 22, "duration": 5}
+                
+            ]
+        },
+        {
+            "name": "TAKING_DAMAGE",
+            "repeat": false,
+            "frames": [
+                {"index": 23, "duration": 4},
+                {"index": 24, "duration": 4},
+                {"index": 25, "duration": 4},
+                {"index": 26, "duration": 4},
+                {"index": 27, "duration": 4},
+                {"index": 28, "duration": 4},
+                {"index": 29, "duration": 4},
+                {"index": 30, "duration": 4}
+            ]
+        },
+        {
+            "name": "DYING",
+            "repeat": false,
+            "next": "DEAD",
+            "frames": [
+                {"index": 31, "duration": 5},
+                {"index": 32, "duration": 5},
+                {"index": 33, "duration": 5},
+                {"index": 34, "duration": 5},
+                {"index": 35, "duration": 5},
+                {"index": 36, "duration": 5},
+                {"index": 37, "duration": 5},
+                {"index": 38, "duration": 5}
+            ]
+        },
+        {
+            "name": "DEAD",
+            "repeat": true,
+            "frames": [
+                {"index": 39, "duration": 20},
+                {"index": 40, "duration": 20},
+                {"index": 41, "duration": 20},
+                {"index": 42, "duration": 20},
+                {"index": 43, "duration": 20},
+                {"index": 44, "duration": 20},
+                {"index": 45, "duration": 20},
+                {"index": 46, "duration": 20}
+            ]
+        }
+    ]
+}
