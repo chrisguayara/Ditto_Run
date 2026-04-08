@@ -2,6 +2,8 @@
 import PokemonState from "./PokemonState";
 import { PokemonStates, PokemonAnimations } from "../PokemonController";
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
+import MBAnimatedSprite from "../../Nodes/MBAnimatedSprite";
+import PokemonController from "../PokemonController";
 
 export default class Flee extends PokemonState {
 
@@ -12,6 +14,9 @@ export default class Flee extends PokemonState {
     public onEnter(options: Record<string, any>): void {
         this.owner.animation.play(PokemonAnimations.WALK, true);
         this.timer = 0;
+    }
+    public constructor(parent: PokemonController, owner: MBAnimatedSprite) {
+            super(parent, owner);
     }
 
     public update(deltaT: number): void {
