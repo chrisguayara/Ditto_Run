@@ -1,0 +1,169 @@
+{
+  "name": "zekrom",
+  "spriteSheetImage": "zekrom.png",
+  "spriteWidth": 256,
+  "spriteHeight": 256,
+
+  "leftBuffer": 0,
+  "rightBuffer": 0,
+  "topBuffer": 0,
+  "bottomBuffer": 0,
+
+  "columns": 10,
+  "rows": 6,
+
+  "animations": [
+    {
+      "name": "IDLE",
+      "repeat": true,
+      "frames": [
+        { "index": 0, "duration": 30 },
+        { "index": 1, "duration": 40 },
+        { "index": 2, "duration": 50 },
+        { "index": 3, "duration": 50 },
+        { "index": 4, "duration": 120 }
+      ]
+    },
+
+    {
+      "name": "WALK_LEFT",
+      "repeat": true,
+      "frames": [
+        { "index": 10, "duration": 50 },
+        { "index": 11, "duration": 50 },
+        { "index": 12, "duration": 50 },
+        { "index": 13, "duration": 50 },
+        { "index": 14, "duration": 50 }
+      ]
+    },
+
+    {
+      "name": "WALK_RIGHT",
+      "repeat": true,
+      "frames": [
+        { "index": 5, "duration": 50 },
+        { "index": 6, "duration": 50 },
+        { "index": 7, "duration": 50 },
+        { "index": 8, "duration": 50 },
+        { "index": 9, "duration": 50 }
+      ]
+    },
+
+    {
+      "name": "JUMP_LEFT",
+      "repeat": false,
+      "frames": [
+        { "index": 20, "duration": 50 },
+        { "index": 21, "duration": 50 },
+        { "index": 22, "duration": 50 },
+        { "index": 23, "duration": 50 },
+        { "index": 24, "duration": 50 }
+      ]
+    },
+
+    {
+      "name": "JUMP_RIGHT",
+      "repeat": false,
+      "frames": [
+        { "index": 15, "duration": 50 },
+        { "index": 16, "duration": 50 },
+        { "index": 17, "duration": 50 },
+        { "index": 18, "duration": 50 },
+        { "index": 19, "duration": 50 }
+      ]
+    },
+
+    {
+      "name": "ATTACK_LEFT",
+      "repeat": false,
+      "frames": [
+        { "index": 25, "duration": 50 },
+        { "index": 26, "duration": 50 },
+        { "index": 27, "duration": 50 },
+        { "index": 28, "duration": 50 },
+        { "index": 29, "duration": 50 }
+      ]
+    },
+
+    {
+      "name": "ATTACK_RIGHT",
+      "repeat": false,
+      "frames": [
+        { "index": 30, "duration": 50 },
+        { "index": 31, "duration": 50 },
+        { "index": 32, "duration": 50 },
+        { "index": 33, "duration": 50 },
+        { "index": 34, "duration": 50 }
+      ]
+    },
+
+    {
+      "name": "FALL_LEFT",
+      "repeat": false,
+      "frames": [
+        { "index": 35, "duration": 100 },
+        { "index": 36, "duration": 100 },
+        { "index": 37, "duration": 100 },
+        { "index": 38, "duration": 100 }
+      ]
+    },
+
+    {
+      "name": "FALL_RIGHT",
+      "repeat": false,
+      "frames": [
+        { "index": 39, "duration": 100 },
+        { "index": 40, "duration": 100 },
+        { "index": 41, "duration": 100 },
+        { "index": 42, "duration": 100 }
+      ]
+    },
+
+    {
+      "name": "TAKE_DAMAGE_LEFT",
+      "repeat": false,
+      "frames": [
+        { "index": 43, "duration": 30 },
+        { "index": 44, "duration": 10 },
+        { "index": 45, "duration": 8 },
+        { "index": 44, "duration": 10 },
+        { "index": 46, "duration": 30 }
+      ]
+    },
+
+    {
+      "name": "TAKE_DAMAGE_RIGHT",
+      "repeat": false,
+      "frames": [
+        { "index": 47, "duration": 30 },
+        { "index": 48, "duration": 10 },
+        { "index": 49, "duration": 8 },
+        { "index": 48, "duration": 10 },
+        { "index": 50, "duration": 30 }
+      ]
+    },
+
+    {
+      "name": "DYING",
+      "repeat": false,
+      "frames": [
+        { "index": 51, "duration": 40 },
+        { "index": 52, "duration": 30 },
+        { "index": 53, "duration": 30 },
+        { "index": 54, "duration": 30 },
+        { "index": 55, "duration": 30 },
+        { "index": 56, "duration": 30 },
+        { "index": 57, "duration": 30 },
+        { "index": 58, "duration": 120 }
+      ]
+    },
+
+    {
+      "name": "DEAD",
+      "repeat": false,
+      "frames": [
+        { "index": 59, "duration": 150 }
+      ]
+    }
+  ]
+}

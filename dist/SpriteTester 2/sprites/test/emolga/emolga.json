@@ -1,0 +1,170 @@
+{
+    "name": "emolga",
+    "spriteSheetImage": "emolga.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 8,
+    "rows": 7,
+    "animations": [
+        {
+            "name": "IDLE_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 0, "duration": 20 },
+                { "index": 1, "duration": 20 }
+            ]
+        },
+        {
+            "name": "IDLE_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 2, "duration": 20 },
+                { "index": 3, "duration": 20 }
+            ]
+        },
+        {
+            "name": "WALK_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 4, "duration": 10 },
+                { "index": 5, "duration": 10 },
+                { "index": 6, "duration": 10 },
+                { "index": 7, "duration": 10 }
+            ]
+        },
+        {
+            "name": "WALK_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 8, "duration": 10 },
+                { "index": 9, "duration": 10 },
+                { "index": 10, "duration": 10 },
+                { "index": 11, "duration": 10 }
+            ]
+        },
+        {
+            "name": "JUMP_LEFT",
+            "repeat": false,
+            "frames": [
+                { "index": 12, "duration": 10 },
+                { "index": 13, "duration": 10 }
+            ]
+        },
+        {
+            "name": "JUMP_RIGHT",
+            "repeat": false,
+            "frames": [
+                { "index": 14, "duration": 10 },
+                { "index": 15, "duration": 10 }
+            ]
+        },
+        {
+            "name": "TAKE_DAMAGE_LEFT",
+            "repeat": false,
+            "frames": [
+                { "index": 16, "duration": 5 },
+                { "index": 17, "duration": 5 },
+                { "index": 18, "duration": 5 },
+                { "index": 19, "duration": 5 },
+                { "index": 20, "duration": 5 },
+                { "index": 21, "duration": 5 }
+            ]
+        },
+        {
+            "name": "TAKE_DAMAGE_RIGHT",
+            "repeat": false,
+            "frames": [
+                { "index": 22, "duration": 5 },
+                { "index": 23, "duration": 5 },
+                { "index": 24, "duration": 5 },
+                { "index": 25, "duration": 5 },
+                { "index": 26, "duration": 5 },
+                { "index": 27, "duration": 5 }
+            ]
+        },
+        {
+            "name": "ATTACK_LEFT",
+            "repeat": false,
+            "frames": [
+                { "index": 28, "duration": 7 },
+                { "index": 29, "duration": 7 },
+                { "index": 30, "duration": 7 }
+            ]
+        },
+        {
+            "name": "ATTACK_RIGHT",
+            "repeat": false,
+            "frames": [
+                { "index": 31, "duration": 7 },
+                { "index": 32, "duration": 7 },
+                { "index": 33, "duration": 7 }
+            ]
+        },
+        {
+            "name": "FALL_LEFT_2",
+            "repeat": true,
+            "frames": [
+                { "index": 36, "duration": 10 },
+                { "index": 37, "duration": 10 }
+            ]
+        },
+        {
+            "name": "FALL_RIGHT_2",
+            "repeat": true,
+            "frames": [
+                { "index": 38, "duration": 10 },
+                { "index": 39, "duration": 10 }
+            ]
+        },
+        {
+            "name": "FALL_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 40, "duration": 10 },
+                { "index": 41, "duration": 10 }
+            ]
+        },
+        {
+            "name": "FALL_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 42, "duration": 10 },
+                { "index": 43, "duration": 10 }
+            ]
+        },
+        {
+            "name": "DYING_LEFT",
+            "repeat": false,
+            "frames": [
+                { "index": 44, "duration": 10 },
+                { "index": 45, "duration": 10 }
+            ]
+        },
+        {
+            "name": "DEAD_LEFT",
+            "repeat": false,
+            "frames": [
+                { "index": 46, "duration": 10 }
+            ]
+        },
+        {
+            "name": "DYING_RIGHT",
+            "repeat": false,
+            "frames": [
+                { "index": 48, "duration": 10 },
+                { "index": 49, "duration": 10 }
+            ]
+        },
+        {
+            "name": "DEAD_RIGHT",
+            "repeat": false,
+            "frames": [
+                { "index": 50, "duration": 10 }
+            ]
+        }
+    ]
+}

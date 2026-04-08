@@ -1,0 +1,71 @@
+{
+    "name": "spaceshipK",
+    "spriteSheetImage": "spaceshipK.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 3,
+    "rows": 6,
+    "animations": [
+      {
+        "name": "IDLE",
+        "repeat": true,
+        "frames": [
+          { "index": 0, "duration": 15 },
+          { "index": 1, "duration": 15 },
+          { "index": 2, "duration": 15 }
+        ]
+      },
+      {
+        "name": "BOOST",
+        "repeat": true,
+        "frames": [
+          { "index": 3, "duration": 10 },
+          { "index": 4, "duration": 10 },
+          { "index": 5, "duration": 10 }
+        ]
+      },
+      {
+        "name": "FIRING",
+        "repeat": true,
+        "frames": [
+          { "index": 6, "duration": 8 },
+          { "index": 7, "duration": 8 },
+          { "index": 8, "duration": 8 }
+        ]
+      },
+      {
+        "name": "TAKING_DAMAGE",
+        "repeat": true,
+        "frames": [
+          { "index": 9, "duration": 12 },
+          { "index": 10, "duration": 12 },
+          { "index": 11, "duration": 12 }
+        ]
+      },
+      {
+        "name": "DYING",
+        "repeat": false,
+        "next": "DEAD",
+        "frames": [
+          { "index": 12, "duration": 14 },
+          { "index": 13, "duration": 14 },
+          { "index": 14, "duration": 20 }
+        ]
+      },
+      {
+        "name": "DEAD",
+        "repeat": true,
+        "frames": [
+          { "index": 15, "duration": 60 },
+          { "index": 16, "duration": 60 },
+          { "index": 17, "duration": 60 }
+        ]
+      }
+    ]
+  }
+
+  

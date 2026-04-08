@@ -1,0 +1,305 @@
+{
+    "name": "Litwick",
+    "spriteSheetImage": "Litwick.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 8,
+    "rows": 11,
+    "animations": [
+        {
+            "name": "IDLE",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 0,
+                    "duration": 12
+                },
+                {
+                    "index": 1,
+                    "duration": 12
+                }
+            ]
+        },
+        {
+            "name": "WALK_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 32,
+                    "duration": 6
+                },
+                {
+                    "index": 33,
+                    "duration": 8
+                },
+                {
+                    "index": 34,
+                    "duration": 6
+                },
+                {
+                    "index": 35,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "WALK_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 8,
+                    "duration": 6
+                },
+                {
+                    "index": 9,
+                    "duration": 8
+                },
+                {
+                    "index": 10,
+                    "duration": 6
+                },
+                {
+                    "index": 11,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "JUMP_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 80,
+                    "duration": 8
+                },
+                {
+                    "index": 81,
+                    "duration": 5
+                },
+                {
+                    "index": 82,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "JUMP_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 72,
+                    "duration": 8
+                },
+                {
+                    "index": 73,
+                    "duration": 5
+                },
+                {
+                    "index": 74,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "FALL_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 83,
+                    "duration": 5
+                },
+                {
+                    "index": 84,
+                    "duration": 5
+                },
+                {
+                    "index": 85,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "FALL_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 75,
+                    "duration": 5
+                },
+                {
+                    "index": 76,
+                    "duration": 5
+                },
+                {
+                    "index": 77,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "ATTACK_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 40,
+                    "duration": 5
+                },
+                {
+                    "index": 41,
+                    "duration": 5
+                },
+                {
+                    "index": 42,
+                    "duration": 5
+                },
+                {
+                    "index": 43,
+                    "duration": 5
+                },
+                {
+                    "index": 44,
+                    "duration": 5
+                },
+                {
+                    "index": 45,
+                    "duration": 5
+                },
+                {
+                    "index": 46,
+                    "duration": 3
+                },
+                {
+                    "index": 47,
+                    "duration": 2
+                },
+                {
+                    "index": 40,
+                    "duration": 2
+                }
+            ]
+        },
+        {
+            "name": "ATTACK_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 16,
+                    "duration": 5
+                },
+                {
+                    "index": 17,
+                    "duration": 5
+                },
+                {
+                    "index": 18,
+                    "duration": 5
+                },
+                {
+                    "index": 19,
+                    "duration": 5
+                },
+                {
+                    "index": 20,
+                    "duration": 5
+                },
+                {
+                    "index": 21,
+                    "duration": 5
+                },
+                {
+                    "index": 22,
+                    "duration": 3
+                },
+                {
+                    "index": 23,
+                    "duration": 2
+                },
+                {
+                    "index": 16,
+                    "duration": 2
+                }
+            ]
+        },
+        {
+            "name": "TAKE_DAMAGE_LEFT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 48,
+                    "duration": 8
+                },
+                {
+                    "index": 49,
+                    "duration": 6
+                },
+                {
+                    "index": 48,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "TAKE_DAMAGE_RIGHT",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 24,
+                    "duration": 8
+                },
+                {
+                    "index": 25,
+                    "duration": 6
+                },
+                {
+                    "index": 24,
+                    "duration": 8
+                }
+            ]
+        },
+        {
+            "name": "DYING",
+            "repeat": false,
+            "next": "DEAD",
+            "frames": [
+                {
+                    "index": 56,
+                    "duration": 4
+                },
+                {
+                    "index": 57,
+                    "duration": 4
+                },
+                {
+                    "index": 58,
+                    "duration": 4
+                },
+                {
+                    "index": 59,
+                    "duration": 4
+                },
+                {
+                    "index": 60,
+                    "duration": 4
+                },
+                {
+                    "index": 61,
+                    "duration": 4
+                }
+            ]
+        },
+        {
+            "name": "DEAD",
+            "repeat": true,
+            "frames": [
+                {
+                    "index": 64,
+                    "duration": 20
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,130 @@
+{
+    "name": "bayleef",
+    "spriteSheetImage": "bayleef.png",
+    "spriteWidth": 256,
+    "spriteHeight": 256,
+    "leftBuffer": 0,
+    "rightBuffer": 0,
+    "topBuffer": 0,
+    "bottomBuffer": 0,
+    "columns": 4,
+    "rows": 5,
+    "animations": [
+        {
+            "name": "IDLE",
+            "repeat": true,
+            "frames": [
+                { "index": 0, "duration": 12 }
+                
+            ]
+        },
+        {
+            "name": "WALK_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 0, "duration": 8 },
+                { "index": 1, "duration": 8 }
+              
+            ]
+        },
+        {
+            "name": "WALK_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 2, "duration": 8 },
+                { "index": 3, "duration": 8 }
+ 
+            ]
+        },
+        {
+            "name": "JUMP_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 0, "duration": 12 },
+                { "index": 1, "duration": 12 },
+                { "index": 6, "duration": 64 }
+            ]
+        },
+        {
+            "name": "JUMP_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 2, "duration": 12 },
+                { "index": 3, "duration": 12 },
+                { "index": 5, "duration": 64 }
+            ]
+        },
+        {
+            "name": "ATTACK_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 0, "duration": 12 },
+                { "index": 1, "duration": 12 },
+                { "index": 6, "duration": 4 },
+                { "index": 7, "duration": 32 }
+
+            ]
+        },
+        {
+            "name": "ATTACK_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 2, "duration": 12 },
+                { "index": 3, "duration": 12 },
+                { "index": 5, "duration": 4 },
+                { "index": 8, "duration": 32 }
+            ]
+        },
+        {
+            "name": "FALL_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 0, "duration": 8 },
+                { "index": 9, "duration": 64 }
+            ]
+        },
+        {
+            "name": "FALL_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 2, "duration": 8 },
+                { "index": 10, "duration": 64 }
+            ]
+        },
+        {
+            "name": "TAKE_DAMAGE_LEFT",
+            "repeat": true,
+            "frames": [
+                { "index": 0, "duration": 8 },
+                { "index": 11, "duration": 16 }
+            
+            ]
+        },
+        {
+            "name": "TAKE_DAMAGE_RIGHT",
+            "repeat": true,
+            "frames": [
+                { "index": 2, "duration": 8 },
+                { "index": 12, "duration": 16 }
+            ]
+        },
+        {
+            "name": "DYING",
+            "repeat": false,
+            "next": "DEAD",
+            "frames": [
+                { "index": 13, "duration": 16 },
+                { "index": 14, "duration": 16 },
+                { "index": 15, "duration": 16 },
+                { "index": 16, "duration": 32 }
+            ]
+        },
+        {
+            "name": "DEAD",
+            "repeat": true,
+            "frames": [
+                { "index": 17, "duration": 128 }
+            ]
+        }
+    ]
+}
