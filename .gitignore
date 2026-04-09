@@ -140,8 +140,9 @@ dist
 .claude/
 
 
-**DS_Store
+**.DS_Store
 
 package-lock.json
 package.json
 dist/bundle.js
+dist/.DS_Store
