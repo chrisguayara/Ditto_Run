@@ -24,6 +24,7 @@ import { MBEvents } from "../MBEvents";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import MBFactoryManager from "../Factory/MBFactoryManager";
 import MainMenu from "./MainMenu";
+import { PlayerStates } from "../Player/PlayerController";
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
 
 /**
@@ -72,6 +73,10 @@ export default abstract class MBLevel extends Scene {
     protected levelEndTimer!: Timer;
     protected levelEndLabel!: Label;
 
+    
+
+    
+
     // Level end transition timer and graphic
     protected levelTransitionTimer!: Timer;
     protected levelTransitionScreen!: Rect;
@@ -92,6 +97,12 @@ export default abstract class MBLevel extends Scene {
     protected levelMusicKey!: string;
     protected jumpAudioKey!: string;
     protected tileDestroyedAudioKey!: string;
+    protected checkpoint_sqr1!: Vec2;
+    protected checkpoint_sqr2!: Vec2;
+    
+    protected checkpointOneArea!: Rect;
+    protected checkpointTwoArea!: Rect;
+    protected respawnPosition!: Vec2;
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
         super(viewport, sceneManager, renderingManager, {...options, physics: {
@@ -134,6 +145,7 @@ export default abstract class MBLevel extends Scene {
         this.initializeViewport();
         this.subscribeToEvents();
         this.initializeUI();
+        this.initializeCheckpoints();
         
 
         // Initialize the ends of the levels - must be initialized after the primary layer has been added
@@ -194,10 +206,30 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.PLAYER_DEAD: {
-                this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
-                this.sceneManager.changeToScene(MainMenu);
+                const ctrl = this.player._ai as PlayerController;
+                this.player.position.copy(this.respawnPosition);
+    
+                
+                this.player.alpha = 1;
+                
+                
+                this.player.rotation = 0;
+                
+                
+                ctrl.health = ctrl.maxHealth;
+                
+                // Reset physics group in case they died as phantump
+                this.player.setGroup(MBPhysicsGroups.PLAYER);
+                
+                // Reset velocity so they don't fly off
+                ctrl.velocity = Vec2.ZERO;
+                
+                // Go back to idle
+                ctrl.changeState(PlayerStates.IDLE);
+                
                 break;
             }
+            
             case MBEvents.TRANSFORM_START: {
                 const form = event.data.get("form");
                 if (form === "PHANTUMP") {
@@ -220,6 +252,17 @@ export default abstract class MBLevel extends Scene {
                 // TODO: hook up energy bar UI
                 break;
             }
+            
+            case MBEvents.PLAYER_ENTERED_CHECKPOINT: {
+                const nodeId = event.data.get("node");
+                if (this.checkpointOneArea && nodeId === this.checkpointOneArea.id) {
+                    this.respawnPosition = this.checkpoint_sqr1.clone();
+                } else if (this.checkpointTwoArea && nodeId === this.checkpointTwoArea.id) {
+                    this.respawnPosition = this.checkpoint_sqr2.clone();
+                }
+                break;
+            }
+            
             // Default: Throw an error! No unhandled events allowed.
             default: {
                 throw new Error(`Unhandled event caught in scene with type ${event.type}`)
@@ -347,6 +390,7 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.TRANSFORM_START);
         this.receiver.subscribe(MBEvents.TRANSFORM_END);
         this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
+        this.receiver.subscribe(MBEvents.PLAYER_ENTERED_CHECKPOINT);
     }
 
     protected initializeUI(): void {
@@ -512,6 +556,29 @@ export default abstract class MBLevel extends Scene {
         this.levelEndArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_LEVEL_END, "");
         this.levelEndArea.color = new Color(255, 0, 255, .20);
         
+    }
+    protected initializeCheckpoints(): void {
+        if (!this.layers.has(MBLayers.PRIMARY)) return;
+
+        if (this.checkpoint_sqr1) {
+            this.checkpointOneArea = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.PRIMARY, {
+                position: this.checkpoint_sqr1,
+                size: this.levelEndHalfSize  // same size as level end
+            });
+            this.checkpointOneArea.addPhysics(undefined, undefined, false, true);
+            this.checkpointOneArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_CHECKPOINT, "");
+            this.checkpointOneArea.color = new Color(255, 255, 0, 0.20);
+        }
+
+        if (this.checkpoint_sqr2) {
+            this.checkpointTwoArea = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.PRIMARY, {
+                position: this.checkpoint_sqr2,
+                size: this.levelEndHalfSize
+            });
+            this.checkpointTwoArea.addPhysics(undefined, undefined, false, true);
+            this.checkpointTwoArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_CHECKPOINT, "");
+            this.checkpointTwoArea.color = new Color(255, 255, 0, 0.20);
+        }
     }
 
     /* Misc methods */

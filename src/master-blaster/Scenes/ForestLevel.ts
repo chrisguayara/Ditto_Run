@@ -13,15 +13,21 @@ import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
+export const CHECKPOINTS = {
+    SPAWN : new Vec2(5*16,9*16),
+    CHECKPOINT_ONE : new Vec2(73*16,10*16),
+    CHECKPOINT_TWO : new Vec2(64*16,42*16),
+} as const;
+
+
 export default class ForestLevel extends MBLevel {
     
     // public static readonly PLAYER_SPAWN = new Vec2(5*16, 160);
-    public static readonly PLAYER_SPAWN = new Vec2(74*16, 22*16);
+    public static readonly PLAYER_SPAWN = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
 
     public static readonly TILEMAP_KEY = "ForestLevelFinal";
-    public static readonly TILEMAP_KEY = "ForestLevel";
     public static readonly TILEMAP_PATH = "game_assets/tilemaps/forestmap.json";
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
@@ -44,6 +50,7 @@ export default class ForestLevel extends MBLevel {
 
     // public static readonly PHANTUMP_WALL_LAYER = "PhantumpWallLayer"
     
+    
 
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
 
@@ -60,15 +67,19 @@ export default class ForestLevel extends MBLevel {
         this.playerSpriteKey = ForestLevel.PLAYER_SPRITE_KEY;
         // Set the player's spawn
         this.playerSpawn = ForestLevel.PLAYER_SPAWN;
-
+        this.respawnPosition = this.playerSpawn.clone();
         // Music and sound
         this.levelMusicKey = ForestLevel.LEVEL_MUSIC_KEY
         this.jumpAudioKey = ForestLevel.JUMP_AUDIO_KEY;
         this.tileDestroyedAudioKey = ForestLevel.TILE_DESTROYED_KEY;
 
         // Level end size and position
-        this.levelEndPosition = new Vec2(360, 216).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(12*16, 39*16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
+
+        this.checkpoint_sqr1 =  CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
+        this.checkpoint_sqr2 =  CHECKPOINTS.CHECKPOINT_TWO.mult(this.tilemapScale);
+        
     }
 
     /**
@@ -104,6 +115,7 @@ export default class ForestLevel extends MBLevel {
         this.nextLevel = MBLevel2;
         (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
         this.initializePKMN();
+        this.respawnPosition = this.playerSpawn.clone();
     }
     protected initializePKMN(): void {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
