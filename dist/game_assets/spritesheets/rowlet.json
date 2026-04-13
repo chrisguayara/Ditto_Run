@@ -48,7 +48,7 @@
       ]
     },
       {
-        "name": "DEAD",
+        "name": "FAINTED",
         "repeat": true,
         "frames": [
           {

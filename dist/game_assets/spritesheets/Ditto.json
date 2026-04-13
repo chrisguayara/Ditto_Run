@@ -2,8 +2,8 @@
 {
   "name": "Ditto",
   "spriteSheetImage": "ditto.png",
-  "spriteWidth": 16,
-  "spriteHeight": 16,
+  "spriteWidth": 32,
+  "spriteHeight": 32,
   "columns": 1,
   "rows": 1,
   "durationType": "time",

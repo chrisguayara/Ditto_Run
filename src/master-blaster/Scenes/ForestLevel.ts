@@ -19,8 +19,8 @@ export default class ForestLevel extends MBLevel {
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
 
-    public static readonly TILEMAP_KEY = "ForestLevel";
-    public static readonly TILEMAP_PATH = "game_assets/tilemaps/ForestLevel.json";
+    public static readonly TILEMAP_KEY = "ForestLevelFinal";
+    public static readonly TILEMAP_PATH = "game_assets/tilemaps/ForestLevelFinal.json";
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
     public static readonly WALLS_LAYER_KEY = "Ground";
@@ -40,6 +40,9 @@ export default class ForestLevel extends MBLevel {
     public static readonly PHANTUMP_SPRITE_KEY = "Phantump"
     public static readonly PHANTUMP_SPRITE_PATH = "game_assets/spritesheets/phantump.json"
 
+    // public static readonly PHANTUMP_WALL_LAYER = "PhantumpWallLayer"
+    // public static readonly PHANTUMP_WALL_PATH = "game/assets/"
+
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
@@ -50,7 +53,7 @@ export default class ForestLevel extends MBLevel {
         this.tilemapScale = ForestLevel.TILEMAP_SCALE;
         // this.destructibleLayerKey = ForestLevel.DESTRUCTIBLE_LAYER_KEY;
         this.wallsLayerKey = ForestLevel.WALLS_LAYER_KEY;
-        this.phantomWallLayerKey = "PhantomWalls"; 
+        // this.phantomWallLayerKey = "PhantumpWallLayer"; 
         // Set the key for the player's sprite
         this.playerSpriteKey = ForestLevel.PLAYER_SPRITE_KEY;
         // Set the player's spawn
