@@ -37,7 +37,7 @@ export default class PlayerWeapon extends ParticleSystem {
         particle.vel = RandUtils.randVec(-32, 32, 100, 200);
         // Rotate the particle's velocity vector
         particle.vel.rotateCCW(this._rotation);
-        particle.color = Color.RED;
+        particle.color = Color.MAGENTA;
 
         // Give the particle tweens
         particle.tweens.add("active", {

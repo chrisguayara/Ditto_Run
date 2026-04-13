@@ -8,6 +8,9 @@
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "/Users/chrisguayara/Downloads/tiled/final_forestlevel_tileset.tsx": {
+            "scaleInDock": 1
+        },
         "forest.tsx": {
             "scaleInDock": 4,
             "scaleInEditor": 4.94
@@ -17,16 +20,17 @@
             "scaleInEditor": 4.72
         },
         "tilemap_forest.tmx": {
-            "scale": 0.9544,
-            "selectedLayer": 3,
+            "scale": 1.6188,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 1064.5431684828163,
-                "y": 571.0393964794637
+                "x": 272.42401779095627,
+                "y": 224.24017790956268
             }
         }
     },
-    "last.exportedFilePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/tiled",
-    "last.imagePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps",
+    "last.exportedFilePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps",
+    "last.externalTilesetPath": "/Users/chrisguayara/Downloads",
+    "last.imagePath": "/Users/chrisguayara/Downloads",
     "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,

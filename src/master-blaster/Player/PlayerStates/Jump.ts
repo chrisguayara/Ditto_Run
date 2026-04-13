@@ -13,9 +13,9 @@ export default class Jump extends PlayerState {
         this.parent.velocity.y = this.parent.effectiveJumpForce;
 
         // If the player is moving to the left or right, make them do a flip
-        if(this.parent.velocity.x !== 0){
-            this.owner.tweens.play(PlayerTweens.FLIP);
-        }
+        // if(this.parent.velocity.x !== 0){
+        //     this.owner.tweens.play(PlayerTweens.FLIP);
+        // }
 
         // Play the jump sound for the player
 		this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: scene.getJumpAudioKey(), loop: false, holdReference: false});
