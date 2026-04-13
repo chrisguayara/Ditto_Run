@@ -87,6 +87,20 @@
           "duration": 23
         }
       ]
+    },{
+      "name": "ROWLET",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 6,
+          "duration": 23
+        },
+          {
+          "index": 7,
+          "duration": 23
+        }
+        
+      ]
     }
   ]
 }

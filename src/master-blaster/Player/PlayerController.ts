@@ -6,21 +6,25 @@ import Fall from "./PlayerStates/Fall";
 import Idle from "./PlayerStates/Idle";
 import Jump from "./PlayerStates/Jump";
 import Run from "./PlayerStates/Run";
+import Dead from "./PlayerStates/Dead";
 
 import PlayerWeapon from "./PlayerWeapon";
 import Input from "../../Wolfie2D/Input/Input";
+import TransformationManager from "./TransformationManager";
 
 import { MBControls } from "../MBControls";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import MathUtils from "../../Wolfie2D/Utils/MathUtils";
 import { MBEvents } from "../MBEvents";
-import Dead from "./PlayerStates/Dead";
-import TransformationManager from "./TransformationManager";
 
 export const PlayerAnimations = {
     IDLE: "IDLE",
     WALK: "WALK",
     JUMP: "JUMP",
+    ROWLET_IDLE: "ROWLET_IDLE",
+    ROWLET_FLY: "ROWLET_FLY",
+    PHANTUMP_FLY: "PHANTUMP_FLY",
+    PHANTUMP_IDLE: "PHANTUMP_IDLE"
 } as const
 
 export const PlayerTweens = {
@@ -44,19 +48,19 @@ export default class PlayerController extends StateMachineAI {
 
     protected _health!: number;
     protected _maxHealth!: number;
-    protected _transformations!: TransformationManager;
     protected owner!: MBAnimatedSprite;
     protected _velocity!: Vec2;
     protected _speed!: number;
     protected tilemap!: OrthogonalTilemap;
     protected weapon!: PlayerWeapon;
+    protected _transformations!: TransformationManager;
 
-    public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>){
+    public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
         this.owner = owner;
         this.weapon = options.weaponSystem;
         this._transformations = new TransformationManager();
+
         this.tilemap = this.owner.getScene().getTilemap(options.tilemap) as OrthogonalTilemap;
-        
         this.speed = 400;
         this.velocity = Vec2.ZERO;
         this.health = 10;
@@ -67,7 +71,7 @@ export default class PlayerController extends StateMachineAI {
         this.addState(PlayerStates.JUMP, new Jump(this, this.owner));
         this.addState(PlayerStates.FALL, new Fall(this, this.owner));
         this.addState(PlayerStates.DEAD, new Dead(this, this.owner));
-        
+
         this.initialize(PlayerStates.IDLE);
     }
 
@@ -128,5 +132,21 @@ export default class PlayerController extends StateMachineAI {
         this._health = MathUtils.clamp(health, 0, this.maxHealth);
         this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
         if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
+    }
+
+    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL"): string {
+        const form = this._transformations.activeForm?.key ?? null;
+
+        if (form === "ROWLET") {
+            return (base === "JUMP" || base === "FALL") 
+                ? PlayerAnimations.ROWLET_FLY 
+                : PlayerAnimations.ROWLET_IDLE;
+        }
+        if (form === "PHANTUMP") {
+            return base === "IDLE" 
+                ? PlayerAnimations.PHANTUMP_IDLE 
+                : PlayerAnimations.PHANTUMP_FLY;
+        }
+        return PlayerAnimations[base];
     }
 }

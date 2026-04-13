@@ -1,7 +1,7 @@
 import GameEvent from "../../../Wolfie2D/Events/GameEvent";
 import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
 import { PlayerStates, PlayerTweens } from "../PlayerController";
-
+import PlayerController from "../PlayerController";
 import PlayerState from "./PlayerState";
 
 export default class Jump extends PlayerState {

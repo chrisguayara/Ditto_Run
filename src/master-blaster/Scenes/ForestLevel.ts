@@ -15,12 +15,14 @@ import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
  */
 export default class ForestLevel extends MBLevel {
     
-    public static readonly PLAYER_SPAWN = new Vec2(32, 32);
+    // public static readonly PLAYER_SPAWN = new Vec2(5*16, 160);
+    public static readonly PLAYER_SPAWN = new Vec2(74*16, 22*16);
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
 
     public static readonly TILEMAP_KEY = "ForestLevelFinal";
-    public static readonly TILEMAP_PATH = "game_assets/tilemaps/ForestLevelFinal.json";
+    public static readonly TILEMAP_KEY = "ForestLevel";
+    public static readonly TILEMAP_PATH = "game_assets/tilemaps/forestmap.json";
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
     public static readonly WALLS_LAYER_KEY = "Ground";
@@ -41,7 +43,7 @@ export default class ForestLevel extends MBLevel {
     public static readonly PHANTUMP_SPRITE_PATH = "game_assets/spritesheets/phantump.json"
 
     // public static readonly PHANTUMP_WALL_LAYER = "PhantumpWallLayer"
-    // public static readonly PHANTUMP_WALL_PATH = "game/assets/"
+    
 
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
 
@@ -53,7 +55,7 @@ export default class ForestLevel extends MBLevel {
         this.tilemapScale = ForestLevel.TILEMAP_SCALE;
         // this.destructibleLayerKey = ForestLevel.DESTRUCTIBLE_LAYER_KEY;
         this.wallsLayerKey = ForestLevel.WALLS_LAYER_KEY;
-        // this.phantomWallLayerKey = "PhantumpWallLayer"; 
+        this.phantomWallLayerKey = "phasewalls"; 
         // Set the key for the player's sprite
         this.playerSpriteKey = ForestLevel.PLAYER_SPRITE_KEY;
         // Set the player's spawn
@@ -105,7 +107,7 @@ export default class ForestLevel extends MBLevel {
     }
     protected initializePKMN(): void {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
-        rowlet.position.set(352, 208);
+        rowlet.position.set(16*16, 16*8);
         rowlet.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
         rowlet.addAI(RowletController, {
             playerRef: this.player,          
@@ -117,7 +119,7 @@ export default class ForestLevel extends MBLevel {
         rowlet.animation.play("IDLE");
     
         let phantump = this.add.animatedSprite(ForestLevel.PHANTUMP_SPRITE_KEY, "PRIMARY");
-        phantump.position.set(96,144);
+        phantump.position.set(77*16,16*13);
         phantump.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
         phantump.addAI(PhantumpController, {
             playerRef: this.player,

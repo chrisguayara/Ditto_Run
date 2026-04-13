@@ -207,6 +207,7 @@ export default abstract class MBLevel extends Scene {
                     this.playerWeaponSystem.stopSystem();
                     this.playerWeaponSystem = this.phantumpWeaponSystem;
                 }
+                
                 break;
             }
             case MBEvents.TRANSFORM_END: {
