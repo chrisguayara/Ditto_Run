@@ -22,18 +22,26 @@ export default class Patrol extends PokemonState {
     public update(deltaT: number): void {
         super.update(deltaT);
 
-        // Flip direction at patrol boundaries
-        if (this.owner.position.x >= this.parent.patrolRight) {
-            this.movingRight = false;
-        } else if (this.owner.position.x <= this.parent.patrolLeft) {
-            this.movingRight = true;
-        }
-
         this.parent.velocity.x = this.movingRight ? this.parent.speed : -this.parent.speed;
         this.parent.velocity.y += this.gravity * deltaT;
+
+        // Store x before move to detect if we were stopped by a wall
+        const prevX = this.owner.position.x;
         this.owner.move(this.parent.velocity.scaled(deltaT));
 
-        // Hostile mobs get an aggro check here — passive/neutral don't
+        // If we barely moved horizontally, we hit a wall — reverse
+        const movedX = Math.abs(this.owner.position.x - prevX);
+        if (movedX < 0.5) {
+            this.movingRight = !this.movingRight;
+        }
+
+        // Also keep the boundary fallback so it doesn't wander forever
+        if (this.owner.position.x >= this.parent.patrolRight) this.movingRight = false;
+        if (this.owner.position.x <= this.parent.patrolLeft) this.movingRight = true;
+
+        // Flip sprite to face direction
+        this.owner.invertX = !this.movingRight;
+
         if (this.parent instanceof HostileBehavior) {
             const dist = this.owner.position.distanceTo(this.parent.playerRef.position);
             if (dist <= this.parent.AGGRO_RANGE) {

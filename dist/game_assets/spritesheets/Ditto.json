@@ -4,7 +4,7 @@
   "spriteSheetImage": "ditto.png",
   "spriteWidth": 32,
   "spriteHeight": 32,
-  "columns": 10,
+  "columns": 1,
   "rows": 1,
   "durationType": "time",
   "animations": [
@@ -98,6 +98,20 @@
           "index": 0,
           "duration": 23
         }
+      ]
+    },{
+      "name": "ROWLET",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 6,
+          "duration": 23
+        },
+          {
+          "index": 7,
+          "duration": 23
+        }
+        
       ]
     }
   ]

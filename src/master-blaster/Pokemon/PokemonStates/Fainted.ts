@@ -1,8 +1,6 @@
 // Fainted.ts
 import PokemonState from "./PokemonState";
 import { PokemonAnimations } from "../PokemonController";
-import MBAnimatedSprite from "../../Nodes/MBAnimatedSprite";
-import PokemonController from "../PokemonController";
 
 export default class Fainted extends PokemonState {
 
@@ -10,11 +8,10 @@ export default class Fainted extends PokemonState {
         this.owner.animation.play(PokemonAnimations.FAINTED, false);
         this.parent.velocity.x = 0;
         this.parent.velocity.y = 0;
-        // isFainted is now true — Ditto can transform
+
+        console.log("This pokemon is now fainted, tranforming is allowed")
+        
     }
-    public constructor(parent: PokemonController, owner: MBAnimatedSprite) {
-            super(parent, owner);
-     }
 
     public update(deltaT: number): void {}
 

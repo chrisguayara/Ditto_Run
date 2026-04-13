@@ -207,6 +207,7 @@ export default abstract class MBLevel extends Scene {
                     this.playerWeaponSystem.stopSystem();
                     this.playerWeaponSystem = this.phantumpWeaponSystem;
                 }
+                
                 break;
             }
             case MBEvents.TRANSFORM_END: {
@@ -317,11 +318,12 @@ export default abstract class MBLevel extends Scene {
         // Get the wall and destructible layers 
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
 
+        
         // Phantom walls - independent of destructible layer
         if (this.phantomWallLayerKey !== undefined) {
-            this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
-            this.phantomWalls.addPhysics();
-            this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
+            // this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
+            // this.phantomWalls.addPhysics();
+            // this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
         }
 
         // Destructible layer
