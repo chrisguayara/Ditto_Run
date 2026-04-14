@@ -87,16 +87,20 @@ export default abstract class MBLevel extends Scene {
     protected destructibleLayerKey!: string;
     protected wallsLayerKey!: string;
     protected phantomWallLayerKey!: string;
+    protected damageWallLayerKey! : string;
     protected tilemapScale!: Vec2;
     /** The destrubtable layer of the tilemap */
     protected destructable: OrthogonalTilemap | undefined;
     /** The wall layer of the tilemap */
     protected walls!: OrthogonalTilemap;
     protected phantomWalls!: OrthogonalTilemap;
+    protected damageWalls!: OrthogonalTilemap;
 
     // ── Audio ─────────────────────────────────────────────────────
     protected levelMusicKey!: string;
     protected jumpAudioKey!: string;
+    protected transformAudioKey!: string;
+    protected levelEndAudioKey!: string;
     protected tileDestroyedAudioKey!: string;
     protected checkpoint_sqr1!: Vec2;
     protected checkpoint_sqr2!: Vec2;
@@ -114,16 +118,18 @@ export default abstract class MBLevel extends Scene {
                 MBPhysicsGroups.PLAYER_WEAPON,
                 MBPhysicsGroups.DESTRUCTABLE,
                 MBPhysicsGroups.PHANTOM_WALL,
+                MBPhysicsGroups.DAMAGE_WALL
             ],
             collisions:
             [
-            //   GND  PLR  PHP  WPN  DST  PHT
-                [0,   1,   1,   1,   0,   0],  // GROUND
-                [1,   0,   0,   0,   1,   1],  // PLAYER - collides with phantom walls
-                [1,   0,   0,   0,   1,   0],  // PLAYER_PHANTUMP - phases through phantom walls
-                [1,   0,   0,   0,   1,   0],  // WEAPON
-                [0,   1,   1,   1,   0,   0],  // DESTRUCTABLE
-                [0,   1,   0,   0,   0,   0],  // PHANTOM_WALL
+            //   GND  PLR  PHP  WPN  DST  PHT DMG
+                [0,   1,   1,   1,   0,   0, 0],  // GROUND
+                [1,   0,   0,   0,   1,   1, 1],  // PLAYER - collides with phantom walls
+                [1,   0,   0,   0,   1,   0, 1],  // PLAYER_PHANTUMP - phases through phantom walls
+                [1,   0,   0,   0,   1,   0, 0],  // WEAPON
+                [0,   1,   1,   1,   0,   0, 0],  // DESTRUCTABLE
+                [0,   1,   0,   0,   0,   0, 0],// PHANTOM_WALL
+                [0 ,  1,   1,   0,   0,   0, 0]  // DAMAGE_WALL
             ]
         }});
         this.add = new MBFactoryManager(this, this.tilemaps);
@@ -202,6 +208,7 @@ export default abstract class MBLevel extends Scene {
             // When the level ends, change the scene to the next level
             case MBEvents.LEVEL_END: {
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.levelEndAudioKey});
                 this.sceneManager.changeToScene(this.nextLevel);
                 break;
             }
@@ -268,6 +275,12 @@ export default abstract class MBLevel extends Scene {
                 } else if (this.checkpointTwoArea && nodeId === this.checkpointTwoArea.id) {
                     this.respawnPosition = this.checkpoint_sqr2.clone();
                 }
+                break;
+            }
+            case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.health = 0;
+                console.log("PLAYER_HIT!")
                 break;
             }
             
@@ -380,9 +393,22 @@ export default abstract class MBLevel extends Scene {
         
         // Phantom walls - independent of destructible layer
         if (this.phantomWallLayerKey !== undefined) {
-            // this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
-            // this.phantomWalls.addPhysics();
-            // this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
+            this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
+            if (this.phantomWalls){
+                this.phantomWalls.addPhysics();
+                this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
+                
+            }
+            
+        }
+        if (this.damageWallLayerKey !== undefined) {
+            this.damageWalls = this.getTilemap(this.damageWallLayerKey) as OrthogonalTilemap;
+            if (this.damageWalls) {
+                this.damageWalls.addPhysics();
+                this.damageWalls.setGroup(MBPhysicsGroups.DAMAGE_WALL);
+                this.damageWalls.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_DAMAGE_TILE, "");
+                this.damageWalls.setTrigger(MBPhysicsGroups.PLAYER_PHANTUMP, MBEvents.PLAYER_HIT_DAMAGE_TILE, "");
+            }
         }
 
         // Destructible layer
@@ -407,6 +433,7 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.TRANSFORM_END);
         this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_CHECKPOINT);
+        this.receiver.subscribe(MBEvents.PLAYER_HIT_DAMAGE_TILE);
     }
 
     protected initializeUI(): void {
@@ -608,5 +635,9 @@ export default abstract class MBLevel extends Scene {
     // Get the key of the player's jump audio file
     public getJumpAudioKey(): string {
         return this.jumpAudioKey;
+    }
+
+    public getTransformAudioKey(): string {
+        return this.transformAudioKey;
     }
 }

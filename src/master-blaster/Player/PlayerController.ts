@@ -1,13 +1,13 @@
 import StateMachineAI from "../../Wolfie2D/AI/StateMachineAI";
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
 import OrthogonalTilemap from "../../Wolfie2D/Nodes/Tilemaps/OrthogonalTilemap";
-
+import { GameEventType } from "../../Wolfie2D/Events/GameEventType";
 import Fall from "./PlayerStates/Fall";
 import Idle from "./PlayerStates/Idle";
 import Jump from "./PlayerStates/Jump";
 import Run from "./PlayerStates/Run";
 import Dead from "./PlayerStates/Dead";
-
+import PlayerState from "./PlayerStates/PlayerState";
 import PlayerWeapon from "./PlayerWeapon";
 import Input from "../../Wolfie2D/Input/Input";
 import TransformationManager from "./TransformationManager";
@@ -17,6 +17,7 @@ import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import MathUtils from "../../Wolfie2D/Utils/MathUtils";
 import { MBEvents } from "../MBEvents";
 import MBLevel from "../Scenes/MBLevel";
+import Scene from "../../Wolfie2D/Scene/Scene";
 
 export const PlayerAnimations = {
     IDLE: "IDLE",
@@ -27,7 +28,7 @@ export const PlayerAnimations = {
     ROWLET_FLY: "ROWLET_FLY",
     PHANTUMP_FLY: "PHANTUMP_FLY",
     PHANTUMP_IDLE: "PHANTUMP_IDLE",
-    TRANSFORMATION: "TRANSFORMATION",
+    TRANSFORM : "TRANSFORM"
 } as const
 
 export const PlayerTweens = {
@@ -63,6 +64,7 @@ export default class PlayerController extends StateMachineAI {
     protected tilemap!: OrthogonalTilemap;
     protected weapon!: PlayerWeapon;
     protected _transformations!: TransformationManager;
+    public scene! : MBLevel;
 
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
         this.owner = owner;
@@ -80,8 +82,9 @@ export default class PlayerController extends StateMachineAI {
         this.addState(PlayerStates.JUMP, new Jump(this, this.owner));
         this.addState(PlayerStates.FALL, new Fall(this, this.owner));
         this.addState(PlayerStates.DEAD, new Dead(this, this.owner));
-
+        
         this.initialize(PlayerStates.IDLE);
+        this.scene = this.owner.getScene();
     }
 
     public get inputDir(): Vec2 {
@@ -99,9 +102,8 @@ export default class PlayerController extends StateMachineAI {
 
         if (Input.isJustPressed(MBControls.TRANSFORM)) {
             this._transformations.toggle();
-            this.owner.animation.play(PlayerAnimations.TRANSFORMATION, false);
-            this._transforming = true;
-            this._transformTimer = this.TRANSFORM_ANIM_DURATION;
+            this.owner.animation.play(PlayerAnimations.TRANSFORM, false);
+            this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.scene.getTransformAudioKey(), loop: false, holdReference: false});
         }
         if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
             this._transformations.cycleNext();

@@ -32,12 +32,19 @@ export default class ForestLevel extends MBLevel {
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
     public static readonly WALLS_LAYER_KEY = "Ground";
+    public static readonly DAMAGE_LAYER_KEY ="damage"
 
     public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
     public static readonly LEVEL_MUSIC_PATH = "game_assets/music/equivalence_loop.mp3";
 
     public static readonly JUMP_AUDIO_KEY = "PLAYER_JUMP";
     public static readonly JUMP_AUDIO_PATH = "game_assets/sounds/jump.wav";
+
+    public static readonly TRANSFORM_AUDIO_KEY = "TRANSFORM_KEY";
+    public static readonly TRANSFORM_AUDIO_PATH = "game_assets/sounds/ditto_transform.wav"
+
+    public static readonly LEVEL_END_KEY = "LEVEL_END_AUDIO_KEY"
+    public static readonly LEVEL_END_AUDIO_PATH = "game_assets/sounds/level_over.wav"
 
     public static readonly TILE_DESTROYED_KEY = "TILE_DESTROYED";
     public static readonly TILE_DESTROYED_PATH = "game_assets/sounds/switch.wav";
@@ -52,7 +59,9 @@ export default class ForestLevel extends MBLevel {
     
     
 
+    
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
+    
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
         super(viewport, sceneManager, renderingManager, options);
@@ -71,10 +80,13 @@ export default class ForestLevel extends MBLevel {
         // Music and sound
         this.levelMusicKey = ForestLevel.LEVEL_MUSIC_KEY
         this.jumpAudioKey = ForestLevel.JUMP_AUDIO_KEY;
+        this.transformAudioKey = ForestLevel.TRANSFORM_AUDIO_KEY;
         this.tileDestroyedAudioKey = ForestLevel.TILE_DESTROYED_KEY;
+        this.levelEndAudioKey = ForestLevel.LEVEL_END_KEY;
+        this.damageWallLayerKey = "damage";
 
         // Level end size and position
-        this.levelEndPosition = new Vec2(12*16, 39*16).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(2*16, 8*16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 =  CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
@@ -96,9 +108,10 @@ export default class ForestLevel extends MBLevel {
         this.load.audio(this.levelMusicKey, ForestLevel.LEVEL_MUSIC_PATH);
         this.load.audio(this.jumpAudioKey, ForestLevel.JUMP_AUDIO_PATH);
         this.load.audio(this.tileDestroyedAudioKey, ForestLevel.TILE_DESTROYED_PATH);
+        this.load.audio(this.levelEndAudioKey, ForestLevel.LEVEL_END_AUDIO_PATH);
         this.load.spritesheet(ForestLevel.ROWLET_SPRITE_KEY, ForestLevel.ROWLET_SPRITE_PATH);
         this.load.spritesheet(ForestLevel.PHANTUMP_SPRITE_KEY, ForestLevel.PHANTUMP_SPRITE_PATH);
-        
+        this.load.audio(ForestLevel.TRANSFORM_AUDIO_KEY, ForestLevel.TRANSFORM_AUDIO_PATH);
     }
 
     /**
@@ -108,7 +121,9 @@ export default class ForestLevel extends MBLevel {
         this.load.keepSpritesheet(this.playerSpriteKey);
         this.load.keepAudio(this.levelMusicKey);
         this.load.keepAudio(this.jumpAudioKey);
+        this.load.keepAudio(this.transformAudioKey);
         this.load.keepAudio(this.tileDestroyedAudioKey);
+        this.load.keepAudio(this.levelEndAudioKey);
     }
 
     public startScene(): void {
@@ -133,7 +148,7 @@ export default class ForestLevel extends MBLevel {
         rowlet.animation.play("IDLE");
     
         let phantump = this.add.animatedSprite(ForestLevel.PHANTUMP_SPRITE_KEY, "PRIMARY");
-        phantump.position.set(77*16,16*13);
+        phantump.position.set(67*16,24*13);
         phantump.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
         phantump.addAI(PhantumpController, {
             playerRef: this.player,
