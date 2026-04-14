@@ -27,7 +27,6 @@ import MainMenu from "./MainMenu";
 import { PlayerStates } from "../Player/PlayerController";
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
 import SludgeWeapon from "../Player/SludgeWeapon";
-import RotomController from "../Pokemon/PokemonActors/RotomController";
 /**
  * A const object for the layer names
  */
@@ -66,8 +65,13 @@ export default abstract class MBLevel extends Scene {
     private healthLabel!: Label;
     private healthBar!: Label;
     private healthBarBg!: Label;
-    private formLabel!: Label;
-    private formLabelTimer: number = 0;
+    private energyLabel!: Label;
+    private energyBar!: Label;
+    private energyBarBg!: Label;
+
+    // ── UI Positions (adjustable) ─────────────────────────────────
+    protected healthBarPos: Vec2 = new Vec2(300, 20); 
+    protected energyBarPos: Vec2 = new Vec2(350, 20);  
 
     // ── Level end ─────────────────────────────────────────────────
     protected levelEndPosition!: Vec2;
@@ -121,7 +125,6 @@ export default abstract class MBLevel extends Scene {
                 MBPhysicsGroups.PLAYER_WEAPON,
                 MBPhysicsGroups.DESTRUCTABLE,
                 MBPhysicsGroups.PHANTOM_WALL,
-                MBPhysicsGroups.ROTOM,  
                 MBPhysicsGroups.DAMAGE_WALL
             ],
             collisions:
@@ -129,11 +132,10 @@ export default abstract class MBLevel extends Scene {
             //   GND  PLR  PHP  WPN  DST  PHT DMG
                 [0,   1,   1,   1,   0,   0, 0],  // GROUND
                 [1,   0,   0,   0,   1,   1, 1],  // PLAYER - collides with phantom walls
-                [1,   0,   0,   0,   1,   0, 1],  // PLAYER_PHANTUMP phases through phantom walls
+                [1,   0,   0,   0,   1,   0, 1],  // PLAYER_PHANTUMP - phases through phantom walls
                 [1,   0,   0,   0,   1,   0, 0],  // WEAPON
                 [0,   1,   1,   1,   0,   0, 0],  // DESTRUCTABLE
-                [0,   1,   0,   0,   0,   0], // Phantom Wall
-                [0,   0,   0,   0,   0,   0,   0, 0],// ROTOM - collides with nothing
+                [0,   1,   0,   0,   0,   0, 0],// PHANTOM_WALL
                 [0 ,  1,   1,   0,   0,   0, 0]  // DAMAGE_WALL
             ]
         }});
@@ -146,7 +148,7 @@ export default abstract class MBLevel extends Scene {
 
         // Initialize the tilemaps
         this.initializeTilemap();
-        
+
         // Initialize the sprite and particle system for the players weapon 
         this.initializeWeaponSystem();
         this.initializeSludgePool(); 
@@ -189,12 +191,6 @@ export default abstract class MBLevel extends Scene {
         for (const s of this.sludgePool) {
             if (s.isAlive) s.update(deltaT);
         }
-        if (this.formLabelTimer > 0) {
-            this.formLabelTimer -= deltaT;
-            if (this.formLabelTimer <= 0) {
-                this.formLabel.alpha = 0;
-            }
-        }
     }
     public fireSludge(origin: Vec2, direction: Vec2): void {
         const s = this.sludgePool.find(s => !s.isAlive);
@@ -231,12 +227,6 @@ export default abstract class MBLevel extends Scene {
                 this.handleHealthChange(event.data.get("curhp"), event.data.get("maxhp"));
                 break;
             }
-            case MBEvents.FORM_SELECTED: {
-                this.formLabel.text = "Form: " + event.data.get("displayName");
-                this.formLabel.alpha = 1;
-                this.formLabelTimer = 2.0; // seconds before fade
-                break;
-            }
             case MBEvents.PLAYER_DEAD: {
                 const ctrl = this.player._ai as PlayerController;
                 this.player.position.copy(this.respawnPosition);
@@ -270,8 +260,6 @@ export default abstract class MBLevel extends Scene {
                     // Swap to purple weapon
                     this.playerWeaponSystem.stopSystem();
                     this.playerWeaponSystem = this.phantumpWeaponSystem;
-                    this.phantomWalls.isCollidable = false; 
-
                 }
                 
                 break;
@@ -280,12 +268,10 @@ export default abstract class MBLevel extends Scene {
                 // Restore normal collision and original weapon
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 this.playerWeaponSystem = this.originalWeaponSystem;
-                this.phantomWalls.isCollidable = true;   
-
                 break;
             }
             case MBEvents.ENERGY_CHANGE: {
-                // TODO: hook up energy bar UI
+                this.handleEnergyChange(event.data.get("cur"), event.data.get("max"));
                 break;
             }
             
@@ -385,6 +371,13 @@ export default abstract class MBLevel extends Scene {
         this.healthBar.backgroundColor = currentHealth < maxHealth * 1/4 ? Color.RED: currentHealth < maxHealth * 3/4 ? Color.YELLOW : Color.GREEN;
     }
 
+    protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
+        let unit = this.energyBarBg.size.x / maxEnergy;
+        this.energyBar.size.set(this.energyBarBg.size.x - unit * (maxEnergy - currentEnergy), this.energyBarBg.size.y);
+        this.energyBar.position.set(this.energyBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxEnergy - currentEnergy), this.energyBarBg.position.y);
+        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 1/4 ? Color.RED : Color.BLUE;
+    }
+
     /* Initialization methods for everything in the scene */
 
     /**
@@ -403,26 +396,26 @@ export default abstract class MBLevel extends Scene {
         }
         // Add the tilemap to the scene
         this.add.tilemap(this.tilemapKey, this.tilemapScale);
-        console.log("Loaded tilemaps:", this.tilemaps.map(t => t.name));
+
         if (this.wallsLayerKey === undefined) {
             throw new Error("Make sure the key for the wall layer is set");
         }
 
-        // Get the wall and destructible layers a
+        // Get the wall and destructible layers 
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
 
         
         // Phantom walls - independent of destructible layer
         if (this.phantomWallLayerKey !== undefined) {
-            const phantomLayer = this.getTilemap(this.phantomWallLayerKey);
-            console.log("Phantom wall layer lookup:", this.phantomWallLayerKey, "->", phantomLayer);
-            
-           if (phantomLayer) {
-                this.phantomWalls = phantomLayer as OrthogonalTilemap;
-                this.phantomWalls.addPhysics();                             
+            this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
+            if (this.phantomWalls){
+                this.phantomWalls.addPhysics();
                 this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
+                
             }
-            if (this.damageWallLayerKey !== undefined) {
+            
+        }
+        if (this.damageWallLayerKey !== undefined) {
             this.damageWalls = this.getTilemap(this.damageWallLayerKey) as OrthogonalTilemap;
             if (this.damageWalls) {
                 this.damageWalls.addPhysics();
@@ -442,7 +435,7 @@ export default abstract class MBLevel extends Scene {
             }
         }
     }
-}
+
     protected subscribeToEvents(): void {
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_LEVEL_END);
         this.receiver.subscribe(MBEvents.LEVEL_START);
@@ -454,23 +447,35 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.TRANSFORM_END);
         this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_CHECKPOINT);
-        this.receiver.subscribe(MBEvents.FORM_SELECTED);
-
         this.receiver.subscribe(MBEvents.PLAYER_HIT_DAMAGE_TILE);
     }
 
     protected initializeUI(): void {
-        this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(205, 20), text: "HP "});
+        // Energy bar (top left)
+        this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(this.energyBarPos.x - 50, this.energyBarPos.y), text: "Energy "});
+        this.energyLabel.size.set(300, 30);
+        this.energyLabel.fontSize = 24;
+        this.energyLabel.font = "Courier";
+
+        this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.energyBarPos, text: ""});
+        this.energyBar.size = new Vec2(200, 25);
+        this.energyBar.backgroundColor = Color.BLUE;
+
+        this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.energyBarPos, text: ""});
+        this.energyBarBg.size = new Vec2(200, 25);
+        this.energyBarBg.borderColor = Color.BLACK;
+
+        // Health bar (moved right)
+        this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(10, this.healthBarPos.y), text: "HP "});
         this.healthLabel.size.set(300, 30);
         this.healthLabel.fontSize = 24;
         this.healthLabel.font = "Courier";
-       
 
-        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(250, 20), text: ""});
+        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.healthBarPos, text: ""});
         this.healthBar.size = new Vec2(300, 25);
         this.healthBar.backgroundColor = Color.GREEN;
 
-        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(250, 20), text: ""});
+        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.healthBarPos, text: ""});
         this.healthBarBg.size = new Vec2(300, 25);
         this.healthBarBg.borderColor = Color.BLACK;
 
@@ -482,15 +487,6 @@ export default abstract class MBLevel extends Scene {
         this.levelEndLabel.textColor = Color.WHITE;
         this.levelEndLabel.fontSize = 48;
         this.levelEndLabel.font = "PixelSimple";
-
-        this.formLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, { position: new Vec2(300, 370), text: "" });
-        this.formLabel.size.set(600, 40);
-        this.formLabel.borderRadius = 0;
-        this.formLabel.backgroundColor = new Color(0, 0, 0, 0);
-        this.formLabel.textColor = Color.WHITE;
-        this.formLabel.fontSize = 20;
-        this.formLabel.font = "Courier";
-        this.formLabel.alpha = 0;
 
         // Add a tween to move the label on screen
         this.levelEndLabel.tweens.add("slideIn", {
