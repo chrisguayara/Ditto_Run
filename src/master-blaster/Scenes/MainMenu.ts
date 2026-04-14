@@ -10,7 +10,8 @@ import Level1 from "./MBLevel1";
 
 // Layers for the main menu scene
 export const MenuLayers = {
-    MAIN: "MAIN"
+    MAIN: "MAIN",
+    BACKGROUND: "BACKGROUND"
 } as const;
 
 export default class MainMenu extends Scene {
@@ -28,35 +29,30 @@ export default class MainMenu extends Scene {
         
     }
 
-    public startScene(): void {
-        this.addUILayer(MenuLayers.MAIN);
+        public startScene(): void {
+            this.addUILayer(MenuLayers.MAIN);
+            this.addLayer(MenuLayers.BACKGROUND);
+            
 
-        
+            this.viewport.setZoomLevel(1);
+            let size = this.viewport.getHalfSize();
+            this.viewport.setFocus(size);
 
-        // Center the viewport
-        let size = this.viewport.getHalfSize();
-        this.viewport.setFocus(size);
-        this.viewport.setZoomLevel(1);
+            let startscreen = this.add.animatedSprite(MainMenu.START_SCREEN_KEY, MenuLayers.BACKGROUND);
+            startscreen.position.set(size.x, size.y);
+            startscreen.animation.play("DEFAULT");
 
-        // Create a play button
+            let playBtn = <Button>this.add.uiElement(UIElementType.BUTTON, MenuLayers.MAIN, {
+                position: new Vec2(size.x, size.y+40), text: ""
+            });
+            playBtn.backgroundColor = Color.TRANSPARENT;
+            playBtn.borderColor =  Color.TRANSPARENT;
+            playBtn.borderRadius = 0;
+            playBtn.setPadding(new Vec2(80, 10));
+            playBtn.font = "PixelSimple";
+            playBtn.onClick = () => { this.sceneManager.changeToScene(ForestLevel); }
 
-        // let startscreen = this.add.sprite(MainMenu.START_SCREEN, MenuLayers.MAIN);
-        
-        
-        let playBtn = <Button>this.add.uiElement(UIElementType.BUTTON, MenuLayers.MAIN, {position: new Vec2(size.x, size.y), text: "Play Game"});
-        playBtn.backgroundColor = Color.RED;
-        playBtn.borderColor = Color.WHITE;
-        playBtn.borderRadius = 0;
-        playBtn.setPadding(new Vec2(50, 10));
-        playBtn.font = "PixelSimple";
-
-        // When the play button is clicked, go to the next scene
-        playBtn.onClick = () => {
-            this.sceneManager.changeToScene(ForestLevel);
-        }
-
-        // Scene has started, so start playing music
-        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: MainMenu.MUSIC_KEY, loop: true, holdReference: true});
+            this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: MainMenu.MUSIC_KEY, loop: true, holdReference: true});
     }
 
     public unloadScene(): void {
