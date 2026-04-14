@@ -100,15 +100,59 @@
         }
       ]
     },{
-      "name": "ROWLET",
+      "name": "ROWLET_IDLE",
       "repeat": true,
       "frames": [
         {
-          "index": 6,
+          "index": 3,
           "duration": 23
         },
           {
-          "index": 7,
+          "index": 3,
+          "duration": 23
+        }
+        
+      ]
+    },
+    {
+      "name": "ROWLET_FLY",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 3,
+          "duration": 23
+        },
+          {
+          "index": 4,
+          "duration": 23
+        }
+        
+      ]
+    },
+    {
+      "name": "PHANTUMP_IDLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 5,
+          "duration": 23
+        },
+          {
+          "index": 6,
+          "duration": 23
+        }
+        
+      ]
+    },{
+      "name": "PHANTUMP_FLY",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 5,
+          "duration": 23
+        },
+          {
+          "index": 6,
           "duration": 23
         }
         
