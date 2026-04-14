@@ -25,7 +25,7 @@ export default class Flee extends PokemonState {
 
         const fleeDir = this.owner.position.clone().sub(this.parent.playerRef.position).normalize();
 
-        // Fly away - bias upward and ignore gravity
+        // Fly away, bias upward and ignore gravity
         this.parent.velocity.x = fleeDir.x * this.FLEE_SPEED;
         this.parent.velocity.y = -this.FLEE_SPEED * 0.6; // always fly upward while fleeing
         this.owner.move(this.parent.velocity.scaled(deltaT));
