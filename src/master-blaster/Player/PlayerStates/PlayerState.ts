@@ -24,7 +24,9 @@ export default abstract class PlayerState extends State {
         }
 	}
 
-	public update(deltaT: number): void {}
+	public update(deltaT: number): void {
+        this.owner.invertX=this.parent.inputDir.x<0;
+    }
 
     public abstract onExit(): Record<string, any>;
 }
