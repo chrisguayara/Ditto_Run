@@ -19,7 +19,7 @@ export default class MainMenu extends Scene {
     public static readonly START_SCREEN_PATH = "game_assets/spritesheets/STARTSCREEN.json"
 
     public static readonly MUSIC_KEY = "MAIN_MENU_MUSIC";
-    public static readonly MUSIC_PATH = "game_assets/music/MB_menu_music.mp3";
+    public static readonly MUSIC_PATH = "game_assets/music/traverse_loop.mp3";
 
     public loadScene(): void {
         // Load the menu song

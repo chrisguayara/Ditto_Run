@@ -34,7 +34,7 @@ export default class ForestLevel extends MBLevel {
     public static readonly WALLS_LAYER_KEY = "Ground";
 
     public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
-    public static readonly LEVEL_MUSIC_PATH = "game_assets/music/MB_level_music.wav";
+    public static readonly LEVEL_MUSIC_PATH = "game_assets/music/equivalence_loop.mp3";
 
     public static readonly JUMP_AUDIO_KEY = "PLAYER_JUMP";
     public static readonly JUMP_AUDIO_PATH = "game_assets/sounds/jump.wav";
