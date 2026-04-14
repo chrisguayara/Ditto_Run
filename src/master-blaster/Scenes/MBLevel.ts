@@ -26,7 +26,7 @@ import MBFactoryManager from "../Factory/MBFactoryManager";
 import MainMenu from "./MainMenu";
 import { PlayerStates } from "../Player/PlayerController";
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
-
+import SludgeWeapon from "../Player/SludgeWeapon";
 /**
  * A const object for the layer names
  */
@@ -52,6 +52,7 @@ export default abstract class MBLevel extends Scene {
     protected playerWeaponSystem!: PlayerWeapon;
     protected phantumpWeaponSystem!: PhantumpWeapon;
     protected originalWeaponSystem!: PlayerWeapon;
+    protected sludgePool: SludgeWeapon[] = [];
 
     // ── Player ────────────────────────────────────────────────────
     protected playerSpriteKey!: string;
@@ -137,7 +138,7 @@ export default abstract class MBLevel extends Scene {
 
         // Initialize the sprite and particle system for the players weapon 
         this.initializeWeaponSystem();
-
+        this.initializeSludgePool(); 
         // Initialize the player 
         this.initializePlayer(this.playerSpriteKey);
 
@@ -169,13 +170,20 @@ export default abstract class MBLevel extends Scene {
 
     /* Update method for the scene */
 
-    public updateScene(deltaT: number) {
-        // Handle all game events
+   public updateScene(deltaT: number) {
         while (this.receiver.hasNextEvent()) {
             this.handleEvent(this.receiver.getNextEvent());
         }
+        // Tick all live sludge projectiles
+        for (const s of this.sludgePool) {
+            if (s.isAlive) s.update(deltaT);
+        }
     }
-
+    public fireSludge(origin: Vec2, direction: Vec2): void {
+        const s = this.sludgePool.find(s => !s.isAlive);
+        if (!s) return;
+        s.fire(origin, direction, 300, this.walls, this.playerWeaponSystem);
+    }
     /**
      * Handle game events. 
      * @param event the game event
@@ -306,6 +314,14 @@ export default abstract class MBLevel extends Scene {
             }
         }
     }
+    protected initializeSludgePool(): void {
+    for (let i = 0; i < 5; i++) {
+        const sprite = this.add.animatedSprite(SludgeWeapon.SLUDGE_KEY, MBLayers.PRIMARY);
+        sprite.visible = false;
+        const s = new SludgeWeapon(sprite);
+        this.sludgePool.push(s);
+    }
+}
 
     protected particleHitTile(tilemap: OrthogonalTilemap, particle: Particle, col: number, row: number): boolean {
         let tileSize = tilemap.getTileSize();

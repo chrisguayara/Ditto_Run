@@ -9,7 +9,7 @@ import PlayerController from "../Player/PlayerController";
 import PokemonController from "../Pokemon/PokemonController";
 import RowletController from "../Pokemon/PokemonActors/RowletController";
 import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
-
+import SludgeWeapon from "../Player/SludgeWeapon";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -90,6 +90,8 @@ export default class ForestLevel extends MBLevel {
         this.load.tilemap(this.tilemapKey, ForestLevel.TILEMAP_PATH);
         // Load in the player's sprite
         this.load.spritesheet(this.playerSpriteKey, ForestLevel.PLAYER_SPRITE_PATH);
+        this.load.spritesheet(SludgeWeapon.SLUDGE_KEY, SludgeWeapon.SLUDGE_PATH);
+
         // Audio and music
         this.load.audio(this.levelMusicKey, ForestLevel.LEVEL_MUSIC_PATH);
         this.load.audio(this.jumpAudioKey, ForestLevel.JUMP_AUDIO_PATH);

@@ -53,7 +53,7 @@ export default abstract class PokemonController extends StateMachineAI {
      * Each behavior subclass reacts differently.
      */
     public abstract onHit(damage: number): void;
-
+    public get position(): Vec2 { return this.owner.position; }
     public update(deltaT: number): void {
         super.update(deltaT);
     }

@@ -16,6 +16,7 @@ import { MBControls } from "../MBControls";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import MathUtils from "../../Wolfie2D/Utils/MathUtils";
 import { MBEvents } from "../MBEvents";
+import MBLevel from "../Scenes/MBLevel";
 
 export const PlayerAnimations = {
     IDLE: "IDLE",
@@ -99,9 +100,9 @@ export default class PlayerController extends StateMachineAI {
 
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
 
-        if (Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
-            this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-            this.weapon.startSystem(500, 0, this.owner.position);
+        if (Input.isPressed(MBControls.ATTACK)) {
+            const scene = this.owner.getScene() as MBLevel;
+            scene.fireSludge(this.owner.position.clone(), this.faceDir);
         }
     }
 
