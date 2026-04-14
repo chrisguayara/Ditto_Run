@@ -37,6 +37,9 @@ export default class Jump extends PlayerState {
             this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
             this.owner.move(this.parent.velocity.scaled(deltaT));
         }
+         if (!this.parent.isTransforming) {
+            this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("IDLE"));
+        }   
 	}
 
 	public onExit(): Record<string, any> {

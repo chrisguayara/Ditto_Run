@@ -158,28 +158,15 @@
         
       ]
     },{
-      "name": "TRANSFORMATION",
-      "repeat": true,
-      "frames": [
-        {
-          "index": 10,
-          "duration": 5
-        },
-          {
-          "index": 11,
-          "duration": 8
-        },{
-          "index": 12,
-          "duration": 12
-        },{
-          "index": 14,
-          "duration": 8
-        },{
-          "index": 15,
-          "duration": 10
-        }
-        
-      ]
+       "name": "TRANSFORMATION",
+    "repeat": false,
+    "frames": [
+        { "index": 10, "duration": 5 },
+        { "index": 11, "duration": 8},
+        { "index": 12, "duration": 12  },
+        { "index": 13, "duration": 8 },
+        { "index": 14, "duration": 10 }
+    ]
     }
   ]
 }

@@ -1,49 +1,43 @@
-import { PlayerStates, PlayerAnimations } from "../PlayerController";
+import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
 
 export default class Idle extends PlayerState {
 
-	public onEnter(options: Record<string, any>): void {
-        this.owner.animation.play(PlayerAnimations.IDLE);
-		this.parent.speed = this.parent.MIN_SPEED;
-
+    public onEnter(options: Record<string, any>): void {
+        this.parent.speed = this.parent.MIN_SPEED;
         this.parent.velocity.x = 0;
         this.parent.velocity.y = 0;
-	}
 
-	public update(deltaT: number): void {
-        // Adjust the direction the player is facing
-		super.update(deltaT);
-        this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("IDLE"));
-        // Get the direction of the player's movement
-		let dir = this.parent.inputDir;
-
-        // If the player is moving along the x-axis, transition to the walking state
-		if (!dir.isZero() && dir.y === 0){
-			this.finished(PlayerStates.RUN);
-		} 
-        // If the player is jumping, transition to the jumping state
-        else if (Input.isJustPressed(MBControls.JUMP)) {
-            this.finished(PlayerStates.JUMP);
+        if (!this.parent.isTransforming) {
+            this.owner.animation.play(this.parent.getAnimationKey("IDLE"));
         }
-        // If the player is not on the ground, transition to the falling state
-        else if (!this.owner.onGround && this.parent.velocity.y > 0) {
+    }
+
+    public update(deltaT: number): void {
+        super.update(deltaT);
+
+        if (!this.parent.isTransforming) {
+            this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("IDLE"));
+        }
+
+        let dir = this.parent.inputDir;
+
+        if (!dir.isZero() && dir.y === 0) {
+            this.finished(PlayerStates.RUN);
+        } else if (Input.isJustPressed(MBControls.JUMP)) {
+            this.finished(PlayerStates.JUMP);
+        } else if (!this.owner.onGround && this.parent.velocity.y > 0) {
             this.finished(PlayerStates.FALL);
         } else {
-            // Update the vertical velocity of the player
             this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-            // Move the player
             this.owner.move(this.parent.velocity.scaled(deltaT));
         }
+    }
 
-        // Otherwise, do nothing (keep idling)
-		
-	}
-
-	public onExit(): Record<string, any> {
-		this.owner.animation.stop();
-		return {};
-	}
+    public onExit(): Record<string, any> {
+        this.owner.animation.stop();
+        return {};
+    }
 }

@@ -26,7 +26,8 @@ export const PlayerAnimations = {
     ROWLET_IDLE: "ROWLET_IDLE",
     ROWLET_FLY: "ROWLET_FLY",
     PHANTUMP_FLY: "PHANTUMP_FLY",
-    PHANTUMP_IDLE: "PHANTUMP_IDLE"
+    PHANTUMP_IDLE: "PHANTUMP_IDLE",
+    TRANSFORMATION: "TRANSFORMATION",
 } as const
 
 export const PlayerTweens = {
@@ -40,6 +41,7 @@ export const PlayerStates = {
     JUMP: "JUMP",
     FALL: "FALL",
     DEAD: "DEAD",
+    TRANSFORMATION: "TRANSFORMATION"
 } as const
 
 export default class PlayerController extends StateMachineAI {
@@ -48,7 +50,10 @@ export default class PlayerController extends StateMachineAI {
     public readonly BASE_JUMP_FORCE: number = -200;
     public readonly BASE_GRAVITY: number = 500;
     private _sludgeTimer: number = 0;
+    private _transforming: boolean = false;
+    private _transformTimer: number = 0;
     public readonly SLUDGE_COOLDOWN: number = 1;
+    private readonly TRANSFORM_ANIM_DURATION: number = 0.43;
 
     protected _health!: number;
     protected _maxHealth!: number;
@@ -94,11 +99,19 @@ export default class PlayerController extends StateMachineAI {
 
         if (Input.isJustPressed(MBControls.TRANSFORM)) {
             this._transformations.toggle();
+            this.owner.animation.play(PlayerAnimations.TRANSFORMATION, false);
+            this._transforming = true;
+            this._transformTimer = this.TRANSFORM_ANIM_DURATION;
         }
         if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
             this._transformations.cycleNext();
         }
-
+        if (this._transforming) {
+            this._transformTimer -= deltaT;
+            if (this._transformTimer <= 0) {
+                this._transforming = false;
+            }
+        }
         // Phantump weapon rotation (mouse-aimed, unchanged)
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
         if (Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
@@ -140,6 +153,7 @@ export default class PlayerController extends StateMachineAI {
     public get effectiveJumpForce(): number {
         return this._transformations.jumpForce ?? this.BASE_JUMP_FORCE;
     }
+    public get isTransforming(): boolean { return this._transforming; }
 
     // ── Standard getters/setters ──────────────────────────────────
     public get velocity(): Vec2 { return this._velocity; }

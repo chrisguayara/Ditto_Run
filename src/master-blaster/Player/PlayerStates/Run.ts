@@ -35,6 +35,9 @@ export default class Walk extends PlayerState {
             this.parent.velocity.x = dir.x * this.parent.effectiveSpeed
             this.owner.move(this.parent.velocity.scaled(deltaT));
         }
+         if (!this.parent.isTransforming) {
+            this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("IDLE"));
+        }   
 
 	}
 
