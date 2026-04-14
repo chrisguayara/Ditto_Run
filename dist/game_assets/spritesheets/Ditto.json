@@ -5,7 +5,7 @@
   "spriteWidth": 32,
   "spriteHeight": 32,
   "columns": 10,
-  "rows": 1,
+  "rows": 2,
   "durationType": "time",
   "animations": [
     {
@@ -154,6 +154,29 @@
           {
           "index": 6,
           "duration": 23
+        }
+        
+      ]
+    },{
+      "name": "TRANSFORMATION",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 10,
+          "duration": 5
+        },
+          {
+          "index": 11,
+          "duration": 8
+        },{
+          "index": 12,
+          "duration": 12
+        },{
+          "index": 14,
+          "duration": 8
+        },{
+          "index": 15,
+          "duration": 10
         }
         
       ]
