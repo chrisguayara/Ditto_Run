@@ -27,7 +27,7 @@ import MainMenu from "./MainMenu";
 import { PlayerStates } from "../Player/PlayerController";
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
 import SludgeWeapon from "../Player/SludgeWeapon";
-
+import RotomController from "../Pokemon/PokemonActors/RotomController";
 /**
  * A const object for the layer names
  */
@@ -115,6 +115,7 @@ export default abstract class MBLevel extends Scene {
                 MBPhysicsGroups.PLAYER_WEAPON,
                 MBPhysicsGroups.DESTRUCTABLE,
                 MBPhysicsGroups.PHANTOM_WALL,
+                MBPhysicsGroups.ROTOM,  
             ],
             collisions:
             [
@@ -124,7 +125,8 @@ export default abstract class MBLevel extends Scene {
                 [1,   0,   0,   0,   1,   0],  // PLAYER_PHANTUMP phases through phantom walls
                 [1,   0,   0,   0,   1,   0],  // WEAPON
                 [0,   1,   1,   1,   0,   0],  // DESTRUCTABLE
-                [0,   1,   0,   0,   0,   0],  // PHANTOM_WALL
+                [0,   1,   0,   0,   0,   0], // Phantom Wall
+                [0,   0,   0,   0,   0,   0,   0],  // ROTOM - collides with nothing
             ]
         }});
         this.add = new MBFactoryManager(this, this.tilemaps);

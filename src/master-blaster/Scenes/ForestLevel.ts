@@ -9,6 +9,7 @@ import PlayerController from "../Player/PlayerController";
 import PokemonController from "../Pokemon/PokemonController";
 import RowletController from "../Pokemon/PokemonActors/RowletController";
 import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
+import RotomController from "../Pokemon/PokemonActors/RotomController";
 import SludgeWeapon from "../Player/SludgeWeapon";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
@@ -49,6 +50,9 @@ export default class ForestLevel extends MBLevel {
     public static readonly PHANTUMP_SPRITE_PATH = "game_assets/spritesheets/phantump.json"
 
     // public static readonly PHANTUMP_WALL_LAYER = "PhantumpWallLayer"
+    
+    public static readonly ROTOM_SPRITE_KEY  = "Rotom";
+    public static readonly ROTOM_SPRITE_PATH = "game_assets/spritesheets/rotom.json";
     
     
 
@@ -91,6 +95,7 @@ export default class ForestLevel extends MBLevel {
         // Load in the player's sprite
         this.load.spritesheet(this.playerSpriteKey, ForestLevel.PLAYER_SPRITE_PATH);
         this.load.spritesheet(SludgeWeapon.SLUDGE_KEY, SludgeWeapon.SLUDGE_PATH);
+        this.load.spritesheet(ForestLevel.ROTOM_SPRITE_KEY, ForestLevel.ROTOM_SPRITE_PATH);
 
         // Audio and music
         this.load.audio(this.levelMusicKey, ForestLevel.LEVEL_MUSIC_PATH);
@@ -131,7 +136,14 @@ export default class ForestLevel extends MBLevel {
             maxHealth: 4,
         });
         rowlet.animation.play("IDLE");
-    
+        let rotom = this.add.animatedSprite(ForestLevel.ROTOM_SPRITE_KEY, "PRIMARY");
+        rotom.position.set(ForestLevel.PLAYER_SPAWN.x + 20, ForestLevel.PLAYER_SPAWN.y - 20);
+        rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
+        rotom.addAI(RotomController, {
+            playerRef: this.player,
+            speed: 90,
+        });
+        rotom.animation.play("IDLE");
         let phantump = this.add.animatedSprite(ForestLevel.PHANTUMP_SPRITE_KEY, "PRIMARY");
         phantump.position.set(77*16,16*13);
         phantump.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
