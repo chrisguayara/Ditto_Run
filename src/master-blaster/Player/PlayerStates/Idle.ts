@@ -16,7 +16,7 @@ export default class Idle extends PlayerState {
 	public update(deltaT: number): void {
         // Adjust the direction the player is facing
 		super.update(deltaT);
-
+        this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("IDLE"));
         // Get the direction of the player's movement
 		let dir = this.parent.inputDir;
 

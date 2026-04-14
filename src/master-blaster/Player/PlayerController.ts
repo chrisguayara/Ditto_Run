@@ -21,6 +21,7 @@ export const PlayerAnimations = {
     IDLE: "IDLE",
     WALK: "WALK",
     JUMP: "JUMP",
+    FALL: "FALL",   
     ROWLET_IDLE: "ROWLET_IDLE",
     ROWLET_FLY: "ROWLET_FLY",
     PHANTUMP_FLY: "PHANTUMP_FLY",

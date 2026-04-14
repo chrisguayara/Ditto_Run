@@ -8,7 +8,7 @@ export default class Jump extends PlayerState {
 
 	public onEnter(options: Record<string, any>): void {
         let scene = this.owner.getScene()
-        
+        this.owner.animation.play(this.parent.getAnimationKey("JUMP"));
         // Give the player a burst of upward momentum
         this.parent.velocity.y = this.parent.effectiveJumpForce;
 
@@ -23,7 +23,6 @@ export default class Jump extends PlayerState {
 
 	public update(deltaT: number): void {
         super.update(deltaT);
-
         if (this.owner.onGround) {
 			this.finished(PlayerStates.IDLE);
 		} 

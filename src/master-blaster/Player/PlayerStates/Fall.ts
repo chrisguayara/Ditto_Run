@@ -7,6 +7,7 @@ export default class Fall extends PlayerState {
     onEnter(options: Record<string, any>): void {
         // If we're falling, the vertical velocity should be >= 0
         this.parent.velocity.y = 0;
+        this.owner.animation.play(this.parent.getAnimationKey("FALL"));
     }
 
     update(deltaT: number): void {
