@@ -22,16 +22,27 @@ export default class MainMenu extends Scene {
     public static readonly MUSIC_KEY = "MAIN_MENU_MUSIC";
     public static readonly MUSIC_PATH = "game_assets/music/traverse_loop.mp3";
 
+    public static readonly SELECT_AUDIO_KEY = "SELECT_AUDIO_KEY"
+    public static readonly SELECT_AUDIO_PATH = "game_assets/sounds/pickup.mp3"
+
+    protected selectAudioKey! : string;
+
     public loadScene(): void {
         // Load the menu song
         this.load.audio(MainMenu.MUSIC_KEY, MainMenu.MUSIC_PATH);
         this.load.spritesheet(MainMenu.START_SCREEN_KEY, MainMenu.START_SCREEN_PATH);
+        this.load.audio(MainMenu.SELECT_AUDIO_KEY,MainMenu.SELECT_AUDIO_PATH );
+        
+        
         
     }
+    
 
         public startScene(): void {
             this.addUILayer(MenuLayers.MAIN);
             this.addLayer(MenuLayers.BACKGROUND);
+
+            this.selectAudioKey = MainMenu.SELECT_AUDIO_KEY
             
 
             this.viewport.setZoomLevel(1);
@@ -42,6 +53,8 @@ export default class MainMenu extends Scene {
             startscreen.position.set(size.x, size.y);
             startscreen.animation.playIfNotAlready("DEFAULT");
 
+            
+
             let playBtn = <Button>this.add.uiElement(UIElementType.BUTTON, MenuLayers.MAIN, {
                 position: new Vec2(size.x, size.y+40), text: ""
             });
@@ -50,14 +63,18 @@ export default class MainMenu extends Scene {
             playBtn.borderRadius = 0;
             playBtn.setPadding(new Vec2(80, 10));
             playBtn.font = "PixelSimple";
-            playBtn.onClick = () => { this.sceneManager.changeToScene(ForestLevel); }
+            playBtn.onClick = () => { this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+                key: MainMenu.SELECT_AUDIO_KEY
+            });this.sceneManager.changeToScene(ForestLevel); }
 
             this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: MainMenu.MUSIC_KEY, loop: true, holdReference: true});
     }
 
     public unloadScene(): void {
         // The scene is being destroyed, so we can stop playing the song
+        this.load.keepAudio(this.selectAudioKey);
         this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: MainMenu.MUSIC_KEY});
+        
     }
 }
 

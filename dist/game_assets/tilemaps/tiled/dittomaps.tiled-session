@@ -19,8 +19,8 @@
             "scale": 0.45,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 40,
-                "y": 662.2222222222223
+                "x": 694.4444444444445,
+                "y": 663.3333333333335
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/ForestLeveltiles.tmx#forest_tiles": {
@@ -30,6 +30,10 @@
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/ForestLeveltiles.tmx#forestlevel": {
             "scaleInDock": 1
         },
+        "final_forestlevel_tileset.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
         "forest.tsx": {
             "scaleInDock": 4,
             "scaleInEditor": 4.36
@@ -38,12 +42,20 @@
             "scaleInDock": 3.7267,
             "scaleInEditor": 4.36
         },
+        "forestmap.tmx": {
+            "scale": 0.49058593749999996,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 639.0317700453859,
+                "y": 400.5414443825146
+            }
+        },
         "tilemap_forest.tmx": {
             "scale": 1.6188,
             "selectedLayer": 4,
             "viewCenter": {
                 "x": 272.42401779095627,
-                "y": 224.24017790956268
+                "y": 224.5490486780331
             }
         }
     },
@@ -65,6 +77,8 @@
     "project": "dittomaps.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "forestmap.tmx",
+        "final_forestlevel_tileset.tsx",
         "tilemap_forest.tmx",
         "forest.tsx",
         "forest_tiles.tsx",

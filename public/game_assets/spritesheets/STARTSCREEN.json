@@ -1,6 +1,6 @@
 {
   "name": "StartScreen",
-  "spriteSheetImage": "STARTSCREEN.png",
+  "spriteSheetImage": "STARTSCREEN-anim.png",
   "spriteWidth": 1440,
   "spriteHeight": 840,
   "columns": 5,

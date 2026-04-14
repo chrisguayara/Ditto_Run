@@ -109,6 +109,7 @@ export default abstract class MBLevel extends Scene {
     protected transformAudioKey!: string;
     protected levelEndAudioKey!: string;
     protected tileDestroyedAudioKey!: string;
+    protected selectAudioKey! : string;
     protected checkpoint_sqr1!: Vec2;
     protected checkpoint_sqr2!: Vec2;
     
