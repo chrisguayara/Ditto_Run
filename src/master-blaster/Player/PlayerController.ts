@@ -103,9 +103,6 @@ export default class PlayerController extends StateMachineAI {
             this._transforming = true;
             this._transformTimer = this.TRANSFORM_ANIM_DURATION;
         }
-        if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
-            this._transformations.cycleNext();
-        }
         if (this._transforming) {
             this._transformTimer -= deltaT;
             if (this._transformTimer <= 0) {
@@ -123,7 +120,13 @@ export default class PlayerController extends StateMachineAI {
         if (this._sludgeTimer > 0) {
             this._sludgeTimer -= deltaT;
         }
-
+        if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
+            this._transformations.cycleNext();
+            const selected = this._transformations.selectedForm;
+            if (selected) {
+                this.emitter.fireEvent(MBEvents.FORM_SELECTED, { displayName: selected.displayName });
+            }
+        }
         const activeForm = this._transformations.activeForm?.key ?? null;
         if (activeForm !== "ROWLET" && this._sludgeTimer <= 0) {
             const dx = (Input.isPressed(MBControls.ATTACK_RIGHT) ? 1 : 0)
@@ -187,4 +190,5 @@ export default class PlayerController extends StateMachineAI {
         }
         return PlayerAnimations[base];
     }
+    
 }

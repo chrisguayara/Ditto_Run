@@ -66,6 +66,8 @@ export default abstract class MBLevel extends Scene {
     private healthLabel!: Label;
     private healthBar!: Label;
     private healthBarBg!: Label;
+    private formLabel!: Label;
+    private formLabelTimer: number = 0;
 
     // ── Level end ─────────────────────────────────────────────────
     protected levelEndPosition!: Vec2;
@@ -181,6 +183,12 @@ export default abstract class MBLevel extends Scene {
         for (const s of this.sludgePool) {
             if (s.isAlive) s.update(deltaT);
         }
+        if (this.formLabelTimer > 0) {
+            this.formLabelTimer -= deltaT;
+            if (this.formLabelTimer <= 0) {
+                this.formLabel.alpha = 0;
+            }
+        }
     }
     public fireSludge(origin: Vec2, direction: Vec2): void {
         const s = this.sludgePool.find(s => !s.isAlive);
@@ -214,6 +222,12 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.HEALTH_CHANGE: {
                 this.handleHealthChange(event.data.get("curhp"), event.data.get("maxhp"));
+                break;
+            }
+            case MBEvents.FORM_SELECTED: {
+                this.formLabel.text = "Form: " + event.data.get("displayName");
+                this.formLabel.alpha = 1;
+                this.formLabelTimer = 2.0; // seconds before fade
                 break;
             }
             case MBEvents.PLAYER_DEAD: {
@@ -419,6 +433,8 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.TRANSFORM_END);
         this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_CHECKPOINT);
+        this.receiver.subscribe(MBEvents.FORM_SELECTED);
+
     }
 
     protected initializeUI(): void {
@@ -426,6 +442,7 @@ export default abstract class MBLevel extends Scene {
         this.healthLabel.size.set(300, 30);
         this.healthLabel.fontSize = 24;
         this.healthLabel.font = "Courier";
+       
 
         this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(250, 20), text: ""});
         this.healthBar.size = new Vec2(300, 25);
@@ -443,6 +460,15 @@ export default abstract class MBLevel extends Scene {
         this.levelEndLabel.textColor = Color.WHITE;
         this.levelEndLabel.fontSize = 48;
         this.levelEndLabel.font = "PixelSimple";
+
+        this.formLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, { position: new Vec2(300, 370), text: "" });
+        this.formLabel.size.set(600, 40);
+        this.formLabel.borderRadius = 0;
+        this.formLabel.backgroundColor = new Color(0, 0, 0, 0);
+        this.formLabel.textColor = Color.WHITE;
+        this.formLabel.fontSize = 20;
+        this.formLabel.font = "Courier";
+        this.formLabel.alpha = 0;
 
         // Add a tween to move the label on screen
         this.levelEndLabel.tweens.add("slideIn", {

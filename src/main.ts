@@ -15,7 +15,7 @@ import { MBControls } from "./master-blaster/MBControls";
             {name: MBControls.JUMP,         keys: ["w", "space"]},
             {name: MBControls.ATTACK,       keys: ["x"]},
             {name: MBControls.TRANSFORM,    keys: ["e"]},
-            {name: MBControls.CYCLE_FORM,   keys: ["tab"]},
+            {name: MBControls.CYCLE_FORM,   keys: ["f"]},
             {name: MBControls.ATTACK_LEFT,  keys: ["arrowleft"]},
             {name: MBControls.ATTACK_RIGHT, keys: ["arrowright"]},
             {name: MBControls.ATTACK_UP,    keys: ["arrowup"]},

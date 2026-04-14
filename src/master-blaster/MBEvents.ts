@@ -28,4 +28,5 @@ export const MBEvents = {
     TRANSFORM_END: "TRANSFORM_END",
     // Has data: { cur: number, max: number }
     ENERGY_CHANGE: "ENERGY_CHANGE",
+    FORM_SELECTED: "FORM_SELECTED",
 } as const;

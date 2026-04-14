@@ -29,7 +29,7 @@ export default class Fall extends PlayerState {
             this.owner.move(this.parent.velocity.scaled(deltaT));
         }
          if (!this.parent.isTransforming) {
-            this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("IDLE"));
+            this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("FALL"));
         }   
 
     }
