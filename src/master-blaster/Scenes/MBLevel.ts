@@ -218,13 +218,13 @@ export default abstract class MBLevel extends Scene {
                 
                 ctrl.health = ctrl.maxHealth;
                 
-                // Reset physics group in case they died as phantump
+                
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 
-                // Reset velocity so they don't fly off
+                
                 ctrl.velocity = Vec2.ZERO;
                 
-                // Go back to idle
+                
                 ctrl.changeState(PlayerStates.IDLE);
                 
                 break;
