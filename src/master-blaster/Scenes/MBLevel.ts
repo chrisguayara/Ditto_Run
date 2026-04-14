@@ -27,6 +27,7 @@ import MainMenu from "./MainMenu";
 import { PlayerStates } from "../Player/PlayerController";
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
 import SludgeWeapon from "../Player/SludgeWeapon";
+
 /**
  * A const object for the layer names
  */
@@ -120,7 +121,7 @@ export default abstract class MBLevel extends Scene {
             //   GND  PLR  PHP  WPN  DST  PHT
                 [0,   1,   1,   1,   0,   0],  // GROUND
                 [1,   0,   0,   0,   1,   1],  // PLAYER - collides with phantom walls
-                [1,   0,   0,   0,   1,   0],  // PLAYER_PHANTUMP - phases through phantom walls
+                [1,   0,   0,   0,   1,   0],  // PLAYER_PHANTUMP phases through phantom walls
                 [1,   0,   0,   0,   1,   0],  // WEAPON
                 [0,   1,   1,   1,   0,   0],  // DESTRUCTABLE
                 [0,   1,   0,   0,   0,   0],  // PHANTOM_WALL
@@ -135,7 +136,7 @@ export default abstract class MBLevel extends Scene {
 
         // Initialize the tilemaps
         this.initializeTilemap();
-
+        
         // Initialize the sprite and particle system for the players weapon 
         this.initializeWeaponSystem();
         this.initializeSludgePool(); 
@@ -246,6 +247,8 @@ export default abstract class MBLevel extends Scene {
                     // Swap to purple weapon
                     this.playerWeaponSystem.stopSystem();
                     this.playerWeaponSystem = this.phantumpWeaponSystem;
+                    this.phantomWalls.isCollidable = false; 
+
                 }
                 
                 break;
@@ -254,6 +257,8 @@ export default abstract class MBLevel extends Scene {
                 // Restore normal collision and original weapon
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 this.playerWeaponSystem = this.originalWeaponSystem;
+                this.phantomWalls.isCollidable = true;   
+
                 break;
             }
             case MBEvents.ENERGY_CHANGE: {
@@ -369,20 +374,25 @@ export default abstract class MBLevel extends Scene {
         }
         // Add the tilemap to the scene
         this.add.tilemap(this.tilemapKey, this.tilemapScale);
-
+        console.log("Loaded tilemaps:", this.tilemaps.map(t => t.name));
         if (this.wallsLayerKey === undefined) {
             throw new Error("Make sure the key for the wall layer is set");
         }
 
-        // Get the wall and destructible layers 
+        // Get the wall and destructible layers a
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
 
         
         // Phantom walls - independent of destructible layer
         if (this.phantomWallLayerKey !== undefined) {
-            // this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
-            // this.phantomWalls.addPhysics();
-            // this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
+            const phantomLayer = this.getTilemap(this.phantomWallLayerKey);
+            console.log("Phantom wall layer lookup:", this.phantomWallLayerKey, "->", phantomLayer);
+            
+           if (phantomLayer) {
+                this.phantomWalls = phantomLayer as OrthogonalTilemap;
+                this.phantomWalls.addPhysics();                             
+                this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
+            }
         }
 
         // Destructible layer
