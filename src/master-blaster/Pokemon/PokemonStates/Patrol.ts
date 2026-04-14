@@ -19,36 +19,25 @@ export default class Patrol extends PokemonState {
         this.movingRight = true;
     }
 
-    public update(deltaT: number): void {
-        super.update(deltaT);
+   public update(deltaT: number): void {
+    super.update(deltaT);
 
-        this.parent.velocity.x = this.movingRight ? this.parent.speed : -this.parent.speed;
-        this.parent.velocity.y += this.gravity * deltaT;
+    if (this.owner.position.x >= this.parent.patrolRight) this.movingRight = false;
+    if (this.owner.position.x <= this.parent.patrolLeft) this.movingRight = true;
 
-        // Store x before move to detect if we were stopped by a wall
-        const prevX = this.owner.position.x;
-        this.owner.move(this.parent.velocity.scaled(deltaT));
+    this.parent.velocity.x = this.movingRight ? this.parent.speed : -this.parent.speed;
+    this.parent.velocity.y += this.gravity * deltaT;
+    this.owner.move(this.parent.velocity.scaled(deltaT));
 
-        // If we barely moved horizontally, we hit a wall — reverse
-        const movedX = Math.abs(this.owner.position.x - prevX);
-        if (movedX < 0.5) {
-            this.movingRight = !this.movingRight;
-        }
+    this.owner.invertX = !this.movingRight;
 
-        // Also keep the boundary fallback so it doesn't wander forever
-        if (this.owner.position.x >= this.parent.patrolRight) this.movingRight = false;
-        if (this.owner.position.x <= this.parent.patrolLeft) this.movingRight = true;
-
-        // Flip sprite to face direction
-        this.owner.invertX = !this.movingRight;
-
-        if (this.parent instanceof HostileBehavior) {
-            const dist = this.owner.position.distanceTo(this.parent.playerRef.position);
-            if (dist <= this.parent.AGGRO_RANGE) {
-                this.finished(HostileStates.ATTACK);
-            }
+    if (this.parent instanceof HostileBehavior) {
+        const dist = this.owner.position.distanceTo(this.parent.playerRef.position);
+        if (dist <= this.parent.AGGRO_RANGE) {
+            this.finished(HostileStates.ATTACK);
         }
     }
+}
 
     public onExit(): Record<string, any> {
         this.parent.velocity.x = 0;
