@@ -1,0 +1,61 @@
+
+{
+    "name": "Phantump",
+    "spriteSheetImage": "phantump.png",
+    "spriteWidth": 16,
+    "spriteHeight": 16,
+    "columns": 1,
+    "rows": 1,
+    "durationType": "time",
+    "animations": [
+      {
+        "name": "IDLE",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 23
+          }
+        ]
+      },
+      {
+        "name": "FALL",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 23
+          }
+        ]
+      },
+      {
+        "name": "WALK",
+        "repeat": false,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 23
+          }
+        ]
+      },{
+      "name": "ATTACK",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 0,
+          "duration": 23
+        }
+      ]
+    },
+      {
+        "name": "FAINTED",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 23
+          }
+        ]
+      }
+    ]
+  }

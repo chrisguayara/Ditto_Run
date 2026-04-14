@@ -1,0 +1,21 @@
+{
+  "name": "StartScreen",
+  "spriteSheetImage": "STARTSCREEN.png",
+  "spriteWidth": 1440,
+  "spriteHeight": 840,
+  "columns": 1,
+  "rows": 1,
+  "durationType": "time",
+  "animations": [
+    {
+      "name": "DEFAULT",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 0,
+          "duration": 23
+        }
+      ]
+    }
+  ]
+}

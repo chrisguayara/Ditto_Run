@@ -1,0 +1,284 @@
+
+{
+  "name": "darkrai",
+  "spriteSheetImage": "darkraix32.png",
+  "spriteWidth": 32,
+  "spriteHeight": 32,
+  "columns": 10,
+  "rows": 10,
+  "durationType": "time",
+  "animations": [
+    {
+      "name": "IDLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 0,
+          "duration": 23
+        },
+        {
+          "index": 1,
+          "duration": 23
+        },
+        {
+          "index":2,
+          "duration": 23
+        },
+        {
+          "index": 3,
+          "duration": 23
+        },
+        {
+          "index": 4,
+          "duration": 23
+        },
+        {
+          "index": 5,
+          "duration": 23
+        },
+        {
+          "index": 6,
+          "duration": 23
+        },
+        {
+          "index": 7,
+          "duration": 23
+        },
+        {
+          "index": 8,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "WALK",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 19,
+          "duration": 23
+        },
+        {
+          "index": 20,
+          "duration": 23
+        },
+        {
+          "index": 21,
+          "duration": 23
+        },
+        {
+          "index": 22,
+          "duration": 23
+        },
+        {
+          "index": 23,
+          "duration": 23
+        },
+        {
+          "index": 24,
+          "duration": 23
+        },
+        {
+          "index": 25,
+          "duration": 23
+        },
+        {
+          "index": 26,
+          "duration": 23
+        },
+        {
+          "index": 27,
+          "duration": 23
+        },
+        {
+          "index": 28,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "JUMP",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 34,
+          "duration": 23
+        },
+        {
+          "index": 35,
+          "duration": 23
+        },
+        {
+          "index": 36,
+          "duration": 23
+        },
+        {
+          "index": 37,
+          "duration": 23
+        },
+        {
+          "index": 38,
+          "duration": 23
+        }
+      ]
+    },
+    {
+      "name": "ATTACK",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 54,
+          "duration": 2
+        },
+        {
+          "index": 55,
+          "duration": 2
+        },
+        {
+          "index": 56,
+          "duration": 2
+        },
+        {
+          "index": 57,
+          "duration": 5
+        },
+        {
+          "index": 58,
+          "duration": 5
+        },
+        {
+          "index": 59,
+          "duration": 6
+        },
+        {
+          "index": 60,
+          "duration": 6
+        },
+        {
+          "index": 61,
+          "duration": 7
+        },
+        {
+          "index": 62,
+          "duration": 3
+        },
+        {
+          "index": 63,
+          "duration": 8
+        },
+        {
+          "index": 64,
+          "duration": 7
+        },
+        {
+          "index": 65,
+          "duration": 7
+        },
+        {
+          "index": 67,
+          "duration": 6
+        },
+        {
+          "index": 68,
+          "duration": 5
+        },
+        {
+          "index": 69,
+          "duration": 4
+        }
+      ]
+    },
+    {
+      "name": "FALL",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 72,
+          "duration": 45
+        },
+        {
+          "index": 73,
+          "duration": 45
+        },
+        {
+          "index": 74,
+          "duration": 40
+        }
+      ]
+    },
+    {
+      "name": "TAKE_DAMAGE",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 78,
+          "duration": 4
+        },
+        {
+          "index": 79,
+          "duration": 12
+        },
+        {
+          "index": 80,
+          "duration": 7
+        }
+      ]
+    },
+    {
+      "name": "DYING",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 81,
+          "duration": 6
+        },
+        {
+          "index": 82,
+          "duration": 6
+        },
+        {
+          "index": 83,
+          "duration": 10
+        },
+        {
+          "index": 84,
+          "duration": 6
+        },
+        {
+          "index": 85,
+          "duration": 6
+        },
+        {
+          "index": 86,
+          "duration": 6
+        },
+        {
+          "index": 87,
+          "duration": 7
+        }
+      ]
+    },
+    {
+      "name": "DEAD",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 88,
+          "duration": 23
+        },
+        {
+          "index": 89,
+          "duration": 23
+        },
+        {
+          "index": 90,
+          "duration": 23
+        },
+        {
+          "index": 91,
+          "duration": 23
+        }
+      ]
+    }
+  ]
+}

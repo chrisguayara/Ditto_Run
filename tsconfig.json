@@ -1,5 +1,6 @@
 {
     "includes": ["src/*", "src/**/*"],
+    "exclude": ["public/**/*", "node_modules/**/*", "dist/**/*"],
     "compilerOptions": {
         /* Visit https://aka.ms/tsconfig to read more about this file */
         "target": "es2016",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
@@ -79,7 +80,7 @@
         // "preserveSymlinks": true,                         /* Disable resolving symlinks to their realpath. This correlates to the same flag in node. */
     
         /* Type Checking */
-        ,"strict": false                                      /* Enable all strict type-checking options. */
+        // "strict": false                                      /* Enable all strict type-checking options. */
         // "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
         // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
         // "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */
