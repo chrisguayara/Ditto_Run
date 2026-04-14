@@ -42,7 +42,7 @@ export default class Attack extends PokemonState {
             const MELEE_RANGE = 12;
             if (dist <= MELEE_RANGE && this.damageCooldown <= 0) {
                 this.damageCooldown = this.DAMAGE_COOLDOWN;
-                this.parent.emitter.fireEvent(MBEvents.PLAYER_TAKE_DAMAGE, { damage: 1 });
+                // this.parent.emitter.fireEvent(MBEvents.PLAYER_TAKE_DAMAGE, { damage: 1 });
             }
         }
     }

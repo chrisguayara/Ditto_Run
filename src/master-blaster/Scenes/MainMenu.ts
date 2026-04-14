@@ -15,17 +15,23 @@ export const MenuLayers = {
 
 export default class MainMenu extends Scene {
 
+    public static readonly START_SCREEN_KEY = "StartScreen";
+    public static readonly START_SCREEN_PATH = "game_assets/spritesheets/STARTSCREEN.json"
+
     public static readonly MUSIC_KEY = "MAIN_MENU_MUSIC";
     public static readonly MUSIC_PATH = "game_assets/music/MB_menu_music.mp3";
 
     public loadScene(): void {
         // Load the menu song
         this.load.audio(MainMenu.MUSIC_KEY, MainMenu.MUSIC_PATH);
+        this.load.spritesheet(MainMenu.START_SCREEN_KEY, MainMenu.START_SCREEN_PATH);
         
     }
 
     public startScene(): void {
         this.addUILayer(MenuLayers.MAIN);
+
+        
 
         // Center the viewport
         let size = this.viewport.getHalfSize();
@@ -33,6 +39,9 @@ export default class MainMenu extends Scene {
         this.viewport.setZoomLevel(1);
 
         // Create a play button
+
+        // let startscreen = this.add.sprite(MainMenu.START_SCREEN, MenuLayers.MAIN);
+        
         
         let playBtn = <Button>this.add.uiElement(UIElementType.BUTTON, MenuLayers.MAIN, {position: new Vec2(size.x, size.y), text: "Play Game"});
         playBtn.backgroundColor = Color.RED;

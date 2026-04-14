@@ -1,0 +1,21 @@
+{
+  "name": "Rowlet",
+  "spriteSheetImage": "rowlet.png",
+  "spriteWidth": 16,
+  "spriteHeight": 16,
+  "columns": 2,
+  "rows": 1,
+  "durationType": "time",
+  "animations": [
+    {
+      "name": "IDLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 0,
+          "duration": 23
+        }
+      ]
+    }
+  ]
+}
