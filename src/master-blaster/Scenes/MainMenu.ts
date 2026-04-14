@@ -40,7 +40,7 @@ export default class MainMenu extends Scene {
 
             let startscreen = this.add.animatedSprite(MainMenu.START_SCREEN_KEY, MenuLayers.BACKGROUND);
             startscreen.position.set(size.x, size.y);
-            startscreen.animation.play("DEFAULT");
+            startscreen.animation.playIfNotAlready("DEFAULT");
 
             let playBtn = <Button>this.add.uiElement(UIElementType.BUTTON, MenuLayers.MAIN, {
                 position: new Vec2(size.x, size.y+40), text: ""
