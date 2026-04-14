@@ -6,6 +6,10 @@ export const MBControls = {
     MOVE_RIGHT: "MOVE_RIGHT",
     JUMP: "JUMP",
     ATTACK: "ATTACK",
-    TRANSFORM: "TRANSFORM",       // E key - activate/deactivate form
-    CYCLE_FORM: "CYCLE_FORM"      // Tab - cycle stored forms
+    TRANSFORM: "TRANSFORM",
+    CYCLE_FORM: "CYCLE_FORM",
+    ATTACK_LEFT:  "ATTACK_LEFT",
+    ATTACK_RIGHT: "ATTACK_RIGHT",
+    ATTACK_UP:    "ATTACK_UP",
+    ATTACK_DOWN:  "ATTACK_DOWN",
 } as const;

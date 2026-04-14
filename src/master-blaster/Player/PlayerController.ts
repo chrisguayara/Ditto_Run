@@ -47,6 +47,8 @@ export default class PlayerController extends StateMachineAI {
     public readonly MIN_SPEED: number = 100;
     public readonly BASE_JUMP_FORCE: number = -200;
     public readonly BASE_GRAVITY: number = 500;
+    private _sludgeTimer: number = 0;
+    public readonly SLUDGE_COOLDOWN: number = 1;
 
     protected _health!: number;
     protected _maxHealth!: number;
@@ -88,7 +90,6 @@ export default class PlayerController extends StateMachineAI {
 
     public update(deltaT: number): void {
         super.update(deltaT);
-
         this._transformations.update(deltaT);
 
         if (Input.isJustPressed(MBControls.TRANSFORM)) {
@@ -98,11 +99,32 @@ export default class PlayerController extends StateMachineAI {
             this._transformations.cycleNext();
         }
 
+        // Phantump weapon rotation (mouse-aimed, unchanged)
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
+        if (Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
+            this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
+            this.weapon.startSystem(500, 0, this.owner.position);
+        }
 
-        if (Input.isPressed(MBControls.ATTACK)) {
-            const scene = this.owner.getScene() as MBLevel;
-            scene.fireSludge(this.owner.position.clone(), this.faceDir);
+        // Sludge uses arrow keys, blocked in Rowlet form
+        if (this._sludgeTimer > 0) {
+            this._sludgeTimer -= deltaT;
+        }
+
+        const activeForm = this._transformations.activeForm?.key ?? null;
+        if (activeForm !== "ROWLET" && this._sludgeTimer <= 0) {
+            const dx = (Input.isPressed(MBControls.ATTACK_RIGHT) ? 1 : 0)
+                    - (Input.isPressed(MBControls.ATTACK_LEFT)  ? 1 : 0);
+            const dy = (Input.isPressed(MBControls.ATTACK_DOWN)  ? 1 : 0)
+                    - (Input.isPressed(MBControls.ATTACK_UP)    ? 1 : 0);
+
+            if (dx !== 0 || dy !== 0) {
+                const dir = new Vec2(dx, dy).normalize();
+                (this.owner.getScene() as MBLevel).fireSludge(
+                    this.owner.position.clone(), dir
+                );
+                this._sludgeTimer = this.SLUDGE_COOLDOWN;
+            }
         }
     }
 

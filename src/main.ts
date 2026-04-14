@@ -10,17 +10,25 @@ import { MBControls } from "./master-blaster/MBControls";
         canvasSize: {x: 1200, y: 800},          // The size of the game
         clearColor: {r: 34, g: 32, b: 52},   // The color the game clears to
         inputs: [
-            {name: MBControls.MOVE_LEFT, keys: ["a"]},
-            {name: MBControls.MOVE_RIGHT, keys: ["d"]},
-            {name: MBControls.JUMP, keys: ["w", "space"]},
-            {name: MBControls.ATTACK, keys: ["x"]},
-            {name: MBControls.TRANSFORM,  keys: ["e"]},
-            {name: MBControls.CYCLE_FORM, keys: ["tab"]}
+            {name: MBControls.MOVE_LEFT,    keys: ["a"]},
+            {name: MBControls.MOVE_RIGHT,   keys: ["d"]},
+            {name: MBControls.JUMP,         keys: ["w", "space"]},
+            {name: MBControls.ATTACK,       keys: ["x"]},
+            {name: MBControls.TRANSFORM,    keys: ["e"]},
+            {name: MBControls.CYCLE_FORM,   keys: ["tab"]},
+            {name: MBControls.ATTACK_LEFT,  keys: ["arrowleft"]},
+            {name: MBControls.ATTACK_RIGHT, keys: ["arrowright"]},
+            {name: MBControls.ATTACK_UP,    keys: ["arrowup"]},
+            {name: MBControls.ATTACK_DOWN,  keys: ["arrowdown"]},
         ],
         useWebGL: false,                        // Tell the game we want to use webgl
         showDebug: false                       // Whether to show debug messages. You can change this to true if you want
     }
-
+    window.addEventListener("keydown", (e) => {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+    }
+    } , { passive: false });
     // Create a game with the options specified
     const game = new Game(options);
 

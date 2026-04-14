@@ -1,6 +1,7 @@
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
 import ParticleSystem from "../../Wolfie2D/Rendering/Animations/ParticleSystem";
 import Scene from "../../Wolfie2D/Scene/Scene";
+import OrthogonalTilemap from "../../Wolfie2D/Nodes/Tilemaps/OrthogonalTilemap";
 import Color from "../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../Wolfie2D/Utils/EaseFunctions";
 import RandUtils from "../../Wolfie2D/Utils/RandUtils";
@@ -15,12 +16,16 @@ export default class PlayerWeapon extends ParticleSystem {
      * The rotation (in radians) to apply to the velocity vector of the particles
      */
     protected _rotation: number = 0;
+    private _tilemap: OrthogonalTilemap | null = null;
+    private readonly PARTICLE_GRAVITY = 400;
+
     public get rotation(): number { return this._rotation; }
     public set rotation(rotation: number) { this._rotation = rotation; }
 
-    /**
-     * @returns true if the particle system is running; false otherwise.
-     */
+    public setTilemap(tilemap: OrthogonalTilemap): void {
+        this._tilemap = tilemap;
+    }
+
     public isSystemRunning(): boolean { return this.systemRunning; }
     /**
      * 
@@ -54,15 +59,32 @@ export default class PlayerWeapon extends ParticleSystem {
         });
     }
 
-    /**
-     * Initializes this particle system in the given scene and layer
-     * 
-     * All particles in the particle system should have their physics group set to 
-     * the MBPhysicsGroup.PLAYER_WEAPON.
-     * 
-     * @param scene the scene
-     * @param layer the layer in the scene
-     */
+    public update(deltaT: number): void {
+        super.update(deltaT);
+
+        if (!this._tilemap) return;
+
+        for (const particle of this.particlePool) {
+            if (!particle.inUse) continue;
+
+            // Apply gravity to velocity
+            particle.vel.y += this.PARTICLE_GRAVITY * deltaT;
+
+            // Check collision at particle position + a few pixels down
+            if (this._hitsTile(particle.position.x, particle.position.y + 2)) {
+                // Stop vertical movement, add friction to horizontal
+                particle.vel.y = 0;
+                particle.vel.x *= 0.85;
+            }
+        }
+    }
+
+    private _hitsTile(x: number, y: number): boolean {
+        if (!this._tilemap) return false;
+        const cell = this._tilemap.getColRowAt({ x, y } as any);
+        return this._tilemap.isTileCollidable(cell.x, cell.y);
+    }
+
     public initializePool(scene: Scene, layer: string) {
         super.initializePool(scene, layer);
         for (let i = 0; i < this.particlePool.length; i++) {

@@ -484,13 +484,19 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected initializeWeaponSystem(): void {
-        this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
-        this.playerWeaponSystem.initializePool(this, MBLayers.PRIMARY);
-        this.originalWeaponSystem = this.playerWeaponSystem;
+    this.playerWeaponSystem = new PlayerWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);
+    this.playerWeaponSystem.initializePool(this, MBLayers.PRIMARY);
+    this.originalWeaponSystem = this.playerWeaponSystem;
 
-        this.phantumpWeaponSystem = new PhantumpWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
-        this.phantumpWeaponSystem.initializePool(this, MBLayers.PRIMARY);
+    this.phantumpWeaponSystem = new PhantumpWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);
+    this.phantumpWeaponSystem.initializePool(this, MBLayers.PRIMARY);
+
+    // Wire tilemap for particle floor collision (walls is set by initializeTilemap which runs first)
+    if (this.walls) {
+        this.playerWeaponSystem.setTilemap(this.walls);
+        this.phantumpWeaponSystem.setTilemap(this.walls);
     }
+}
 
     protected initializePlayer(key: string): void {
         if (this.playerWeaponSystem === undefined) {

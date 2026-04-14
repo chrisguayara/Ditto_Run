@@ -35,24 +35,21 @@ export default class SludgeWeapon {
         this._sprite.animation.play("DEFAULT", true);
     }
 
-    public update(deltaT: number): void {
+   public update(deltaT: number): void {
         if (!this._alive) return;
 
         this._velocity.y += this._gravity * deltaT;
         this._sprite.position.add(this._velocity.scaled(deltaT));
 
-        if (this._tilemap) {
-            const col = this._tilemap.getColRowAt(this._sprite.position);
-            if (this._tilemap.isTileCollidable(col.x, col.y)) {
-                this._splat();
-                return;
-            }
+        if (this._checkTileCollision()) {
+            this._splat();
+            return;
         }
 
         if (this._sprite.position.y > 2000) {
             this._deactivate();
         }
-    }
+}
 
     private _splat(): void {
         if (this._particles && !this._particles.isSystemRunning()) {
@@ -71,7 +68,21 @@ export default class SludgeWeapon {
             }
         }
     }
-
+    private _checkTileCollision(): boolean {
+    if (!this._tilemap) return false;
+    const r = 4; // half-size of collision box in pixels
+    const corners = [
+        new Vec2(this._sprite.position.x - r, this._sprite.position.y - r),
+        new Vec2(this._sprite.position.x + r, this._sprite.position.y - r),
+        new Vec2(this._sprite.position.x - r, this._sprite.position.y + r),
+        new Vec2(this._sprite.position.x + r, this._sprite.position.y + r),
+    ];
+    for (const p of corners) {
+        const cell = this._tilemap.getColRowAt(p);
+        if (this._tilemap.isTileCollidable(cell.x, cell.y)) return true;
+    }
+    return false;
+    }
     private _deactivate(): void {
         this._alive = false;
         this._sprite.visible = false;

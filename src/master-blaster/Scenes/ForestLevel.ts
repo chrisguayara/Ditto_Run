@@ -115,7 +115,7 @@ export default class ForestLevel extends MBLevel {
         super.startScene();
         // Set the next level to be Level2
         this.nextLevel = MBLevel2;
-        (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
+        (this.player._ai as PlayerController).transformations.unlockForm("PHANTUMP");
         this.initializePKMN();
         this.respawnPosition = this.playerSpawn.clone();
     }
