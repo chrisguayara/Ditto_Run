@@ -11,6 +11,7 @@ import RowletController from "../Pokemon/PokemonActors/RowletController";
 import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
 import RotomController from "../Pokemon/PokemonActors/RotomController";
 import SludgeWeapon from "../Player/SludgeWeapon";
+import MainMenu from "./MainMenu";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -90,7 +91,7 @@ export default class ForestLevel extends MBLevel {
         this.damageWallLayerKey = "damage";
 
         // Level end size and position
-        this.levelEndPosition = new Vec2(2*16, 8*16).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(12*16, 39*16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 =  CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);

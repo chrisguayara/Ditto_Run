@@ -102,6 +102,7 @@ export default abstract class MBLevel extends Scene {
     protected walls!: OrthogonalTilemap;
     protected phantomWalls!: OrthogonalTilemap;
     protected damageWalls!: OrthogonalTilemap;
+    private energyBarLeftEdge: number = 0;
 
     // ── Audio ─────────────────────────────────────────────────────
     protected levelMusicKey!: string;
@@ -373,10 +374,12 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
-        let unit = this.energyBarBg.size.x / maxEnergy;
-        this.energyBar.size.set(this.energyBarBg.size.x - unit * (maxEnergy - currentEnergy), this.energyBarBg.size.y);
-        this.energyBar.position.set(this.energyBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxEnergy - currentEnergy), this.energyBarBg.position.y);
-        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 1/4 ? Color.RED : Color.BLUE;
+        const maxWidth = 100;
+        const newWidth = (currentEnergy / maxEnergy) * maxWidth;
+        this.energyBar.size.set(newWidth, 10);
+        // Left edge is fixed; center of bar shifts right as it fills
+        this.energyBar.position.set(this.energyBarLeftEdge + newWidth / 2, this.energyBarBg.position.y);
+        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
     }
 
     /* Initialization methods for everything in the scene */
@@ -452,19 +455,35 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected initializeUI(): void {
+        const VIEW_W = this.viewport.getHalfSize().x * 2;  // full screen width in UI coords
+        const PAD = 16;
         // Energy bar (top left)
-        this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(this.energyBarPos.x - 50, this.energyBarPos.y), text: "Energy "});
-        this.energyLabel.size.set(300, 30);
-        this.energyLabel.fontSize = 24;
+        this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(PAD + 30, PAD + 44), text: "EP"
+        });
+        this.energyLabel.textColor = Color.WHITE;
+        this.energyLabel.fontSize = 12;
         this.energyLabel.font = "Courier";
+    
+        this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(PAD + 80, PAD + 44), text: ""
+        });
+        this.energyBarBg.size = new Vec2(100, 10);
+        this.energyBarBg.borderColor = Color.WHITE;
+        this.energyBarBg.backgroundColor = new Color(0, 0, 0, 0.5);
 
-        this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.energyBarPos, text: ""});
-        this.energyBar.size = new Vec2(200, 25);
+    
+        const EP_CENTER_X = PAD + 80;
+        const EP_MAX_WIDTH = 100;
+        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2; 
+
+        
+        this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(EP_CENTER_X, PAD + 44),
+            text: ""
+        });
+        this.energyBar.size = new Vec2(EP_MAX_WIDTH, 10);
         this.energyBar.backgroundColor = Color.BLUE;
-
-        this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.energyBarPos, text: ""});
-        this.energyBarBg.size = new Vec2(200, 25);
-        this.energyBarBg.borderColor = Color.BLACK;
 
         // Health bar (moved right)
         this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(10, this.healthBarPos.y), text: "HP "});
