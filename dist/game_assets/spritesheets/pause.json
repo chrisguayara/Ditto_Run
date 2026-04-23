@@ -3,7 +3,7 @@
     "spriteSheetImage": "pause.png",
     "spriteWidth": 320,
     "spriteHeight": 240,
-    "columns": 1,
+    "columns": 4,
     "rows": 1,
     "durationType": "time",
     "animations": [
