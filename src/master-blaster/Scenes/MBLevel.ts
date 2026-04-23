@@ -472,24 +472,35 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected handleHealthChange(currentHealth: number, maxHealth: number): void {
-        let unit = this.healthBarBg.size.x / maxHealth;
-        this.healthBar.size.set(this.healthBarBg.size.x - unit * (maxHealth - currentHealth), this.healthBarBg.size.y);
+        const fullWidth = this.healthBarBg.size.x;
+        const unit = fullWidth / maxHealth;
+    
+        this.healthBar.size.set(unit * currentHealth, this.healthBar.size.y);
+    
         this.healthBar.position.set(
-            this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth),
+            this.healthBarBg.position.x - fullWidth / 2 + (unit * currentHealth) / 2,
             this.healthBarBg.position.y
         );
+    
         this.healthBar.backgroundColor =
-            currentHealth < maxHealth * 1 / 4 ? Color.RED :
-            currentHealth < maxHealth * 3 / 4 ? Color.YELLOW :
+            currentHealth < maxHealth * 0.25 ? Color.RED :
+            currentHealth < maxHealth * 0.75 ? Color.YELLOW :
             Color.GREEN;
     }
 
     protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
-        const maxWidth = 100;
-        const newWidth = (currentEnergy / maxEnergy) * maxWidth;
-        this.energyBar.size.set(newWidth, 10);
-        this.energyBar.position.set(this.energyBarLeftEdge + newWidth / 2, this.energyBarBg.position.y);
-        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
+        const fullWidth = 100;
+        const unit = fullWidth / maxEnergy;
+    
+        this.energyBar.size.set(unit * currentEnergy, this.energyBar.size.y);
+    
+        this.energyBar.position.set(
+            this.energyBarBg.position.x - fullWidth / 2 + (unit * currentEnergy) / 2,
+            this.energyBarBg.position.y
+        );
+    
+        this.energyBar.backgroundColor =
+            currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
     }
 
     /* Initialization methods for everything in the scene */
@@ -569,87 +580,80 @@ export default abstract class MBLevel extends Scene {
 
     protected initializeUI(): void {
         const PAD = 16;
-
+    
+        const screen = this.viewport.getHalfSize().scaled(2);
+    
+        // --- ENERGY ---
         this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 30, PAD + 44),
+            position: new Vec2(PAD + 20, PAD + 20),
             text: "EP"
+            
         });
         this.energyLabel.textColor = Color.WHITE;
         this.energyLabel.fontSize = 12;
         this.energyLabel.font = "Courier";
-
+    
         this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 80, PAD + 44),
+            position: new Vec2(PAD + 40, PAD + 25),
             text: ""
         });
         this.energyBarBg.size = new Vec2(100, 10);
         this.energyBarBg.borderColor = Color.WHITE;
         this.energyBarBg.backgroundColor = new Color(0, 0, 0, 0.5);
-
-        const EP_CENTER_X = PAD + 80;
-        const EP_MAX_WIDTH = 100;
-        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2;
-
+    
         this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(EP_CENTER_X, PAD + 44),
+            position: new Vec2(PAD + 40, PAD + 25),
             text: ""
         });
-        this.energyBar.size = new Vec2(EP_MAX_WIDTH, 10);
+        this.energyBar.size = new Vec2(100, 10);
         this.energyBar.backgroundColor = Color.BLUE;
-
+    
+        this.energyBarLeftEdge = PAD + 40 - 50;
+    
+        // --- HEALTH ---
         this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(10, this.healthBarPos.y),
-            text: "HP "
+            position: new Vec2(PAD + 20, PAD + 50),
+            text: "HP"
         });
-        this.healthLabel.size.set(300, 30);
-        this.healthLabel.fontSize = 24;
+        this.healthLabel.fontSize = 12;
         this.healthLabel.font = "Courier";
-
-        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: this.healthBarPos,
-            text: ""
-        });
-        this.healthBar.size = new Vec2(300, 25);
-        this.healthBar.backgroundColor = Color.GREEN;
-
+        this.healthLabel.textColor = Color.WHITE;
+    
         this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: this.healthBarPos,
+            position: new Vec2(PAD + 40, PAD + 60),
             text: ""
         });
-        this.healthBarBg.size = new Vec2(300, 25);
+        this.healthBarBg.size = new Vec2(100, 10);
         this.healthBarBg.borderColor = Color.BLACK;
-
+    
+        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(PAD + 40, PAD + 60),
+            text: ""
+        });
+        this.healthBar.size = new Vec2(100, 10);
+        this.healthBar.backgroundColor = Color.GREEN;
+    
+        // --- LEVEL END ---
         this.levelEndLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(-300, 100),
+            position: new Vec2(screen.x / 2, -100),
             text: "Level Complete"
         });
-        this.levelEndLabel.size.set(1200, 60);
-        this.levelEndLabel.borderRadius = 0;
-        this.levelEndLabel.backgroundColor = new Color(34, 32, 52);
-        this.levelEndLabel.textColor = Color.WHITE;
-        this.levelEndLabel.fontSize = 48;
+    
+        this.levelEndLabel.size.set(300, 40);
+        this.levelEndLabel.fontSize = 24;
         this.levelEndLabel.font = "PixelSimple";
-
-        this.levelEndLabel.tweens.add("slideIn", {
-            startDelay: 0,
-            duration: 1000,
-            effects: [
-                {
-                    property: TweenableProperties.posX,
-                    start: -300,
-                    end: 300,
-                    ease: EaseFunctionType.OUT_SINE
-                }
-            ]
-        });
-
+        this.levelEndLabel.textColor = Color.WHITE;
+        this.levelEndLabel.backgroundColor = new Color(34, 32, 52);
+    
+        // --- TRANSITION SCREEN ---
         this.levelTransitionScreen = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.UI, {
-            position: new Vec2(300, 200),
-            size: new Vec2(600, 400)
+            position: new Vec2(screen.x / 2, screen.y / 2),
+            size: new Vec2(screen.x, screen.y)
         });
+    
         this.levelTransitionScreen.color = new Color(34, 32, 52);
         this.levelTransitionScreen.alpha = 1;
-
+    
         this.levelTransitionScreen.tweens.add("fadeIn", {
             startDelay: 0,
             duration: 1000,
@@ -663,7 +667,7 @@ export default abstract class MBLevel extends Scene {
             ],
             onEnd: MBEvents.LEVEL_END
         });
-
+    
         this.levelTransitionScreen.tweens.add("fadeOut", {
             startDelay: 0,
             duration: 1000,
@@ -753,7 +757,7 @@ export default abstract class MBLevel extends Scene {
         }
 
         this.viewport.follow(this.player);
-        this.viewport.setSize(320, 180);
+        this.viewport.setSize(320, 240);
         this.viewport.setBounds(0, 0, 960, 960);
     }
 

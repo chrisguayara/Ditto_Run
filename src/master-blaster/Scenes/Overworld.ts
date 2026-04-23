@@ -17,7 +17,7 @@ export const MenuLayers = {
     BACKGROUND: "BACKGROUND"
 } as const;
 
-export default class MainMenu extends Scene {
+export default class Overworld extends Scene {
 
     public static readonly START_SCREEN_KEY = "StartScreen";
     public static readonly START_SCREEN_PATH = "game_assets/spritesheets/STARTSCREEN.json"
@@ -76,7 +76,7 @@ export default class MainMenu extends Scene {
 
     private startGame(): void {
         this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: MainMenu.SELECT_AUDIO_KEY });
-        this.sceneManager.changeToScene(ForestLevel);
+        this.sceneManager.changeToScene(WinterLevel);
     }
 
     public unloadScene(): void {
