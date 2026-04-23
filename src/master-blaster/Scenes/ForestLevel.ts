@@ -61,6 +61,12 @@ export default class ForestLevel extends MBLevel {
     
     public static readonly ROTOM_SPRITE_KEY  = "Rotom";
     public static readonly ROTOM_SPRITE_PATH = "game_assets/spritesheets/rotom.json";
+
+    public static readonly UI_TRANSFORM_KEY = "transformUI"
+    public static readonly UI_HEALTH_KEY = "healthUI"
+    public static readonly UI_ENERGY_KEY = "energyUI"
+    public static readonly UI_ENERGY_PATH = ""
+    
     
     
 
