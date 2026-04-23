@@ -197,7 +197,7 @@ export default abstract class MBLevel extends Scene {
     public fireSludge(origin: Vec2, direction: Vec2): void {
         const s = this.sludgePool.find(s => !s.isAlive);
         if (!s) return;
-        s.fire(origin, direction, 300, this.walls, this.playerWeaponSystem);
+        s.fire(origin, direction, 900, this.destructable, this.playerWeaponSystem);
     }
     /**
      * Handle game events. 

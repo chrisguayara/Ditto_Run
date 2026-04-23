@@ -12,7 +12,7 @@ export default class SludgeWeapon {
 
     private _sprite: MBAnimatedSprite;
     private _velocity: Vec2 = Vec2.ZERO;
-    private readonly _gravity: number = 40;
+    private readonly _gravity: number = 80;
     private _alive: boolean = false;
     private _tilemap: OrthogonalTilemap;
     private _particles: PlayerWeapon;
@@ -46,7 +46,7 @@ export default class SludgeWeapon {
             return;
         }
 
-        if (this._sprite.position.y > 2000) {
+        if (this._sprite.position.y > 3000) {
             this._deactivate();
         }
 }
