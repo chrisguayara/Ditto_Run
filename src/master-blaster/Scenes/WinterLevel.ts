@@ -7,11 +7,10 @@ import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
 import MBLevel2 from "./MBLevel2";
 import PlayerController from "../Player/PlayerController";
 import PokemonController from "../Pokemon/PokemonController";
-import RowletController from "../Pokemon/PokemonActors/RowletController";
-import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
 import RotomController from "../Pokemon/PokemonActors/RotomController";
 import SludgeWeapon from "../Player/SludgeWeapon";
-import MainMenu from "./MainMenu";
+import RareCandy from "../Entity/Items/RareCandy";
+import Snorlax from "../Entity/Objects/Snorlax";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -54,6 +53,8 @@ export default class WinterLevel extends MBLevel {
     public static readonly CRYO_GRENINJA_SPRITE_KEY = "Greninja"
     public static readonly CRYO_GRENINJA_SPRITE_PATH = "game_assets/spritesheets/greninja_cryo.json"
 
+    public static readonly RARE_KEY = "RareCandy"
+    public static readonly RARE_CANDY_PATH = "game_assets"
     
     // public static readonly PHANTUMP_WALL_LAYER = "PhantumpWallLayer"
     
@@ -115,8 +116,11 @@ export default class WinterLevel extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey, WinterLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey, WinterLevel.LEVEL_END_AUDIO_PATH);
         this.load.spritesheet(WinterLevel.CRYO_GRENINJA_SPRITE_KEY, WinterLevel.CRYO_GRENINJA_SPRITE_PATH);
+        this.load.spritesheet(RareCandy.SPRITE_KEY, RareCandy.SPRITE_PATH);
+        this.load.spritesheet(Snorlax.SPRITE_KEY, Snorlax.SPRITE_PATH);
         
         this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY, WinterLevel.TRANSFORM_AUDIO_PATH);
+        
     }
 
     /**
@@ -129,6 +133,7 @@ export default class WinterLevel extends MBLevel {
         this.load.keepAudio(this.transformAudioKey);
         this.load.keepAudio(this.tileDestroyedAudioKey);
         this.load.keepAudio(this.levelEndAudioKey);
+        
     }
 
     public startScene(): void {
@@ -137,6 +142,7 @@ export default class WinterLevel extends MBLevel {
         this.nextLevel = MBLevel2;
         (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
         this.initializePKMN();
+        this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
     }
     protected initializePKMN(): void {
@@ -169,12 +175,23 @@ export default class WinterLevel extends MBLevel {
         
     }
 
+    protected initializeEntities(): void {
+        
+        this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(14*16, 75*16));
+        this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(16*16, 75*16));
+    
+        // Snorlax as a trampoline platform — collidable=true so player lands on it
+        this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(16*16, 75*16), true);
+    }
+
     /**
      *  Current map size are the viewport limits
      */
     protected initializeViewport(): void {
     super.initializeViewport();
     this.viewport.setBounds(0, 0, 1600, 1600); // was 0, 128
-}
+
+    
+    }   
 
 }

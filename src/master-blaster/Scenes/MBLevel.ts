@@ -27,7 +27,11 @@ import { MBEvents } from "../MBEvents";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import MBFactoryManager from "../Factory/MBFactoryManager";
 import MainMenu from "./MainMenu";
-
+import Entity from "../Entity/Entity";
+import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
+/**
+ * A const object for the layer names
+ */
 export const MBLayers = {
     PRIMARY: "PRIMARY",
     UI: "UI",
@@ -117,37 +121,46 @@ export default abstract class MBLevel extends Scene {
     protected tileDestroyedAudioKey!: string;
     protected selectAudioKey!: string;
 
+    // Entity Logic ---------------------------
+    
+
+    // Entity Logic ---------------------------
+    
+
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
-        super(viewport, sceneManager, renderingManager, {
-            ...options,
-            physics: {
-                groupNames: [
-                    MBPhysicsGroups.GROUND,
-                    MBPhysicsGroups.PLAYER,
-                    MBPhysicsGroups.PLAYER_PHANTUMP,
-                    MBPhysicsGroups.PLAYER_WEAPON,
-                    MBPhysicsGroups.DESTRUCTABLE,
-                    MBPhysicsGroups.PHANTOM_WALL,
-                    MBPhysicsGroups.DAMAGE_WALL
-                ],
-                collisions: [
-                    //   GND  PLR  PHP  WPN  DST  PHT DMG
-                    [0,   1,   1,   1,   0,   0,   0], // GROUND
-                    [1,   0,   0,   0,   1,   1,   1], // PLAYER
-                    [1,   0,   0,   0,   1,   0,   1], // PLAYER_PHANTUMP
-                    [1,   0,   0,   0,   1,   0,   0], // WEAPON
-                    [0,   1,   1,   1,   0,   0,   0], // DESTRUCTABLE
-                    [0,   1,   0,   0,   0,   0,   0], // PHANTOM_WALL
-                    [0,   1,   1,   0,   0,   0,   0]  // DAMAGE_WALL
-                ]
-            }
-        });
+        super(viewport, sceneManager, renderingManager, {...options, physics: {
+            groupNames: [
+                MBPhysicsGroups.GROUND,
+                MBPhysicsGroups.PLAYER,
+                MBPhysicsGroups.PLAYER_PHANTUMP,
+                MBPhysicsGroups.PLAYER_WEAPON,
+                MBPhysicsGroups.DESTRUCTABLE,
+                MBPhysicsGroups.PHANTOM_WALL,
+                MBPhysicsGroups.DAMAGE_WALL,
+                MBPhysicsGroups.ENTITY
+            ],
+            collisions:
+            [
+            //   GND  PLR  PHP  WPN  DST  PHT DMG ENT
+                [0,   1,   1,   1,   0,   0, 0,   0],  // GROUND
+                [1,   0,   0,   0,   1,   1, 1,   1],  // PLAYER - collides with phantom walls
+                [1,   0,   0,   0,   1,   0, 1,   1],  // PLAYER_PHANTUMP - phases through phantom walls
+                [1,   0,   0,   0,   1,   0, 0 ,  0],  // WEAPON
+                [0,   1,   1,   1,   0,   0, 0 ,  0],  // DESTRUCTABLE
+                [0,   1,   0,   0,   0,   0, 0,   0],// PHANTOM_WALL
+                [0 ,  1,   1,   0,   0,   0, 0,   0],  // DAMAGE_WALL
+                // Add ENTITY column and row — triggers only, no physics blocking except Snorlax
+                [0 ,  1,   1,   0,   0,   0, 0, 0],  // ENTITY row
+                // and add 0 or 1 to each existing row's last column
+            ]
+        }});
         this.add = new MBFactoryManager(this, this.tilemaps);
     }
 
     public loadPauseMenuAssets(): void {
-        this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
+        
         this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
+        this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
     }
 
     public startScene(): void {
@@ -274,28 +287,31 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected getViewportCenter(): Vec2 {
-        const zoom = this.getViewScale();
-        const origin = this.viewport.getOrigin();
-        return new Vec2(
-            origin.x + (1200 / zoom) / 2,
-            origin.y + (800 / zoom) / 2
-        );
+        const size = this.viewport.getHalfSize().scaled(2);
+        return new Vec2(size.x / 2, size.y / 2);
     }
 
     protected repositionPauseMenu(): void {
-        const c = this.getViewportCenter();
+        const size = this.viewport.getHalfSize().scaled(2);
+        const center = size.scaled(0.5);
 
-        const bgScale = 1;
-        this.pauseMenuBg.position.set(c.x, c.y);
-        this.pauseMenuBg.scale.set(bgScale, bgScale);
+        const zoom = this.viewport.getZoomLevel(); 
 
-        const btnScale = 1.5;
-        const btnSpacing = 20;
-        const totalH = (this.pauseButtonSprites.length - 1) * btnSpacing;
-        const startY = c.y - totalH / 2;
+        this.pauseMenuBg.position.set(center.x, center.y);
+        this.pauseMenuBg.scale.set(1, 1);
+
+        const baseSpriteHeight = 48;
+        const baseScale = (1 / zoom); 
+
+        const btnScale = baseScale; 
+
+        const btnSpacing = 60 / zoom; 
+
+        const totalHeight = (this.pauseButtonSprites.length - 1) * btnSpacing;
+        const startY = center.y - totalHeight / 2;
 
         this.pauseButtonSprites.forEach((btn, i) => {
-            btn.position.set(c.x, startY + i * btnSpacing);
+            btn.position.set(center.x, startY + i * btnSpacing);
             btn.scale.set(btnScale, btnScale);
         });
     }
@@ -456,24 +472,35 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected handleHealthChange(currentHealth: number, maxHealth: number): void {
-        let unit = this.healthBarBg.size.x / maxHealth;
-        this.healthBar.size.set(this.healthBarBg.size.x - unit * (maxHealth - currentHealth), this.healthBarBg.size.y);
+        const fullWidth = this.healthBarBg.size.x;
+        const unit = fullWidth / maxHealth;
+    
+        this.healthBar.size.set(unit * currentHealth, this.healthBar.size.y);
+    
         this.healthBar.position.set(
-            this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth),
+            this.healthBarBg.position.x - fullWidth / 2 + (unit * currentHealth) / 2,
             this.healthBarBg.position.y
         );
+    
         this.healthBar.backgroundColor =
-            currentHealth < maxHealth * 1 / 4 ? Color.RED :
-            currentHealth < maxHealth * 3 / 4 ? Color.YELLOW :
+            currentHealth < maxHealth * 0.25 ? Color.RED :
+            currentHealth < maxHealth * 0.75 ? Color.YELLOW :
             Color.GREEN;
     }
 
     protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
-        const maxWidth = 100;
-        const newWidth = (currentEnergy / maxEnergy) * maxWidth;
-        this.energyBar.size.set(newWidth, 10);
-        this.energyBar.position.set(this.energyBarLeftEdge + newWidth / 2, this.energyBarBg.position.y);
-        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
+        const fullWidth = 100;
+        const unit = fullWidth / maxEnergy;
+    
+        this.energyBar.size.set(unit * currentEnergy, this.energyBar.size.y);
+    
+        this.energyBar.position.set(
+            this.energyBarBg.position.x - fullWidth / 2 + (unit * currentEnergy) / 2,
+            this.energyBarBg.position.y
+        );
+    
+        this.energyBar.backgroundColor =
+            currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
     }
 
     /* Initialization methods for everything in the scene */
@@ -482,10 +509,15 @@ export default abstract class MBLevel extends Scene {
      * Initialzes the layers
      */
     protected initLayers(): void {
+        
         this.addUILayer(MBLayers.UI);
+        this.addUILayer(MBLayers.PAUSE_BG);
+        this.addUILayer(MBLayers.PAUSE);
+        
+        
         this.addLayer(MBLayers.PRIMARY);
-        this.addLayer(MBLayers.PAUSE_BG); 
-        this.addLayer(MBLayers.PAUSE);
+         
+        
     }
 
     protected initializeTilemap(): void {
@@ -548,87 +580,80 @@ export default abstract class MBLevel extends Scene {
 
     protected initializeUI(): void {
         const PAD = 16;
-
+    
+        const screen = this.viewport.getHalfSize().scaled(2);
+    
+        // --- ENERGY ---
         this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 30, PAD + 44),
+            position: new Vec2(PAD + 20, PAD + 20),
             text: "EP"
+            
         });
         this.energyLabel.textColor = Color.WHITE;
         this.energyLabel.fontSize = 12;
         this.energyLabel.font = "Courier";
-
+    
         this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 80, PAD + 44),
+            position: new Vec2(PAD + 40, PAD + 25),
             text: ""
         });
         this.energyBarBg.size = new Vec2(100, 10);
         this.energyBarBg.borderColor = Color.WHITE;
         this.energyBarBg.backgroundColor = new Color(0, 0, 0, 0.5);
-
-        const EP_CENTER_X = PAD + 80;
-        const EP_MAX_WIDTH = 100;
-        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2;
-
+    
         this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(EP_CENTER_X, PAD + 44),
+            position: new Vec2(PAD + 40, PAD + 25),
             text: ""
         });
-        this.energyBar.size = new Vec2(EP_MAX_WIDTH, 10);
+        this.energyBar.size = new Vec2(100, 10);
         this.energyBar.backgroundColor = Color.BLUE;
-
+    
+        this.energyBarLeftEdge = PAD + 40 - 50;
+    
+        // --- HEALTH ---
         this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(10, this.healthBarPos.y),
-            text: "HP "
+            position: new Vec2(PAD + 20, PAD + 50),
+            text: "HP"
         });
-        this.healthLabel.size.set(300, 30);
-        this.healthLabel.fontSize = 24;
+        this.healthLabel.fontSize = 12;
         this.healthLabel.font = "Courier";
-
-        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: this.healthBarPos,
-            text: ""
-        });
-        this.healthBar.size = new Vec2(300, 25);
-        this.healthBar.backgroundColor = Color.GREEN;
-
+        this.healthLabel.textColor = Color.WHITE;
+    
         this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: this.healthBarPos,
+            position: new Vec2(PAD + 40, PAD + 60),
             text: ""
         });
-        this.healthBarBg.size = new Vec2(300, 25);
+        this.healthBarBg.size = new Vec2(100, 10);
         this.healthBarBg.borderColor = Color.BLACK;
-
+    
+        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(PAD + 40, PAD + 60),
+            text: ""
+        });
+        this.healthBar.size = new Vec2(100, 10);
+        this.healthBar.backgroundColor = Color.GREEN;
+    
+        // --- LEVEL END ---
         this.levelEndLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(-300, 100),
+            position: new Vec2(screen.x / 2, -100),
             text: "Level Complete"
         });
-        this.levelEndLabel.size.set(1200, 60);
-        this.levelEndLabel.borderRadius = 0;
-        this.levelEndLabel.backgroundColor = new Color(34, 32, 52);
-        this.levelEndLabel.textColor = Color.WHITE;
-        this.levelEndLabel.fontSize = 48;
+    
+        this.levelEndLabel.size.set(300, 40);
+        this.levelEndLabel.fontSize = 24;
         this.levelEndLabel.font = "PixelSimple";
-
-        this.levelEndLabel.tweens.add("slideIn", {
-            startDelay: 0,
-            duration: 1000,
-            effects: [
-                {
-                    property: TweenableProperties.posX,
-                    start: -300,
-                    end: 300,
-                    ease: EaseFunctionType.OUT_SINE
-                }
-            ]
-        });
-
+        this.levelEndLabel.textColor = Color.WHITE;
+        this.levelEndLabel.backgroundColor = new Color(34, 32, 52);
+    
+        // --- TRANSITION SCREEN ---
         this.levelTransitionScreen = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.UI, {
-            position: new Vec2(300, 200),
-            size: new Vec2(600, 400)
+            position: new Vec2(screen.x / 2, screen.y / 2),
+            size: new Vec2(screen.x, screen.y)
         });
+    
         this.levelTransitionScreen.color = new Color(34, 32, 52);
         this.levelTransitionScreen.alpha = 1;
-
+    
         this.levelTransitionScreen.tweens.add("fadeIn", {
             startDelay: 0,
             duration: 1000,
@@ -642,7 +667,7 @@ export default abstract class MBLevel extends Scene {
             ],
             onEnd: MBEvents.LEVEL_END
         });
-
+    
         this.levelTransitionScreen.tweens.add("fadeOut", {
             startDelay: 0,
             duration: 1000,
@@ -732,7 +757,7 @@ export default abstract class MBLevel extends Scene {
         }
 
         this.viewport.follow(this.player);
-        this.viewport.setZoomLevel(3);
+        this.viewport.setSize(320, 240);
         this.viewport.setBounds(0, 0, 960, 960);
     }
 
@@ -781,4 +806,28 @@ export default abstract class MBLevel extends Scene {
     public getTransformAudioKey(): string {
         return this.transformAudioKey;
     }
+
+    protected entities: Entity[] = [];
+
+    protected spawnEntity(
+        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+        spriteKey: string,
+        position: Vec2,
+        collidable: boolean = false  // true = solid, false = trigger only
+    ): Entity {
+        const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
+        sprite.position.copy(position);
+        sprite.animation.play("IDLE", true);
+        sprite.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)), undefined, collidable, !collidable);
+        sprite.setGroup(MBPhysicsGroups.ENTITY);
+        sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+
+        const entity = new EntityClass(sprite);
+        
+        this.entityMap.set(sprite.id, entity);
+        this.entities.push(entity);
+        return entity;
+    }
+
+    protected entityMap: Map<number, Entity> = new Map();
 }

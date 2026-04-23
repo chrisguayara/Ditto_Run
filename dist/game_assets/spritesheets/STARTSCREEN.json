@@ -1,10 +1,10 @@
 {
   "name": "StartScreen",
-  "spriteSheetImage": "STARTSCREEN-anim.png",
-  "spriteWidth": 1440,
-  "spriteHeight": 840,
-  "columns": 5,
-  "rows": 5,
+  "spriteSheetImage": "STARTSCREEN.png",
+  "spriteWidth": 320,
+  "spriteHeight": 240,
+  "columns": 1,
+  "rows": 1,
   "durationType": "time",
   "animations": [
     {
@@ -13,66 +13,6 @@
       "frames": [
         {
           "index": 0,
-          "duration": 23
-        },{
-          "index": 1,
-          "duration": 23
-        },{
-          "index": 2,
-          "duration": 23
-        },{
-          "index": 3,
-          "duration": 23
-        },{
-          "index": 4,
-          "duration": 23
-        },{
-          "index": 5,
-          "duration": 23
-        },{
-          "index": 6,
-          "duration": 23
-        },{
-          "index": 7,
-          "duration": 23
-        },{
-          "index": 8,
-          "duration": 23
-        },{
-          "index": 9,
-          "duration": 23
-        },{
-          "index": 10,
-          "duration": 23
-        },{
-          "index": 11,
-          "duration": 23
-        },{
-          "index": 12,
-          "duration": 23
-        },{
-          "index": 13,
-          "duration": 23
-        },{
-          "index": 14,
-          "duration": 23
-        },{
-          "index": 15,
-          "duration": 23
-        },{
-          "index": 16,
-          "duration": 23
-        },{
-          "index": 17,
-          "duration": 23
-        },{
-          "index": 18,
-          "duration": 23
-        },{
-          "index": 19,
-          "duration": 23
-        },{
-          "index": 20,
           "duration": 23
         }
       ]
