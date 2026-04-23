@@ -1,49 +1,73 @@
 import GameEvent from "../../../Wolfie2D/Events/GameEvent";
 import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
-import { PlayerStates, PlayerTweens } from "../PlayerController";
-import PlayerController from "../PlayerController";
+import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
+import Input from "../../../Wolfie2D/Input/Input";
+import { MBControls } from "../../MBControls";
 
 export default class Jump extends PlayerState {
 
-	public onEnter(options: Record<string, any>): void {
-        let scene = this.owner.getScene()
+    public onEnter(options: Record<string, any>): void {
+        const scene = this.owner.getScene();
         this.owner.animation.play(this.parent.getAnimationKey("JUMP"));
-        // Give the player a burst of upward momentum
-        this.parent.velocity.y = this.parent.effectiveJumpForce;
 
-        // If the player is moving to the left or right, make them do a flip
-        // if(this.parent.velocity.x !== 0){
-        //     this.owner.tweens.play(PlayerTweens.FLIP);
-        // }
-
-        // Play the jump sound for the player
-		this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: scene.getJumpAudioKey(), loop: false, holdReference: false});
-	}
-
-	public update(deltaT: number): void {
-        super.update(deltaT);
-        if (this.owner.onGround) {
-			this.finished(PlayerStates.IDLE);
-		} 
-        else if(this.owner.onCeiling || this.parent.velocity.y >= 0){
-            this.finished(PlayerStates.FALL);
-		}
-        else {
-            let dir = this.parent.inputDir;
-            // ↓ effectiveSpeed instead of speed
-            this.parent.velocity.x += dir.x * this.parent.effectiveSpeed/3.5 - 0.3*this.parent.velocity.x;
-            // ↓ effectiveGravity instead of this.gravity
-            this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-            this.owner.move(this.parent.velocity.scaled(deltaT));
+        // options.wallJump = true is set by WallSlide.onExit() after a wall jump.
+        // In that case velocity is already set — don't override it.
+        if (!options.wallJump) {
+            this.parent.velocity.y = this.parent.effectiveJumpForce;
         }
-         if (!this.parent.isTransforming) {
-            this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("JUMP"));
-        }   
-	}
 
-	public onExit(): Record<string, any> {
-		this.owner.animation.stop();
-		return {};
-	}
+        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+            key: scene.getJumpAudioKey(),
+            loop: false,
+            holdReference: false
+        });
+    }
+
+    public update(deltaT: number): void {
+        super.update(deltaT);
+
+        // ── Greninja abilities ──────────────────────────────────
+        if (this.parent.transformations.activeForm?.key === "GRENINJA") {
+
+            // Tongue grapple
+            if (Input.isMouseJustPressed()) {
+                this.finished(PlayerStates.GRAPPLE);
+                return;
+            }
+
+            // Wall slide — enter when touching any wall while airborne
+            const wall = this.parent.wallDir;
+            if (wall !== 0) {
+                this.finished(PlayerStates.WALL_SLIDE);
+                return;
+            }
+        }
+
+        // ── Standard jump logic ──────────────────────────────────
+        if (this.owner.onGround) {
+            this.finished(PlayerStates.IDLE);
+            return;
+        }
+
+        if (this.owner.onCeiling || this.parent.velocity.y >= 0) {
+            this.finished(PlayerStates.FALL);
+            return;
+        }
+
+        const dir = this.parent.inputDir;
+        this.parent.velocity.x += dir.x * this.parent.effectiveSpeed / 3.5
+                                 - 0.3 * this.parent.velocity.x;
+        this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
+        this.owner.move(this.parent.velocity.scaled(deltaT));
+
+        if (!this.parent.isTransforming) {
+            this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("JUMP"));
+        }
+    }
+
+    public onExit(): Record<string, any> {
+        this.owner.animation.stop();
+        return {};
+    }
 }

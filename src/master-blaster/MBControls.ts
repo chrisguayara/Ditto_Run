@@ -13,5 +13,5 @@ export const MBControls = {
     ATTACK_UP:    "ATTACK_UP",
     ATTACK_DOWN:  "ATTACK_DOWN",
     PAUSE: "PAUSE",
-    CONFIRM: "CONFIRM" 
+    CONFIRM: "CONFIRM" , 
 } as const;

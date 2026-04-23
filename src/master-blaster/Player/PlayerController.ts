@@ -11,7 +11,8 @@ import PlayerState from "./PlayerStates/PlayerState";
 import PlayerWeapon from "./PlayerWeapon";
 import Input from "../../Wolfie2D/Input/Input";
 import TransformationManager from "./TransformationManager";
-
+import WallSlide             from "./PlayerStates/WallSlide";
+import GreninjaTongueGrapple from "./PlayerStates/GreninjaTongueGrapple";
 import { MBControls } from "../MBControls";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import MathUtils from "../../Wolfie2D/Utils/MathUtils";
@@ -28,7 +29,13 @@ export const PlayerAnimations = {
     ROWLET_FLY: "ROWLET_FLY",
     PHANTUMP_FLY: "PHANTUMP_FLY",
     PHANTUMP_IDLE: "PHANTUMP_IDLE",
-    TRANSFORMATION : "TRANSFORMATION"
+    TRANSFORMATION : "TRANSFORMATION",
+    GRENINJA_IDLE:       "GRENINJA_IDLE",
+    GRENINJA_RUN:        "GRENINJA_RUN",
+    GRENINJA_JUMP:       "GRENINJA_JUMP",
+    GRENINJA_FALL:       "GRENINJA_FALL",
+    GRENINJA_WALL_SLIDE: "GRENINJA_WALL_SLIDE",
+    GRENINJA_GRAPPLE:    "GRENINJA_GRAPPLE"
 } as const
 
 export const PlayerTweens = {
@@ -42,7 +49,9 @@ export const PlayerStates = {
     JUMP: "JUMP",
     FALL: "FALL",
     DEAD: "DEAD",
-    TRANSFORMATION: "TRANSFORMATION"
+    TRANSFORMATION: "TRANSFORMATION",
+    WALL_SLIDE: "WALL_SLIDE",      
+    GRAPPLE:    "GRAPPLE",   
 } as const
 
 export default class PlayerController extends StateMachineAI {
@@ -56,13 +65,16 @@ export default class PlayerController extends StateMachineAI {
     public readonly SLUDGE_COOLDOWN: number = 1;
     private readonly TRANSFORM_ANIM_DURATION: number = 0.43;
     public isPaused: boolean = false;
-
+    /** Set by GreninjaTongueGrapple; null when not grappling. Use for line rendering. */
+    public grappleAnchor: Vec2 | null = null;
+    /** Current tongue-tip position while casting; null when not grappling. */
+    public grappleTip:   Vec2 | null  = null;
     protected _health!: number;
     protected _maxHealth!: number;
     protected owner!: MBAnimatedSprite;
     protected _velocity!: Vec2;
     protected _speed!: number;
-    protected tilemap!: OrthogonalTilemap;
+    protected _tilemap!: OrthogonalTilemap;
     protected weapon!: PlayerWeapon;
     protected _transformations!: TransformationManager;
     public scene! : MBLevel;
@@ -72,7 +84,7 @@ export default class PlayerController extends StateMachineAI {
         this.weapon = options.weaponSystem;
         this._transformations = new TransformationManager();
 
-        this.tilemap = this.owner.getScene().getTilemap(options.tilemap) as OrthogonalTilemap;
+        this._tilemap = this.owner.getScene().getTilemap(options.tilemap) as OrthogonalTilemap;
         this.speed = 400;
         this.velocity = Vec2.ZERO;
         this.health = 10;
@@ -83,7 +95,9 @@ export default class PlayerController extends StateMachineAI {
         this.addState(PlayerStates.JUMP, new Jump(this, this.owner));
         this.addState(PlayerStates.FALL, new Fall(this, this.owner));
         this.addState(PlayerStates.DEAD, new Dead(this, this.owner));
-        
+        this.addState(PlayerStates.WALL_SLIDE, new WallSlide(this, this.owner));
+        this.addState(PlayerStates.GRAPPLE,    new GreninjaTongueGrapple(this, this.owner));
+
         this.initialize(PlayerStates.IDLE);
         this.scene = this.owner.getScene();
     }
@@ -96,8 +110,33 @@ export default class PlayerController extends StateMachineAI {
     }
 
     public get faceDir(): Vec2 { return this.owner.position.dirTo(Input.getGlobalMousePosition()); }
+    /**
+     * Returns which wall the player is currently touching:
+     *  -1 = left wall,  1 = right wall,  0 = no wall
+     *
+     * Primary: uses physics-set onLeft / onRight if the engine provides them.
+     * Fallback: tilemap tile-check at ±halfWidth from the player's centre.
+     */
+    public get wallDir(): -1 | 0 | 1 {
+        const node = this.owner as any;
 
-    public update(deltaT: number): void {
+        // Wolfie2D may set these booleans the same way it sets onGround/onCeiling
+        if (typeof node.onLeft  === "boolean" && node.onLeft)  return -1;
+        if (typeof node.onRight === "boolean" && node.onRight) return  1;
+
+        // Tilemap fallback — checks a 2-pixel probe on each side
+        try {
+            const pos   = this.owner.position;
+            const halfW = this.owner.size.x / 2 + 2;
+            const leftTile  = this.tilemap.getTileAtWorldPosition(new Vec2(pos.x - halfW, pos.y));
+            const rightTile = this.tilemap.getTileAtWorldPosition(new Vec2(pos.x + halfW, pos.y));
+            if (leftTile  > 0) return -1;
+            if (rightTile > 0) return  1;
+        } catch { /* ignore — position is off-map or API differs */ }
+
+        return 0;
+    }
+        public update(deltaT: number): void {
         if (this.isPaused) return;
         super.update(deltaT);
         this._transformations.update(deltaT);
@@ -163,6 +202,7 @@ export default class PlayerController extends StateMachineAI {
         return this._transformations.jumpForce ?? this.BASE_JUMP_FORCE;
     }
     public get isTransforming(): boolean { return this._transforming; }
+    public get tilemap(): OrthogonalTilemap { return this._tilemap; }
 
     // ── Standard getters/setters ──────────────────────────────────
     public get velocity(): Vec2 { return this._velocity; }
@@ -194,7 +234,15 @@ export default class PlayerController extends StateMachineAI {
                 ? PlayerAnimations.PHANTUMP_IDLE 
                 : PlayerAnimations.PHANTUMP_FLY;
         }
+        if (form === "GRENINJA") {
+            // Use base animations since Greninja animations aren't in spritesheet yet
+            switch (base) {
+                case "IDLE": return PlayerAnimations.IDLE;
+                case "WALK": return PlayerAnimations.WALK;
+                case "JUMP": return PlayerAnimations.JUMP;
+                case "FALL": return PlayerAnimations.JUMP; // Use JUMP for FALL
+            }
+        }
         return PlayerAnimations[base];
     }
-    
 }

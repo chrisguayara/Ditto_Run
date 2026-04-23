@@ -77,4 +77,14 @@ export const Transformations: Record<string, Transformation> = {
     },
 
     // ── Add ice/mountain forms below when we reach that level ────
+    GRENINJA: {
+        key: "GRENINJA",
+        displayName: "Greninja",
+        speedMultiplier: 1.4,           // fast ninja
+        gravityMultiplier: 1.0,        
+        jumpForce: -320,                // higher than the -200 base
+        activationCost: 0.15,
+        drainRate: 0.10,
+        ability: "TONGUE_GRAPPLE"
+    },
 };

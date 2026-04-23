@@ -136,7 +136,6 @@ export default class WinterLevel extends MBLevel {
         // Set the next level to be Level2
         this.nextLevel = MBLevel2;
         (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
-        
         this.initializePKMN();
         this.respawnPosition = this.playerSpawn.clone();
     }
