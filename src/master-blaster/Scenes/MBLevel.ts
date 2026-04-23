@@ -27,7 +27,11 @@ import { MBEvents } from "../MBEvents";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import MBFactoryManager from "../Factory/MBFactoryManager";
 import MainMenu from "./MainMenu";
-
+import Entity from "../Entity/Entity";
+import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
+/**
+ * A const object for the layer names
+ */
 export const MBLayers = {
     PRIMARY: "PRIMARY",
     UI: "UI",
@@ -117,31 +121,34 @@ export default abstract class MBLevel extends Scene {
     protected tileDestroyedAudioKey!: string;
     protected selectAudioKey!: string;
 
+    // Entity Logic ---------------------------
+    
+
+    // Entity Logic ---------------------------
+    
+
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
-        super(viewport, sceneManager, renderingManager, {
-            ...options,
-            physics: {
-                groupNames: [
-                    MBPhysicsGroups.GROUND,
-                    MBPhysicsGroups.PLAYER,
-                    MBPhysicsGroups.PLAYER_PHANTUMP,
-                    MBPhysicsGroups.PLAYER_WEAPON,
-                    MBPhysicsGroups.DESTRUCTABLE,
-                    MBPhysicsGroups.PHANTOM_WALL,
-                    MBPhysicsGroups.DAMAGE_WALL
-                ],
-                collisions: [
-                    //   GND  PLR  PHP  WPN  DST  PHT DMG
-                    [0,   1,   1,   1,   0,   0,   0], // GROUND
-                    [1,   0,   0,   0,   1,   1,   1], // PLAYER
-                    [1,   0,   0,   0,   1,   0,   1], // PLAYER_PHANTUMP
-                    [1,   0,   0,   0,   1,   0,   0], // WEAPON
-                    [0,   1,   1,   1,   0,   0,   0], // DESTRUCTABLE
-                    [0,   1,   0,   0,   0,   0,   0], // PHANTOM_WALL
-                    [0,   1,   1,   0,   0,   0,   0]  // DAMAGE_WALL
-                ]
-            }
-        });
+                MBPhysicsGroups.PLAYER_WEAPON,
+                MBPhysicsGroups.DESTRUCTABLE,
+                MBPhysicsGroups.PHANTOM_WALL,
+                MBPhysicsGroups.DAMAGE_WALL,
+                MBPhysicsGroups.ENTITY
+            ],
+            collisions:
+            [
+            //   GND  PLR  PHP  WPN  DST  PHT DMG ENT
+                [0,   1,   1,   1,   0,   0, 0,   0],  // GROUND
+                [1,   0,   0,   0,   1,   1, 1,   1],  // PLAYER - collides with phantom walls
+                [1,   0,   0,   0,   1,   0, 1,   1],  // PLAYER_PHANTUMP - phases through phantom walls
+                [1,   0,   0,   0,   1,   0, 0 ,  0],  // WEAPON
+                [0,   1,   1,   1,   0,   0, 0 ,  0],  // DESTRUCTABLE
+                [0,   1,   0,   0,   0,   0, 0,   0],// PHANTOM_WALL
+                [0 ,  1,   1,   0,   0,   0, 0,   0],  // DAMAGE_WALL
+                // Add ENTITY column and row — triggers only, no physics blocking except Snorlax
+                [0 ,  1,   1,   0,   0,   0, 0, 0],  // ENTITY row
+                // and add 0 or 1 to each existing row's last column
+            ]
+        }});
         this.add = new MBFactoryManager(this, this.tilemaps);
     }
 
