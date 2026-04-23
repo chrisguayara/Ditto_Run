@@ -6,6 +6,7 @@ import Scene from "../../Wolfie2D/Scene/Scene";
 import Color from "../../Wolfie2D/Utils/Color";
 import ForestLevel from "./ForestLevel";
 import Level1 from "./MBLevel1";
+import WinterLevel from "./WinterLevel";
 
 
 // Layers for the main menu scene
@@ -65,7 +66,7 @@ export default class MainMenu extends Scene {
             playBtn.font = "PixelSimple";
             playBtn.onClick = () => { this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
                 key: MainMenu.SELECT_AUDIO_KEY
-            });this.sceneManager.changeToScene(ForestLevel); }
+            });this.sceneManager.changeToScene(WinterLevel); }
 
             this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: MainMenu.MUSIC_KEY, loop: true, holdReference: true});
     }
