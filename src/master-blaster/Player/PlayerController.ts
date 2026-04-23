@@ -55,6 +55,7 @@ export default class PlayerController extends StateMachineAI {
     private _transformTimer: number = 0;
     public readonly SLUDGE_COOLDOWN: number = 1;
     private readonly TRANSFORM_ANIM_DURATION: number = 0.43;
+    public isPaused: boolean = false;
 
     protected _health!: number;
     protected _maxHealth!: number;
@@ -97,6 +98,7 @@ export default class PlayerController extends StateMachineAI {
     public get faceDir(): Vec2 { return this.owner.position.dirTo(Input.getGlobalMousePosition()); }
 
     public update(deltaT: number): void {
+        if (this.isPaused) return;
         super.update(deltaT);
         this._transformations.update(deltaT);
 

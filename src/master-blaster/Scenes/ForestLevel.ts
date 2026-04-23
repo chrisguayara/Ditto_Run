@@ -111,6 +111,7 @@ export default class ForestLevel extends MBLevel {
     public loadScene(): void {
         // Load in the tilemap
         this.load.tilemap(this.tilemapKey, ForestLevel.TILEMAP_PATH);
+        this.loadPauseMenuAssets();
         // Load in the player's sprite
         this.load.spritesheet(this.playerSpriteKey, ForestLevel.PLAYER_SPRITE_PATH);
         this.load.spritesheet(SludgeWeapon.SLUDGE_KEY, SludgeWeapon.SLUDGE_PATH);

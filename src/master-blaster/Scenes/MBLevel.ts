@@ -17,36 +17,43 @@ import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
 import Timer from "../../Wolfie2D/Timing/Timer";
 import Color from "../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../Wolfie2D/Utils/EaseFunctions";
-import PlayerController, { PlayerTweens } from "../Player/PlayerController";
+import PlayerController, { PlayerTweens, PlayerStates } from "../Player/PlayerController";
 import PlayerWeapon from "../Player/PlayerWeapon";
 import PhantumpWeapon from "../Player/PhantumpWeapon";
+import SludgeWeapon from "../Player/SludgeWeapon";
+import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
+import { MBControls } from "../MBControls";
 import { MBEvents } from "../MBEvents";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import MBFactoryManager from "../Factory/MBFactoryManager";
 import MainMenu from "./MainMenu";
-import { PlayerStates } from "../Player/PlayerController";
-import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
-import SludgeWeapon from "../Player/SludgeWeapon";
-/**
- * A const object for the layer names
- */
+
 export const MBLayers = {
-    // The primary layer
     PRIMARY: "PRIMARY",
-    // The UI layer
-    UI: "UI"
+    UI: "UI",
+    PAUSE: "PAUSE"
 } as const;
 
-// The layers as a type
-export type MBLayer = typeof MBLayers[keyof typeof MBLayers]
+export type MBLayer = typeof MBLayers[keyof typeof MBLayers];
 
-/**
- * An abstract scene class.
- */
 export default abstract class MBLevel extends Scene {
-
-    /** Overrride the factory manager */
+    /** Override the factory manager */
     public add: MBFactoryManager;
+
+    // ── Pause menu assets ─────────────────────────────────────────
+    public static readonly PAUSE_BG_KEY = "PAUSE_MENU_BG";
+    public static readonly PAUSE_BG_PATH = "game_assets/spritesheets/pause.json";
+    public static readonly MENU_BTN_KEY = "MENU_BUTTONS";
+    public static readonly MENU_BTN_PATH = "game_assets/spritesheets/menubuttons.json";
+
+    // ── Pause state ───────────────────────────────────────────────
+    protected isPaused: boolean = false;
+    protected selectedPauseOption: number = 0;
+    // 0 = Resume, 1 = Restart, 2 = Quit
+    protected pauseMenuBg!: AnimatedSprite;
+    protected pauseButtonSprites!: AnimatedSprite[];
+    private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle", "Quit_idle"];
+    private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected", "Quit_Selected"];
 
     // ── Weapon systems ────────────────────────────────────────────
     protected playerWeaponSystem!: PlayerWeapon;
@@ -56,9 +63,7 @@ export default abstract class MBLevel extends Scene {
 
     // ── Player ────────────────────────────────────────────────────
     protected playerSpriteKey!: string;
-    /** The animated sprite that is the player */
     protected player!: AnimatedSprite;
-    /** The player's spawn position */
     protected playerSpawn!: Vec2;
 
     // ── UI ────────────────────────────────────────────────────────
@@ -69,9 +74,10 @@ export default abstract class MBLevel extends Scene {
     private energyBar!: Label;
     private energyBarBg!: Label;
 
-    // ── UI Positions (adjustable) ─────────────────────────────────
-    protected healthBarPos: Vec2 = new Vec2(300, 20); 
-    protected energyBarPos: Vec2 = new Vec2(350, 20);  
+    // ── UI Positions ──────────────────────────────────────────────
+    protected healthBarPos: Vec2 = new Vec2(300, 20);
+    protected energyBarPos: Vec2 = new Vec2(350, 20);
+    private energyBarLeftEdge: number = 0;
 
     // ── Level end ─────────────────────────────────────────────────
     protected levelEndPosition!: Vec2;
@@ -80,12 +86,6 @@ export default abstract class MBLevel extends Scene {
     protected nextLevel!: new (...args: any) => Scene;
     protected levelEndTimer!: Timer;
     protected levelEndLabel!: Label;
-
-    
-
-    
-
-    // Level end transition timer and graphic
     protected levelTransitionTimer!: Timer;
     protected levelTransitionScreen!: Rect;
 
@@ -94,15 +94,19 @@ export default abstract class MBLevel extends Scene {
     protected destructibleLayerKey!: string;
     protected wallsLayerKey!: string;
     protected phantomWallLayerKey!: string;
-    protected damageWallLayerKey! : string;
+    protected damageWallLayerKey!: string;
     protected tilemapScale!: Vec2;
-    /** The destrubtable layer of the tilemap */
     protected destructable: OrthogonalTilemap | undefined;
-    /** The wall layer of the tilemap */
     protected walls!: OrthogonalTilemap;
     protected phantomWalls!: OrthogonalTilemap;
     protected damageWalls!: OrthogonalTilemap;
-    private energyBarLeftEdge: number = 0;
+
+    // ── Checkpoints ───────────────────────────────────────────────
+    protected checkpoint_sqr1!: Vec2;
+    protected checkpoint_sqr2!: Vec2;
+    protected checkpointOneArea!: Rect;
+    protected checkpointTwoArea!: Rect;
+    protected respawnPosition!: Vec2;
 
     // ── Audio ─────────────────────────────────────────────────────
     protected levelMusicKey!: string;
@@ -110,82 +114,81 @@ export default abstract class MBLevel extends Scene {
     protected transformAudioKey!: string;
     protected levelEndAudioKey!: string;
     protected tileDestroyedAudioKey!: string;
-    protected selectAudioKey! : string;
-    protected checkpoint_sqr1!: Vec2;
-    protected checkpoint_sqr2!: Vec2;
-    
-    protected checkpointOneArea!: Rect;
-    protected checkpointTwoArea!: Rect;
-    protected respawnPosition!: Vec2;
+    protected selectAudioKey!: string;
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
-        super(viewport, sceneManager, renderingManager, {...options, physics: {
-            groupNames: [
-                MBPhysicsGroups.GROUND,
-                MBPhysicsGroups.PLAYER,
-                MBPhysicsGroups.PLAYER_PHANTUMP,
-                MBPhysicsGroups.PLAYER_WEAPON,
-                MBPhysicsGroups.DESTRUCTABLE,
-                MBPhysicsGroups.PHANTOM_WALL,
-                MBPhysicsGroups.DAMAGE_WALL
-            ],
-            collisions:
-            [
-            //   GND  PLR  PHP  WPN  DST  PHT DMG
-                [0,   1,   1,   1,   0,   0, 0],  // GROUND
-                [1,   0,   0,   0,   1,   1, 1],  // PLAYER - collides with phantom walls
-                [1,   0,   0,   0,   1,   0, 1],  // PLAYER_PHANTUMP - phases through phantom walls
-                [1,   0,   0,   0,   1,   0, 0],  // WEAPON
-                [0,   1,   1,   1,   0,   0, 0],  // DESTRUCTABLE
-                [0,   1,   0,   0,   0,   0, 0],// PHANTOM_WALL
-                [0 ,  1,   1,   0,   0,   0, 0]  // DAMAGE_WALL
-            ]
-        }});
+        super(viewport, sceneManager, renderingManager, {
+            ...options,
+            physics: {
+                groupNames: [
+                    MBPhysicsGroups.GROUND,
+                    MBPhysicsGroups.PLAYER,
+                    MBPhysicsGroups.PLAYER_PHANTUMP,
+                    MBPhysicsGroups.PLAYER_WEAPON,
+                    MBPhysicsGroups.DESTRUCTABLE,
+                    MBPhysicsGroups.PHANTOM_WALL,
+                    MBPhysicsGroups.DAMAGE_WALL
+                ],
+                collisions: [
+                    //   GND  PLR  PHP  WPN  DST  PHT DMG
+                    [0,   1,   1,   1,   0,   0,   0], // GROUND
+                    [1,   0,   0,   0,   1,   1,   1], // PLAYER
+                    [1,   0,   0,   0,   1,   0,   1], // PLAYER_PHANTUMP
+                    [1,   0,   0,   0,   1,   0,   0], // WEAPON
+                    [0,   1,   1,   1,   0,   0,   0], // DESTRUCTABLE
+                    [0,   1,   0,   0,   0,   0,   0], // PHANTOM_WALL
+                    [0,   1,   1,   0,   0,   0,   0]  // DAMAGE_WALL
+                ]
+            }
+        });
         this.add = new MBFactoryManager(this, this.tilemaps);
     }
 
+    public loadPauseMenuAssets(): void {
+        this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
+        this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
+    }
+
     public startScene(): void {
-        // Initialize the layers
         this.initLayers();
-
-        // Initialize the tilemaps
         this.initializeTilemap();
-
-        // Initialize the sprite and particle system for the players weapon 
         this.initializeWeaponSystem();
-        this.initializeSludgePool(); 
-        // Initialize the player 
+        this.initializeSludgePool();
         this.initializePlayer(this.playerSpriteKey);
-
-        // Initialize the viewportm after the player has been initialized
         this.initializeViewport();
         this.subscribeToEvents();
         this.initializeUI();
+        this.initializePauseMenu();
         this.initializeCheckpoints();
-        
-
-        // Initialize the ends of the levels - must be initialized after the primary layer has been added
         this.initializeLevelEnds();
 
         this.levelTransitionTimer = new Timer(500);
         this.levelEndTimer = new Timer(3000, () => {
-            // After the level end timer ends, fade to black and then go to the next scene
             this.levelTransitionScreen.tweens.play("fadeIn");
         });
 
-        // Initially disable player movement
         Input.disableInput();
-
-        // Start the black screen fade out
         this.levelTransitionScreen.tweens.play("fadeOut");
-
-        // Start playing the level music for the Master Blaster level
-        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.levelMusicKey, loop: true, holdReference: true});
+        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+            key: this.levelMusicKey,
+            loop: true,
+            holdReference: true
+        });
     }
 
     /* Update method for the scene */
 
-   public updateScene(deltaT: number) {
+    public updateScene(deltaT: number) {
+        if (Input.isJustPressed(MBControls.PAUSE)) {
+            this.isPaused ? this.resumeGame() : this.pauseGame();
+            return;
+        }
+
+        if (this.isPaused) {
+            this.updatePauseMenu();
+            return;
+        }
+
         while (this.receiver.hasNextEvent()) {
             this.handleEvent(this.receiver.getNextEvent());
         }
@@ -194,30 +197,136 @@ export default abstract class MBLevel extends Scene {
             if (s.isAlive) s.update(deltaT);
         }
     }
+
     public fireSludge(origin: Vec2, direction: Vec2): void {
         const s = this.sludgePool.find(s => !s.isAlive);
         if (!s) return;
         s.fire(origin, direction, 900, this.destructable, this.playerWeaponSystem);
     }
-    /**
-     * Handle game events. 
-     * @param event the game event
-     */
+
+    protected pauseGame(): void {
+        this.isPaused = true;
+        this.selectedPauseOption = 0;
+
+        (this.player._ai as PlayerController).isPaused = true;
+
+        this.repositionPauseMenu();
+        this.pauseMenuBg.visible = true;
+        this.pauseButtonSprites.forEach(b => b.visible = true);
+        this.updatePauseButtonAnimations();
+    }
+
+    protected resumeGame(): void {
+        this.isPaused = false;
+
+        (this.player._ai as PlayerController).isPaused = false;
+
+        this.pauseMenuBg.visible = false;
+        this.pauseButtonSprites.forEach(b => b.visible = false);
+    }
+
+    protected updatePauseMenu(): void {
+        this.repositionPauseMenu();
+
+        if (Input.isJustPressed(MBControls.ATTACK_UP)) {
+            this.selectedPauseOption = (this.selectedPauseOption - 1 + 3) % 3;
+            this.updatePauseButtonAnimations();
+        }
+
+        if (Input.isJustPressed(MBControls.ATTACK_DOWN)) {
+            this.selectedPauseOption = (this.selectedPauseOption + 1) % 3;
+            this.updatePauseButtonAnimations();
+        }
+
+        if (Input.isJustPressed(MBControls.JUMP) || Input.isJustPressed(MBControls.ATTACK)) {
+            this.confirmPauseSelection();
+        }
+    }
+
+    protected confirmPauseSelection(): void {
+        switch (this.selectedPauseOption) {
+            case 0: // Resume
+                this.resumeGame();
+                break;
+            case 1: // Restart
+                this.resumeGame();
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                this.sceneManager.changeToScene(this.constructor as new (...args: any[]) => Scene);
+                break;
+            case 2: // Quit to Main Menu
+                this.resumeGame();
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                this.sceneManager.changeToScene(MainMenu);
+                break;
+        }
+    }
+
+    protected updatePauseButtonAnimations(): void {
+        for (let i = 0; i < this.pauseButtonSprites.length; i++) {
+            const anim = i === this.selectedPauseOption
+                ? this.PAUSE_SELECTED_ANIMS[i]
+                : this.PAUSE_IDLE_ANIMS[i];
+            this.pauseButtonSprites[i].animation.playIfNotAlready(anim, true);
+        }
+    }
+
+    protected getViewportCenter(): Vec2 {
+        const zoom = this.getViewScale();
+        const origin = this.viewport.getOrigin();
+        return new Vec2(
+            origin.x + (1200 / zoom) / 2,
+            origin.y + (800 / zoom) / 2
+        );
+    }
+
+    protected repositionPauseMenu(): void {
+        const c = this.getViewportCenter();
+
+        const bgScale = 100 / 320;
+        this.pauseMenuBg.position.set(c.x, c.y);
+        this.pauseMenuBg.scale.set(bgScale, bgScale);
+
+        const btnScale = 0.5;
+        const btnSpacing = 10;
+        const totalH = (this.pauseButtonSprites.length - 1) * btnSpacing;
+        const startY = c.y - totalH / 2;
+
+        this.pauseButtonSprites.forEach((btn, i) => {
+            btn.position.set(c.x, startY + i * btnSpacing);
+            btn.scale.set(btnScale, btnScale);
+        });
+    }
+
+    protected initializePauseMenu(): void {
+        this.pauseButtonSprites = [];
+
+        for (let i = 0; i < 3; i++) {
+            const btn = this.add.animatedSprite(MBLevel.MENU_BTN_KEY, MBLayers.PAUSE);
+            btn.animation.play(this.PAUSE_IDLE_ANIMS[i], true);
+            btn.visible = false;
+            this.pauseButtonSprites.push(btn);
+        }
+
+        this.pauseMenuBg = this.add.animatedSprite(MBLevel.PAUSE_BG_KEY, MBLayers.PAUSE);
+        this.pauseMenuBg.animation.play("IDLE", true);
+        this.pauseMenuBg.visible = false;
+
+        this.repositionPauseMenu();
+    }
+
     protected handleEvent(event: GameEvent): void {
         switch (event.type) {
             case MBEvents.PLAYER_ENTERED_LEVEL_END: {
                 this.handleEnteredLevelEnd();
                 break;
             }
-            // When the level starts, reenable user input
             case MBEvents.LEVEL_START: {
                 Input.enableInput();
                 break;
             }
-            // When the level ends, change the scene to the next level
             case MBEvents.LEVEL_END: {
-                this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
-                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.levelEndAudioKey});
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.levelEndAudioKey });
                 this.sceneManager.changeToScene(this.nextLevel);
                 break;
             }
@@ -232,28 +341,16 @@ export default abstract class MBLevel extends Scene {
             case MBEvents.PLAYER_DEAD: {
                 const ctrl = this.player._ai as PlayerController;
                 this.player.position.copy(this.respawnPosition);
-    
-                
+
                 this.player.alpha = 1;
-                
-                
                 this.player.rotation = 0;
-                
-                
                 ctrl.health = ctrl.maxHealth;
-                
-                
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
-                
-                
                 ctrl.velocity = Vec2.ZERO;
-                
-                
                 ctrl.changeState(PlayerStates.IDLE);
-                
+
                 break;
             }
-            
             case MBEvents.TRANSFORM_START: {
                 const form = event.data.get("form");
                 if (form === "PHANTUMP") {
@@ -263,11 +360,9 @@ export default abstract class MBLevel extends Scene {
                     this.playerWeaponSystem.stopSystem();
                     this.playerWeaponSystem = this.phantumpWeaponSystem;
                 }
-                
                 break;
             }
             case MBEvents.TRANSFORM_END: {
-                // Restore normal collision and original weapon
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 this.playerWeaponSystem = this.originalWeaponSystem;
                 break;
@@ -276,7 +371,6 @@ export default abstract class MBLevel extends Scene {
                 this.handleEnergyChange(event.data.get("cur"), event.data.get("max"));
                 break;
             }
-            
             case MBEvents.PLAYER_ENTERED_CHECKPOINT: {
                 const nodeId = event.data.get("node");
                 if (this.checkpointOneArea && nodeId === this.checkpointOneArea.id) {
@@ -289,13 +383,11 @@ export default abstract class MBLevel extends Scene {
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
                 const ctrl = this.player._ai as PlayerController;
                 ctrl.health = 0;
-                console.log("PLAYER_HIT!")
+                console.log("PLAYER_HIT!");
                 break;
             }
-            
-            // Default: Throw an error! No unhandled events allowed.
             default: {
-                throw new Error(`Unhandled event caught in scene with type ${event.type}`)
+                throw new Error(`Unhandled event caught in scene with type ${event.type}`);
             }
         }
     }
@@ -308,50 +400,46 @@ export default abstract class MBLevel extends Scene {
      */
     protected handleParticleHit(particleId: number): void {
         if (!this.destructable) return;
+
         let particles = this.playerWeaponSystem.getPool();
-
         let particle = particles.find(particle => particle.id === particleId);
-        if (particle !== undefined) {
-            // Get the destructable tilemap
-            let tilemap = this.destructable;
 
+        if (particle !== undefined) {
+            let tilemap = this.destructable;
             let min = new Vec2(particle.sweptRect.left, particle.sweptRect.top);
             let max = new Vec2(particle.sweptRect.right, particle.sweptRect.bottom);
 
-            // Convert the min/max x/y to the min and max row/col in the tilemap array
             let minIndex = tilemap.getColRowAt(min);
             let maxIndex = tilemap.getColRowAt(max);
 
-            // Loop over all possible tiles the particle could be colliding with 
-            for(let col = minIndex.x; col <= maxIndex.x; col++){
-                for(let row = minIndex.y; row <= maxIndex.y; row++){
-                    // If the tile is collideable -> check if this particle is colliding with the tile
-                    if(tilemap.isTileCollidable(col, row) && this.particleHitTile(tilemap, particle, col, row)){
-                        // We had a collision - delete the tile in the tilemap
+            for (let col = minIndex.x; col <= maxIndex.x; col++) {
+                for (let row = minIndex.y; row <= maxIndex.y; row++) {
+                    if (tilemap.isTileCollidable(col, row) && this.particleHitTile(tilemap, particle, col, row)) {
                         tilemap.setTileAtRowCol(new Vec2(col, row), 0);
-                        // Play a sound when we destroy the tile
-                        this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.tileDestroyedAudioKey, loop: false, holdReference: false });
+                        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+                            key: this.tileDestroyedAudioKey,
+                            loop: false,
+                            holdReference: false
+                        });
                     }
                 }
             }
         }
     }
+
     protected initializeSludgePool(): void {
-    for (let i = 0; i < 5; i++) {
-        const sprite = this.add.animatedSprite(SludgeWeapon.SLUDGE_KEY, MBLayers.PRIMARY);
-        sprite.visible = false;
-        const s = new SludgeWeapon(sprite);
-        this.sludgePool.push(s);
+        for (let i = 0; i < 5; i++) {
+            const sprite = this.add.animatedSprite(SludgeWeapon.SLUDGE_KEY, MBLayers.PRIMARY);
+            sprite.visible = false;
+            const s = new SludgeWeapon(sprite);
+            this.sludgePool.push(s);
+        }
     }
-}
 
     protected particleHitTile(tilemap: OrthogonalTilemap, particle: Particle, col: number, row: number): boolean {
         let tileSize = tilemap.getTileSize();
-        // Get the position of this tile
-        let tilePos = new Vec2(col * tileSize.x + tileSize.x/2, row * tileSize.y + tileSize.y/2);
-        // Create a new collider for this tile
-        let collider = new AABB(tilePos, tileSize.scaled(1/2));
-        // Calculate collision area between the node and the tile
+        let tilePos = new Vec2(col * tileSize.x + tileSize.x / 2, row * tileSize.y + tileSize.y / 2);
+        let collider = new AABB(tilePos, tileSize.scaled(1 / 2));
         return particle.sweptRect.overlapArea(collider) > 0;
     }
 
@@ -359,7 +447,6 @@ export default abstract class MBLevel extends Scene {
      * Handle the event when the player enters the level end area.
      */
     protected handleEnteredLevelEnd(): void {
-        // If the timer hasn't run yet, start the end level animation
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
             this.levelEndTimer.start();
             this.levelEndLabel.tweens.play("slideIn");
@@ -369,15 +456,20 @@ export default abstract class MBLevel extends Scene {
     protected handleHealthChange(currentHealth: number, maxHealth: number): void {
         let unit = this.healthBarBg.size.x / maxHealth;
         this.healthBar.size.set(this.healthBarBg.size.x - unit * (maxHealth - currentHealth), this.healthBarBg.size.y);
-        this.healthBar.position.set(this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth), this.healthBarBg.position.y);
-        this.healthBar.backgroundColor = currentHealth < maxHealth * 1/4 ? Color.RED: currentHealth < maxHealth * 3/4 ? Color.YELLOW : Color.GREEN;
+        this.healthBar.position.set(
+            this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth),
+            this.healthBarBg.position.y
+        );
+        this.healthBar.backgroundColor =
+            currentHealth < maxHealth * 1 / 4 ? Color.RED :
+            currentHealth < maxHealth * 3 / 4 ? Color.YELLOW :
+            Color.GREEN;
     }
 
     protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
         const maxWidth = 100;
         const newWidth = (currentEnergy / maxEnergy) * maxWidth;
         this.energyBar.size.set(newWidth, 10);
-        // Left edge is fixed; center of bar shifts right as it fills
         this.energyBar.position.set(this.energyBarLeftEdge + newWidth / 2, this.energyBarBg.position.y);
         this.energyBar.backgroundColor = currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
     }
@@ -388,17 +480,16 @@ export default abstract class MBLevel extends Scene {
      * Initialzes the layers
      */
     protected initLayers(): void {
-        // Add a layer for UI
         this.addUILayer(MBLayers.UI);
-        // Add a layer for players and enemies
         this.addLayer(MBLayers.PRIMARY);
+        this.addLayer(MBLayers.PAUSE);
     }
 
     protected initializeTilemap(): void {
         if (this.tilemapKey === undefined || this.tilemapScale === undefined) {
             throw new Error("Cannot add tilemap unless the tilemap key and scale are set.");
         }
-        // Add the tilemap to the scene
+
         this.add.tilemap(this.tilemapKey, this.tilemapScale);
 
         if (this.wallsLayerKey === undefined) {
@@ -409,16 +500,15 @@ export default abstract class MBLevel extends Scene {
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
 
         
-        // Phantom walls - independent of destructible layer
+        // Phantom walls independent of destructible layer
         if (this.phantomWallLayerKey !== undefined) {
             this.phantomWalls = this.getTilemap(this.phantomWallLayerKey) as OrthogonalTilemap;
-            if (this.phantomWalls){
+            if (this.phantomWalls) {
                 this.phantomWalls.addPhysics();
                 this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
-                
             }
-            
         }
+
         if (this.damageWallLayerKey !== undefined) {
             this.damageWalls = this.getTilemap(this.damageWallLayerKey) as OrthogonalTilemap;
             if (this.damageWalls) {
@@ -429,7 +519,6 @@ export default abstract class MBLevel extends Scene {
             }
         }
 
-        // Destructible layer
         if (this.destructibleLayerKey !== undefined) {
             this.destructable = this.getTilemap(this.destructibleLayerKey) as OrthogonalTilemap;
             if (this.destructable) {
@@ -455,29 +544,28 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected initializeUI(): void {
-        const VIEW_W = this.viewport.getHalfSize().x * 2;  // full screen width in UI coords
         const PAD = 16;
-        // Energy bar (top left)
+
         this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 30, PAD + 44), text: "EP"
+            position: new Vec2(PAD + 30, PAD + 44),
+            text: "EP"
         });
         this.energyLabel.textColor = Color.WHITE;
         this.energyLabel.fontSize = 12;
         this.energyLabel.font = "Courier";
-    
+
         this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 80, PAD + 44), text: ""
+            position: new Vec2(PAD + 80, PAD + 44),
+            text: ""
         });
         this.energyBarBg.size = new Vec2(100, 10);
         this.energyBarBg.borderColor = Color.WHITE;
         this.energyBarBg.backgroundColor = new Color(0, 0, 0, 0.5);
 
-    
         const EP_CENTER_X = PAD + 80;
         const EP_MAX_WIDTH = 100;
-        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2; 
+        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2;
 
-        
         this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
             position: new Vec2(EP_CENTER_X, PAD + 44),
             text: ""
@@ -485,22 +573,32 @@ export default abstract class MBLevel extends Scene {
         this.energyBar.size = new Vec2(EP_MAX_WIDTH, 10);
         this.energyBar.backgroundColor = Color.BLUE;
 
-        // Health bar (moved right)
-        this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: new Vec2(10, this.healthBarPos.y), text: "HP "});
+        this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(10, this.healthBarPos.y),
+            text: "HP "
+        });
         this.healthLabel.size.set(300, 30);
         this.healthLabel.fontSize = 24;
         this.healthLabel.font = "Courier";
 
-        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.healthBarPos, text: ""});
+        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: this.healthBarPos,
+            text: ""
+        });
         this.healthBar.size = new Vec2(300, 25);
         this.healthBar.backgroundColor = Color.GREEN;
 
-        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {position: this.healthBarPos, text: ""});
+        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: this.healthBarPos,
+            text: ""
+        });
         this.healthBarBg.size = new Vec2(300, 25);
         this.healthBarBg.borderColor = Color.BLACK;
 
-        // End of level label (start off screen)
-        this.levelEndLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, { position: new Vec2(-300, 100), text: "Level Complete" });
+        this.levelEndLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(-300, 100),
+            text: "Level Complete"
+        });
         this.levelEndLabel.size.set(1200, 60);
         this.levelEndLabel.borderRadius = 0;
         this.levelEndLabel.backgroundColor = new Color(34, 32, 52);
@@ -508,7 +606,6 @@ export default abstract class MBLevel extends Scene {
         this.levelEndLabel.fontSize = 48;
         this.levelEndLabel.font = "PixelSimple";
 
-        // Add a tween to move the label on screen
         this.levelEndLabel.tweens.add("slideIn", {
             startDelay: 0,
             duration: 1000,
@@ -522,7 +619,10 @@ export default abstract class MBLevel extends Scene {
             ]
         });
 
-        this.levelTransitionScreen = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.UI, { position: new Vec2(300, 200), size: new Vec2(600, 400) });
+        this.levelTransitionScreen = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.UI, {
+            position: new Vec2(300, 200),
+            size: new Vec2(600, 400)
+        });
         this.levelTransitionScreen.color = new Color(34, 32, 52);
         this.levelTransitionScreen.alpha = 1;
 
@@ -540,10 +640,6 @@ export default abstract class MBLevel extends Scene {
             onEnd: MBEvents.LEVEL_END
         });
 
-        /*
-             Adds a tween to fade in the start of the level. After the tween has
-             finished playing, a level start event gets sent to the EventQueue.
-        */
         this.levelTransitionScreen.tweens.add("fadeOut", {
             startDelay: 0,
             duration: 1000,
@@ -560,19 +656,18 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected initializeWeaponSystem(): void {
-    this.playerWeaponSystem = new PlayerWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);
-    this.playerWeaponSystem.initializePool(this, MBLayers.PRIMARY);
-    this.originalWeaponSystem = this.playerWeaponSystem;
+        this.playerWeaponSystem = new PlayerWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);
+        this.playerWeaponSystem.initializePool(this, MBLayers.PRIMARY);
+        this.originalWeaponSystem = this.playerWeaponSystem;
 
-    this.phantumpWeaponSystem = new PhantumpWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);
-    this.phantumpWeaponSystem.initializePool(this, MBLayers.PRIMARY);
+        this.phantumpWeaponSystem = new PhantumpWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);
+        this.phantumpWeaponSystem.initializePool(this, MBLayers.PRIMARY);
 
-    // Wire tilemap for particle floor collision (walls is set by initializeTilemap which runs first)
-    if (this.walls) {
-        this.playerWeaponSystem.setTilemap(this.walls);
-        this.phantumpWeaponSystem.setTilemap(this.walls);
+        if (this.walls) {
+            this.playerWeaponSystem.setTilemap(this.walls);
+            this.phantumpWeaponSystem.setTilemap(this.walls);
+        }
     }
-}
 
     protected initializePlayer(key: string): void {
         if (this.playerWeaponSystem === undefined) {
@@ -582,19 +677,13 @@ export default abstract class MBLevel extends Scene {
             throw new Error("Player spawn must be set before initializing the player!");
         }
 
-        // Add the player to the scene
         this.player = this.add.animatedSprite(key, MBLayers.PRIMARY);
         this.player.scale.set(1, 1);
         this.player.position.copy(this.playerSpawn);
 
-        
-        
-        // Give the player physics and setup collision groups and triggers for the player
-        this.player.addPhysics(new AABB(this.player.position.clone(), new Vec2(6,8)));
-        // this.player.addPhysics(new AABB(this.player.position.clone(), this.player.boundary.getHalfSize().clone()));
+        this.player.addPhysics(new AABB(this.player.position.clone(), new Vec2(6, 8)));
         this.player.setGroup(MBPhysicsGroups.PLAYER);
 
-        // Give the player a flip animation
         this.player.tweens.add(PlayerTweens.FLIP, {
             startDelay: 0,
             duration: 500,
@@ -602,7 +691,7 @@ export default abstract class MBLevel extends Scene {
                 {
                     property: "rotation",
                     start: 0,
-                    end: 2*Math.PI,
+                    end: 2 * Math.PI,
                     ease: EaseFunctionType.IN_OUT_QUAD
                 }
             ]
@@ -638,7 +727,7 @@ export default abstract class MBLevel extends Scene {
         if (this.player === undefined) {
             throw new Error("Player must be initialized before setting the viewport to follow the player");
         }
-        
+
         this.viewport.follow(this.player);
         this.viewport.setZoomLevel(3);
         this.viewport.setBounds(0, 0, 960, 960);
@@ -648,20 +737,23 @@ export default abstract class MBLevel extends Scene {
         if (!this.layers.has(MBLayers.PRIMARY)) {
             throw new Error("Can't initialize the level ends until the primary layer has been added to the scene!");
         }
-        
-        this.levelEndArea = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.PRIMARY, { position: this.levelEndPosition, size: this.levelEndHalfSize });
+
+        this.levelEndArea = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.PRIMARY, {
+            position: this.levelEndPosition,
+            size: this.levelEndHalfSize
+        });
         this.levelEndArea.addPhysics(undefined, undefined, false, true);
         this.levelEndArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_LEVEL_END, "");
         this.levelEndArea.color = new Color(255, 0, 255, .20);
-        
     }
+
     protected initializeCheckpoints(): void {
         if (!this.layers.has(MBLayers.PRIMARY)) return;
 
         if (this.checkpoint_sqr1) {
             this.checkpointOneArea = <Rect>this.add.graphic(GraphicType.RECT, MBLayers.PRIMARY, {
                 position: this.checkpoint_sqr1,
-                size: this.levelEndHalfSize  // same size as level end
+                size: this.levelEndHalfSize
             });
             this.checkpointOneArea.addPhysics(undefined, undefined, false, true);
             this.checkpointOneArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_CHECKPOINT, "");
@@ -679,9 +771,6 @@ export default abstract class MBLevel extends Scene {
         }
     }
 
-    /* Misc methods */
-
-    // Get the key of the player's jump audio file
     public getJumpAudioKey(): string {
         return this.jumpAudioKey;
     }

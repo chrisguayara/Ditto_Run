@@ -20,12 +20,13 @@ import { MBControls } from "./master-blaster/MBControls";
             {name: MBControls.ATTACK_RIGHT, keys: ["arrowright"]},
             {name: MBControls.ATTACK_UP,    keys: ["arrowup"]},
             {name: MBControls.ATTACK_DOWN,  keys: ["arrowdown"]},
+            {name: MBControls.PAUSE, keys: ["escape"]},
         ],
         useWebGL: false,                        // Tell the game we want to use webgl
         showDebug: false                       // Whether to show debug messages. You can change this to true if you want
     }
     window.addEventListener("keydown", (e) => {
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight","Escape"].includes(e.key)) {
         e.preventDefault();
     }
     } , { passive: false });
