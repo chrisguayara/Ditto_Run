@@ -31,6 +31,7 @@ import MainMenu from "./MainMenu";
 export const MBLayers = {
     PRIMARY: "PRIMARY",
     UI: "UI",
+    PAUSE_BG: "PAUSE_BG", 
     PAUSE: "PAUSE"
 } as const;
 
@@ -145,8 +146,8 @@ export default abstract class MBLevel extends Scene {
     }
 
     public loadPauseMenuAssets(): void {
-        this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
         this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
+        this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
     }
 
     public startScene(): void {
@@ -238,7 +239,9 @@ export default abstract class MBLevel extends Scene {
             this.updatePauseButtonAnimations();
         }
 
-        if (Input.isJustPressed(MBControls.JUMP) || Input.isJustPressed(MBControls.ATTACK)) {
+       if (Input.isJustPressed(MBControls.JUMP) 
+            || Input.isJustPressed(MBControls.ATTACK)
+            || Input.isJustPressed(MBControls.CONFIRM)) {  // ← add CONFIRM
             this.confirmPauseSelection();
         }
     }
@@ -282,12 +285,12 @@ export default abstract class MBLevel extends Scene {
     protected repositionPauseMenu(): void {
         const c = this.getViewportCenter();
 
-        const bgScale = 100 / 320;
+        const bgScale = 1;
         this.pauseMenuBg.position.set(c.x, c.y);
         this.pauseMenuBg.scale.set(bgScale, bgScale);
 
-        const btnScale = 0.5;
-        const btnSpacing = 10;
+        const btnScale = 1.5;
+        const btnSpacing = 20;
         const totalH = (this.pauseButtonSprites.length - 1) * btnSpacing;
         const startY = c.y - totalH / 2;
 
@@ -299,6 +302,9 @@ export default abstract class MBLevel extends Scene {
 
     protected initializePauseMenu(): void {
         this.pauseButtonSprites = [];
+        this.pauseMenuBg = this.add.animatedSprite(MBLevel.PAUSE_BG_KEY, MBLayers.PAUSE_BG); 
+        this.pauseMenuBg.animation.play("IDLE", true);
+        this.pauseMenuBg.visible = false;
 
         for (let i = 0; i < 3; i++) {
             const btn = this.add.animatedSprite(MBLevel.MENU_BTN_KEY, MBLayers.PAUSE);
@@ -306,10 +312,6 @@ export default abstract class MBLevel extends Scene {
             btn.visible = false;
             this.pauseButtonSprites.push(btn);
         }
-
-        this.pauseMenuBg = this.add.animatedSprite(MBLevel.PAUSE_BG_KEY, MBLayers.PAUSE);
-        this.pauseMenuBg.animation.play("IDLE", true);
-        this.pauseMenuBg.visible = false;
 
         this.repositionPauseMenu();
     }
@@ -482,6 +484,7 @@ export default abstract class MBLevel extends Scene {
     protected initLayers(): void {
         this.addUILayer(MBLayers.UI);
         this.addLayer(MBLayers.PRIMARY);
+        this.addLayer(MBLayers.PAUSE_BG); 
         this.addLayer(MBLayers.PAUSE);
     }
 
