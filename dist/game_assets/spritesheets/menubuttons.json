@@ -1,0 +1,81 @@
+{
+  "name": "menubuttons",
+  "spriteSheetImage": "menubuttons.png",
+  "spriteWidth": 64,
+  "spriteHeight": 16,
+  "columns": 5,
+  "rows": 4,
+  "durationType": "time",
+  "animations": [
+    {
+      "name": "Resume_Idle",
+      "frames": [
+        { "index": 0, "duration": 500 },
+        { "index": 1, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Resume_Selected",
+      "frames": [
+        { "index": 2, "duration": 200 },
+        { "index": 3, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Help_Idle",
+      "frames": [
+        { "index": 4, "duration": 500 },
+        { "index": 5, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Help_Selected",
+      "frames": [
+        { "index": 6, "duration": 500 },
+        { "index": 7, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Quit_idle",
+      "frames": [
+        { "index": 8, "duration": 500 },
+        { "index": 9, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Quit_Selected",
+      "frames": [
+        { "index": 10, "duration": 500 },
+        { "index": 11, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Restart_Selected",
+      "frames": [
+        { "index": 12, "duration": 500 },
+        { "index": 13, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Restart_Idle",
+      "frames": [
+        { "index": 14, "duration": 500 },
+        { "index": 15, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Settings_Idle",
+      "frames": [
+        { "index": 16, "duration": 500 },
+        { "index": 17, "duration": 500 }
+      ]
+    },
+    {
+      "name": "Settings_Selected",
+      "frames": [
+        { "index": 18, "duration": 500 },
+        { "index": 19, "duration": 500 }
+      ]
+    }
+  ]
+}
