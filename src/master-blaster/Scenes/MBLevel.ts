@@ -128,6 +128,11 @@ export default abstract class MBLevel extends Scene {
     
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
+        super(viewport, sceneManager, renderingManager, {...options, physics: {
+            groupNames: [
+                MBPhysicsGroups.GROUND,
+                MBPhysicsGroups.PLAYER,
+                MBPhysicsGroups.PLAYER_PHANTUMP,
                 MBPhysicsGroups.PLAYER_WEAPON,
                 MBPhysicsGroups.DESTRUCTABLE,
                 MBPhysicsGroups.PHANTOM_WALL,
@@ -788,4 +793,28 @@ export default abstract class MBLevel extends Scene {
     public getTransformAudioKey(): string {
         return this.transformAudioKey;
     }
+
+    protected entities: Entity[] = [];
+
+    protected spawnEntity(
+        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+        spriteKey: string,
+        position: Vec2,
+        collidable: boolean = false  // true = solid, false = trigger only
+    ): Entity {
+        const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
+        sprite.position.copy(position);
+        sprite.animation.play("IDLE", true);
+        sprite.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)), undefined, collidable, !collidable);
+        sprite.setGroup(MBPhysicsGroups.ENTITY);
+        sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+
+        const entity = new EntityClass(sprite);
+        
+        this.entityMap.set(sprite.id, entity);
+        this.entities.push(entity);
+        return entity;
+    }
+
+    protected entityMap: Map<number, Entity> = new Map();
 }
