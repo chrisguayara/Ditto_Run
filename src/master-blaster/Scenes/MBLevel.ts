@@ -158,8 +158,9 @@ export default abstract class MBLevel extends Scene {
     }
 
     public loadPauseMenuAssets(): void {
-        this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
+        
         this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
+        this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
     }
 
     public startScene(): void {
@@ -286,28 +287,31 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected getViewportCenter(): Vec2 {
-        const zoom = this.getViewScale();
-        const origin = this.viewport.getOrigin();
-        return new Vec2(
-            origin.x + (1200 / zoom) / 2,
-            origin.y + (800 / zoom) / 2
-        );
+        const size = this.viewport.getHalfSize().scaled(2);
+        return new Vec2(size.x / 2, size.y / 2);
     }
 
     protected repositionPauseMenu(): void {
-        const c = this.getViewportCenter();
+        const size = this.viewport.getHalfSize().scaled(2);
+        const center = size.scaled(0.5);
 
-        const bgScale = 1;
-        this.pauseMenuBg.position.set(c.x, c.y);
-        this.pauseMenuBg.scale.set(bgScale, bgScale);
+        const zoom = this.viewport.getZoomLevel(); 
 
-        const btnScale = 1.5;
-        const btnSpacing = 20;
-        const totalH = (this.pauseButtonSprites.length - 1) * btnSpacing;
-        const startY = c.y - totalH / 2;
+        this.pauseMenuBg.position.set(center.x, center.y);
+        this.pauseMenuBg.scale.set(1, 1);
+
+        const baseSpriteHeight = 48;
+        const baseScale = (1 / zoom); 
+
+        const btnScale = baseScale; 
+
+        const btnSpacing = 60 / zoom; 
+
+        const totalHeight = (this.pauseButtonSprites.length - 1) * btnSpacing;
+        const startY = center.y - totalHeight / 2;
 
         this.pauseButtonSprites.forEach((btn, i) => {
-            btn.position.set(c.x, startY + i * btnSpacing);
+            btn.position.set(center.x, startY + i * btnSpacing);
             btn.scale.set(btnScale, btnScale);
         });
     }
@@ -494,10 +498,15 @@ export default abstract class MBLevel extends Scene {
      * Initialzes the layers
      */
     protected initLayers(): void {
+        
         this.addUILayer(MBLayers.UI);
+        this.addUILayer(MBLayers.PAUSE_BG);
+        this.addUILayer(MBLayers.PAUSE);
+        
+        
         this.addLayer(MBLayers.PRIMARY);
-        this.addLayer(MBLayers.PAUSE_BG); 
-        this.addLayer(MBLayers.PAUSE);
+         
+        
     }
 
     protected initializeTilemap(): void {
@@ -744,7 +753,7 @@ export default abstract class MBLevel extends Scene {
         }
 
         this.viewport.follow(this.player);
-        this.viewport.setZoomLevel(3);
+        this.viewport.setSize(320, 180);
         this.viewport.setBounds(0, 0, 960, 960);
     }
 
