@@ -5,6 +5,7 @@ import Line from "../../../Wolfie2D/Nodes/Graphics/Line";
 import { GraphicType } from "../../../Wolfie2D/Nodes/Graphics/GraphicTypes";
 import { PlayerAnimations, PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
+import { MBLayers, MBLayer } from "../../Scenes/MBLevel";
 
 const enum GrapplePhase { CASTING, ATTACHED, MISSED }
 
@@ -25,13 +26,9 @@ export default class GreninjaTongueGrapple extends PlayerState {
     private static readonly WAVE_SCALE:   number = 0.09;
     /** Hard cap on wave amplitude in px */
     private static readonly MAX_WAVE_AMP: number = 8;
-    /**
-     * Layer name for the Line nodes.
-     * ⚠️ Must match a layer that exists in your MBLevel scene.
-     */
-    private static readonly TONGUE_LAYER: string = "PRIMARY";
+    private static readonly TONGUE_LAYER: MBLayer = "PRIMARY";
 
-    private static readonly TONGUE_COLOR: Color  = new Color(220, 55, 80);
+    private static readonly TONGUE_COLOR: Color  = new Color(225,110,122);
 
     // ── Runtime state ─────────────────────────────────────────────
     private phase:       GrapplePhase = GrapplePhase.CASTING;
