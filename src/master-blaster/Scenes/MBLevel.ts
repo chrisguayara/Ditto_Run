@@ -28,6 +28,7 @@ import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import MBFactoryManager from "../Factory/MBFactoryManager";
 import MainMenu from "./MainMenu";
 import Entity from "../Entity/Entity";
+import PokemonController from "../Pokemon/PokemonController";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 /**
  * A const object for the layer names
@@ -126,6 +127,62 @@ export default abstract class MBLevel extends Scene {
 
     // Entity Logic ---------------------------
     
+
+    protected entities: Entity[] = [];
+    protected spawnPokemon(
+        ControllerClass: new () => PokemonController,
+        spriteKey: string,
+        position: Vec2,
+        options: Record<string, any> = {}
+    ): PokemonController {
+        const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
+        sprite.position.copy(position);
+        sprite.animation.play("IDLE", true);
+
+        // Solid hitbox — Pokemon stand on the ground
+        sprite.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)), undefined, false, true);
+        sprite.setGroup(MBPhysicsGroups.ENTITY);
+
+        // Trigger 1: player body contact (existing — for bumping into them)
+        sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+
+        // Trigger 2: weapon particles → fires POKEMON_HIT with this sprite's id
+        sprite.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");
+
+        // Attach the AI controller
+        sprite.addAI(ControllerClass, {
+            playerRef: this.player,         // ⚠️ adjust to match how your scene exposes the player node
+            patrolLeft:  position.x - 100,
+            patrolRight: position.x + 100,
+            ...options
+        });
+
+        const controller = sprite.ai as PokemonController;
+        this.pokemonMap.set(sprite.id, controller);
+        return controller;
+    }
+    protected spawnEntity(
+        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+        spriteKey: string,
+        position: Vec2,
+        collidable: boolean = false  // true = solid, false = trigger only
+    ): Entity {
+        const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
+        sprite.position.copy(position);
+        sprite.animation.play("IDLE", true);
+        sprite.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)), undefined, collidable, !collidable);
+        sprite.setGroup(MBPhysicsGroups.ENTITY);
+        sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+
+        const entity = new EntityClass(sprite);
+        
+        this.entityMap.set(sprite.id, entity);
+        this.entities.push(entity);
+        return entity;
+    }
+
+    protected entityMap: Map<number, Entity> = new Map();
+    protected pokemonMap: Map<number, PokemonController> = new Map();
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
         super(viewport, sceneManager, renderingManager, {...options, physics: {
@@ -347,6 +404,7 @@ export default abstract class MBLevel extends Scene {
                 Input.enableInput();
                 break;
             }
+            
             case MBEvents.LEVEL_END: {
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.levelEndAudioKey });
@@ -407,6 +465,16 @@ export default abstract class MBLevel extends Scene {
                 const ctrl = this.player._ai as PlayerController;
                 ctrl.health = 0;
                 console.log("PLAYER_HIT!");
+                break;
+            }
+            case MBEvents.POKEMON_HIT: {
+                const id: number = event.data.get("node") ?? event.data.get("id");
+                console.log("POKEMON_HIT fired, data keys:", event.data.keys());
+                console.log("pokemonMap ids:", [...this.pokemonMap.keys()]);
+                const controller = this.pokemonMap.get(id);
+                if (controller) {
+                    controller.onHit(1);   // 1 damage per particle hit; tune freely
+                }
                 break;
             }
             default: {
@@ -581,6 +649,9 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_CHECKPOINT);
         this.receiver.subscribe(MBEvents.PLAYER_HIT_DAMAGE_TILE);
+        this.receiver.subscribe(MBEvents.POKEMON_HIT);
+
+
     }
 
     protected initializeUI(): void {
@@ -812,27 +883,4 @@ export default abstract class MBLevel extends Scene {
         return this.transformAudioKey;
     }
 
-    protected entities: Entity[] = [];
-
-    protected spawnEntity(
-        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
-        spriteKey: string,
-        position: Vec2,
-        collidable: boolean = false  // true = solid, false = trigger only
-    ): Entity {
-        const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
-        sprite.position.copy(position);
-        sprite.animation.play("IDLE", true);
-        sprite.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)), undefined, collidable, !collidable);
-        sprite.setGroup(MBPhysicsGroups.ENTITY);
-        sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
-
-        const entity = new EntityClass(sprite);
-        
-        this.entityMap.set(sprite.id, entity);
-        this.entities.push(entity);
-        return entity;
-    }
-
-    protected entityMap: Map<number, Entity> = new Map();
 }

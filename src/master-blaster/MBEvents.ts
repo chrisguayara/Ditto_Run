@@ -36,4 +36,5 @@ export const MBEvents = {
     PLAYER_HEAL: "PLAYER_HEAL",
     PLAYER_BOUNCE: "PLAYER_BOUNCE",
     PLAYER_ENERGY_RESTORE: "PLAYER_ENERGY_RESTORE",
+    POKEMON_HIT:                  "POKEMON_HIT",  
 } as const;

@@ -14,6 +14,8 @@ import SludgeWeapon from "../Player/SludgeWeapon";
 import MainMenu from "./MainMenu";
 import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
+import { MBPhysicsGroups } from "../MBPhysicsGroups";
+import { MBEvents } from "../MBEvents";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -158,33 +160,44 @@ export default class ForestLevel extends MBLevel {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
         rowlet.position.set(16*16, 16*8);
         rowlet.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+        rowlet.setGroup(MBPhysicsGroups.ENTITY);                                         
+        rowlet.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
         rowlet.addAI(RowletController, {
-            playerRef: this.player,          
+            playerRef:   this.player,
             patrolLeft:  rowlet.position.x - 80,
             patrolRight: rowlet.position.x + 80,
-            speed: 60,
-            maxHealth: 4,
+            speed:       60,
+            maxHealth:   4,
         });
         rowlet.animation.play("IDLE");
+        this.pokemonMap.set(rowlet.id, rowlet.ai as PokemonController);                  
+
         let rotom = this.add.animatedSprite(ForestLevel.ROTOM_SPRITE_KEY, "PRIMARY");
         rotom.position.set(ForestLevel.PLAYER_SPAWN.x + 20, ForestLevel.PLAYER_SPAWN.y - 20);
         rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
+        rotom.setGroup(MBPhysicsGroups.ENTITY);                                          
+        rotom.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
         rotom.addAI(RotomController, {
             playerRef: this.player,
-            speed: 90,
+            speed:     90,
         });
         rotom.animation.play("IDLE");
+        this.pokemonMap.set(rotom.id, rotom.ai as PokemonController);                   
+
         let phantump = this.add.animatedSprite(ForestLevel.PHANTUMP_SPRITE_KEY, "PRIMARY");
-        phantump.position.set(67*16,24*13);
+        phantump.position.set(67*16, 24*13);
         phantump.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+        phantump.setGroup(MBPhysicsGroups.ENTITY);                                       
+        phantump.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");   
         phantump.addAI(PhantumpController, {
-            playerRef: this.player,
+            playerRef:   this.player,
             patrolLeft:  phantump.position.x - 100,
             patrolRight: phantump.position.x + 100,
-            speed: 80,
-            maxHealth: 8,
+            speed:       80,
+            maxHealth:   8,
         });
         phantump.animation.play("IDLE");
+        this.pokemonMap.set(phantump.id, phantump.ai as PokemonController);              
     }
     protected initializeEntities(): void {
             
