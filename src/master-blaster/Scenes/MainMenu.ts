@@ -76,7 +76,7 @@ export default class MainMenu extends Scene {
 
     private startGame(): void {
         this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: MainMenu.SELECT_AUDIO_KEY });
-        this.sceneManager.changeToScene(WinterLevel);
+        this.sceneManager.changeToScene(ForestLevel);
     }
 
     public unloadScene(): void {

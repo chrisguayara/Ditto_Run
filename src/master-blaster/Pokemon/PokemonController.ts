@@ -9,7 +9,10 @@ import { MBEvents } from "../MBEvents";
 export const PokemonAnimations = {
     WALK: "WALK",
     ATTACK: "ATTACK",
-    FAINTED: "DEAD"
+    FAINTED: "DEAD",
+    JUMP:    "JUMP",
+    FALL:    "FALL",
+    IDLE:    "IDLE",
 } as const;
 
 export const PokemonStates = {
@@ -24,6 +27,7 @@ export default abstract class PokemonController extends StateMachineAI {
     protected _maxHealth: number;
     protected _velocity: Vec2;
     protected _speed!: number;
+    protected _gravityMultiplier: number = 1.0;
 
     public playerRef: MBAnimatedSprite;
 
@@ -62,6 +66,10 @@ export default abstract class PokemonController extends StateMachineAI {
 
     public get velocity(): Vec2 { return this._velocity; }
     public set velocity(v: Vec2) { this._velocity = v; }
+
+    public get gravityMultiplier(): number { return this._gravityMultiplier; }
+    public set gravityMultiplier(v: number) { this._gravityMultiplier = v; }
+    public get effectiveGravity(): number { return 500 * this._gravityMultiplier; }
 
     public get speed(): number { return this._speed; }
     public set speed(s: number) { this._speed = s; }

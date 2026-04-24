@@ -7,7 +7,9 @@ export default abstract class PokemonState extends State {
 
     protected parent: PokemonController;
     protected owner: MBAnimatedSprite;
-    protected gravity: number = 500;
+
+    /** Always use this instead of a hardcoded 500 — respects per-species gravity */
+    protected get gravity(): number { return this.parent.effectiveGravity; }
 
     public constructor(parent: PokemonController, owner: MBAnimatedSprite) {
         super(parent);

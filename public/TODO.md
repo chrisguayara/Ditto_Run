@@ -9,7 +9,7 @@ General: Incomplete
 - [x] Rotom Collisions
 
 ### Rare Candy Pickup: Incomplete
-- [ ] Logic (Should respawn after 30 secs)
+- [x] Logic (Should respawn after 30 secs)
 - [ ] Spawns Set
 
 ### GUI: Incomplete
