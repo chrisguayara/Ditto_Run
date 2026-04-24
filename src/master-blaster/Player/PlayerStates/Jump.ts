@@ -38,7 +38,7 @@ export default class Jump extends PlayerState {
 
             // Wall slide — enter when touching any wall while airborne
             const wall = this.parent.wallDir;
-            if (wall !== 0) {
+            if (wall !== 0 && this.parent.velocity.y > 0) {
                 this.finished(PlayerStates.WALL_SLIDE);
                 return;
             }
