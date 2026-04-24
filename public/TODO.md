@@ -19,7 +19,7 @@ General: Incomplete
 - [ ] Transform
 ### Main Menu: Incomplete
 - [ ] Start Game
-### Pause Menu: 60%
+### Pause Menu: 80%
 - [ ] Resume Game
 - [ ] Home
 - [ ] Controls
