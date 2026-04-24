@@ -20,7 +20,8 @@ import { MBEvents } from "../MBEvents";
  * The first level for MB - should be the one with the grass and the clouds.
  */
 export const CHECKPOINTS = {
-    SPAWN : new Vec2(5*16,9*16),
+    SPAWN : new Vec2(40*16, 5*16) ,
+    // new Vec2(5*16,9*16),
     CHECKPOINT_ONE : new Vec2(73*16,10*16),
     CHECKPOINT_TWO : new Vec2(64*16,42*16),
 } as const;
@@ -70,6 +71,9 @@ export default class ForestLevel extends MBLevel {
     public static readonly UI_HEALTH_KEY = "healthUI"
     public static readonly UI_ENERGY_KEY = "energyUI"
     public static readonly UI_ENERGY_PATH = ""
+
+
+    
     
     
     
@@ -100,6 +104,8 @@ export default class ForestLevel extends MBLevel {
         this.levelEndAudioKey = ForestLevel.LEVEL_END_KEY;
         this.damageWallLayerKey = "damage";
 
+        
+
         // Level end size and position
         this.levelEndPosition = new Vec2(12*16, 39*16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
@@ -129,6 +135,7 @@ export default class ForestLevel extends MBLevel {
         this.load.spritesheet(ForestLevel.ROWLET_SPRITE_KEY, ForestLevel.ROWLET_SPRITE_PATH);
         this.load.spritesheet(ForestLevel.PHANTUMP_SPRITE_KEY, ForestLevel.PHANTUMP_SPRITE_PATH);
         this.load.audio(ForestLevel.TRANSFORM_AUDIO_KEY, ForestLevel.TRANSFORM_AUDIO_PATH);
+        this.load.audio(this.selectAudioKey,this.selectAudioPath);
 
         this.load.spritesheet(RareCandy.SPRITE_KEY, RareCandy.SPRITE_PATH);
         this.load.spritesheet(Snorlax.SPRITE_KEY, Snorlax.SPRITE_PATH);
@@ -144,6 +151,7 @@ export default class ForestLevel extends MBLevel {
         this.load.keepAudio(this.transformAudioKey);
         this.load.keepAudio(this.tileDestroyedAudioKey);
         this.load.keepAudio(this.levelEndAudioKey);
+        this.load.keepAudio(this.selectAudioKey);
     }
 
     public startScene(): void {
@@ -158,7 +166,7 @@ export default class ForestLevel extends MBLevel {
     }
     protected initializePKMN(): void {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
-        rowlet.position.set(16*16, 16*8);
+        rowlet.position.set(36*16, 7*8);
         rowlet.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
         rowlet.setGroup(MBPhysicsGroups.ENTITY);                                         
         rowlet.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
@@ -202,10 +210,10 @@ export default class ForestLevel extends MBLevel {
     protected initializeEntities(): void {
             
             this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(10*16, 8*16));
-            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(9*16, 8*16));
+            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(44*16, 9*16),true);
         
             // Snorlax as a trampoline platform — collidable=true so player lands on it
-            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(7*16, 7*16), true);
+            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44*16, 13*16), true);
         }
 
     /**

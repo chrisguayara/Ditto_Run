@@ -30,6 +30,7 @@ import MainMenu from "./MainMenu";
 import Entity from "../Entity/Entity";
 import PokemonController from "../Pokemon/PokemonController";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
+import Game from "../../Wolfie2D/Loop/Game";
 /**
  * A const object for the layer names
  */
@@ -58,8 +59,8 @@ export default abstract class MBLevel extends Scene {
     // 0 = Resume, 1 = Restart, 2 = Quit
     protected pauseMenuBg!: AnimatedSprite;
     protected pauseButtonSprites!: AnimatedSprite[];
-    private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle", "Quit_idle"];
-    private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected", "Quit_Selected"];
+    private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle", "Quit_idle", "Help_Idle"];
+    private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected", "Quit_Selected", "Help_Selected"];
 
     // ── Weapon systems ────────────────────────────────────────────
     protected playerWeaponSystem!: PlayerWeapon;
@@ -101,11 +102,14 @@ export default abstract class MBLevel extends Scene {
     protected wallsLayerKey!: string;
     protected phantomWallLayerKey!: string;
     protected damageWallLayerKey!: string;
+    protected hintsLayerKey: string = "hints";
+    protected hintsVisible: boolean = false;
     protected tilemapScale!: Vec2;
-    protected destructable: OrthogonalTilemap | undefined;
+    protected destructable!: OrthogonalTilemap;
     protected walls!: OrthogonalTilemap;
     protected phantomWalls!: OrthogonalTilemap;
     protected damageWalls!: OrthogonalTilemap;
+    protected hintsLayer!: OrthogonalTilemap;
 
     // ── Checkpoints ───────────────────────────────────────────────
     protected checkpoint_sqr1!: Vec2;
@@ -114,6 +118,8 @@ export default abstract class MBLevel extends Scene {
     protected checkpointTwoArea!: Rect;
     protected respawnPosition!: Vec2;
 
+    
+
     // ── Audio ─────────────────────────────────────────────────────
     protected levelMusicKey!: string;
     protected jumpAudioKey!: string;
@@ -121,6 +127,10 @@ export default abstract class MBLevel extends Scene {
     protected levelEndAudioKey!: string;
     protected tileDestroyedAudioKey!: string;
     protected selectAudioKey!: string;
+    protected selectAudioPath!: string;
+    
+
+    public selectKey!: string;
 
     // Entity Logic ---------------------------
     
@@ -212,6 +222,9 @@ export default abstract class MBLevel extends Scene {
             ]
         }});
         this.add = new MBFactoryManager(this, this.tilemaps);
+
+        this.selectAudioKey = "SELECT_AUDIO_KEY";
+        this.selectAudioPath = "game_assets/sounds/switch.wav"
     }
 
     public loadPauseMenuAssets(): void {
@@ -257,6 +270,7 @@ export default abstract class MBLevel extends Scene {
 
         if (this.isPaused) {
             this.updatePauseMenu();
+
             return;
         }
 
@@ -305,12 +319,12 @@ export default abstract class MBLevel extends Scene {
         this.repositionPauseMenu();
 
         if (Input.isJustPressed(MBControls.ATTACK_UP)) {
-            this.selectedPauseOption = (this.selectedPauseOption - 1 + 3) % 3;
+            this.selectedPauseOption = (this.selectedPauseOption - 1 + 4) % 4;
             this.updatePauseButtonAnimations();
         }
 
         if (Input.isJustPressed(MBControls.ATTACK_DOWN)) {
-            this.selectedPauseOption = (this.selectedPauseOption + 1) % 3;
+            this.selectedPauseOption = (this.selectedPauseOption + 1) % 4;
             this.updatePauseButtonAnimations();
         }
 
@@ -325,17 +339,33 @@ export default abstract class MBLevel extends Scene {
         switch (this.selectedPauseOption) {
             case 0: // Resume
                 this.resumeGame();
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
                 break;
             case 1: // Restart
                 this.resumeGame();
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.sceneManager.changeToScene(this.constructor as new (...args: any[]) => Scene);
                 break;
             case 2: // Quit to Main Menu
                 this.resumeGame();
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                
                 this.sceneManager.changeToScene(MainMenu);
                 break;
+            case 3: // Hints()
+                this.resumeGame();
+                if (!this.hintsVisible) {
+                    this.hintsLayer.alpha = 1.0;
+                    this.hintsVisible = true;
+                }
+                else {
+                    this.hintsLayer.alpha = 0.0;
+                    this.hintsVisible = false;
+                }
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
+                
         }
     }
 
@@ -384,7 +414,7 @@ export default abstract class MBLevel extends Scene {
         this.pauseMenuBg.animation.play("IDLE", true);
         this.pauseMenuBg.visible = false;
 
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 4; i++) {
             const btn = this.add.animatedSprite(MBLevel.MENU_BTN_KEY, MBLayers.PAUSE);
             btn.animation.play(this.PAUSE_IDLE_ANIMS[i], true);
             btn.visible = false;
@@ -465,6 +495,29 @@ export default abstract class MBLevel extends Scene {
                 const ctrl = this.player._ai as PlayerController;
                 ctrl.health = 0;
                 console.log("PLAYER_HIT!");
+                break;
+            }
+
+            case MBEvents.PLAYER_HIT_ENTITY: {
+                const otherID = event.data.get("other");
+                const entity = this.entityMap.get(otherID);
+                if (entity) entity.onPlayerContact();
+                            break;
+            }
+            case MBEvents.PLAYER_HEAL: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.health = Math.min(ctrl.health + event.data.get("amount"), ctrl.maxHealth);
+                break;
+            }
+            case MBEvents.PLAYER_ENERGY_RESTORE: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.transformations.energy = Math.min(ctrl.transformations.energy + event.data.get("amount"), ctrl.transformations.maxEnergy);
+                break;
+            }
+            case MBEvents.PLAYER_BOUNCE : {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.velocity = new Vec2(0,-500);
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key : this.jumpAudioKey});
                 break;
             }
             case MBEvents.POKEMON_HIT: {
@@ -562,18 +615,17 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
-        const fullWidth = 100;
-        const unit = fullWidth / maxEnergy;
-    
-        this.energyBar.size.set(unit * currentEnergy, this.energyBar.size.y);
-    
+        const maxWidth = 100;
+        const newWidth = Math.max(0, (currentEnergy / maxEnergy) * maxWidth);
+        
+        // Position center = leftEdge + newWidth/2
+        // leftEdge is fixed at energyBarLeftEdge
+        this.energyBar.size.set(newWidth, 10);
         this.energyBar.position.set(
-            this.energyBarBg.position.x - fullWidth / 2 + (unit * currentEnergy) / 2,
+            this.energyBarLeftEdge + newWidth / 2,
             this.energyBarBg.position.y
         );
-    
-        this.energyBar.backgroundColor =
-            currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
+        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
     }
 
     /* Initialization methods for everything in the scene */
@@ -635,6 +687,13 @@ export default abstract class MBLevel extends Scene {
                 this.destructable.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.PARTICLE_HIT_DESTRUCTIBLE, "");
             }
         }
+        
+        if (this.hintsLayerKey !== undefined) {
+            this.hintsLayer = this.getTilemap(this.hintsLayerKey) as OrthogonalTilemap;
+            if (this.hintsLayer && this.hintsVisible) {
+                this.hintsLayer.alpha = 1.0;
+            }
+        }
     }
 
     protected subscribeToEvents(): void {
@@ -649,6 +708,10 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.ENERGY_CHANGE);
         this.receiver.subscribe(MBEvents.PLAYER_ENTERED_CHECKPOINT);
         this.receiver.subscribe(MBEvents.PLAYER_HIT_DAMAGE_TILE);
+        this.receiver.subscribe(MBEvents.PLAYER_HIT_ENTITY);
+        this.receiver.subscribe(MBEvents.PLAYER_HEAL);
+        this.receiver.subscribe(MBEvents.PLAYER_BOUNCE);
+        this.receiver.subscribe(MBEvents.PLAYER_ENERGY_RESTORE)
         this.receiver.subscribe(MBEvents.POKEMON_HIT);
 
 
@@ -658,6 +721,9 @@ export default abstract class MBLevel extends Scene {
         const PAD = 16;
     
         const screen = this.viewport.getHalfSize().scaled(2);
+        const EP_CENTER_X = PAD + 80;
+        const EP_MAX_WIDTH = 100;
+        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2; 
     
         // --- ENERGY ---
         this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
@@ -684,7 +750,7 @@ export default abstract class MBLevel extends Scene {
         this.energyBar.size = new Vec2(100, 10);
         this.energyBar.backgroundColor = Color.BLUE;
     
-        this.energyBarLeftEdge = PAD + 40 - 50;
+        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2; 
     
         // --- HEALTH ---
         this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {

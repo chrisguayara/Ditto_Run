@@ -63,6 +63,7 @@
       "name": "Restart_Idle",
       "repeat" : true,
       "frames": [
+        { "index": 14, "duration": 500 },
         { "index": 14, "duration": 500 }
       ]
     },
