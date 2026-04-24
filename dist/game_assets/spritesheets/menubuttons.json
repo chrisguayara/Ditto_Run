@@ -64,7 +64,7 @@
       "repeat" : true,
       "frames": [
         { "index": 14, "duration": 500 },
-        { "index": 15, "duration": 500 }
+        { "index": 14, "duration": 500 }
       ]
     },
     {
