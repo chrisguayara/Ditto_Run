@@ -12,6 +12,8 @@ import PhantumpController from "../Pokemon/PokemonActors/PhantumpController";
 import RotomController from "../Pokemon/PokemonActors/RotomController";
 import SludgeWeapon from "../Player/SludgeWeapon";
 import MainMenu from "./MainMenu";
+import RareCandy from "../Entity/Items/RareCandy";
+import Snorlax from "../Entity/Objects/Snorlax";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -125,6 +127,9 @@ export default class ForestLevel extends MBLevel {
         this.load.spritesheet(ForestLevel.ROWLET_SPRITE_KEY, ForestLevel.ROWLET_SPRITE_PATH);
         this.load.spritesheet(ForestLevel.PHANTUMP_SPRITE_KEY, ForestLevel.PHANTUMP_SPRITE_PATH);
         this.load.audio(ForestLevel.TRANSFORM_AUDIO_KEY, ForestLevel.TRANSFORM_AUDIO_PATH);
+
+        this.load.spritesheet(RareCandy.SPRITE_KEY, RareCandy.SPRITE_PATH);
+        this.load.spritesheet(Snorlax.SPRITE_KEY, Snorlax.SPRITE_PATH);
     }
 
     /**
@@ -146,6 +151,7 @@ export default class ForestLevel extends MBLevel {
         (this.player._ai as PlayerController).transformations.unlockForm("PHANTUMP");
         (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
         this.initializePKMN();
+        this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
     }
     protected initializePKMN(): void {
@@ -180,6 +186,14 @@ export default class ForestLevel extends MBLevel {
         });
         phantump.animation.play("IDLE");
     }
+    protected initializeEntities(): void {
+            
+            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(10*16, 8*16));
+            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(9*16, 8*16));
+        
+            // Snorlax as a trampoline platform — collidable=true so player lands on it
+            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(7*16, 7*16), true);
+        }
 
     /**
      *  Current map size are the viewport limits

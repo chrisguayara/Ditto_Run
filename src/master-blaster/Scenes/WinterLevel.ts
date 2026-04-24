@@ -53,8 +53,7 @@ export default class WinterLevel extends MBLevel {
     public static readonly CRYO_GRENINJA_SPRITE_KEY = "Greninja"
     public static readonly CRYO_GRENINJA_SPRITE_PATH = "game_assets/spritesheets/greninja_cryo.json"
 
-    public static readonly RARE_KEY = "RareCandy"
-    public static readonly RARE_CANDY_PATH = "game_assets"
+    
     
     // public static readonly PHANTUMP_WALL_LAYER = "PhantumpWallLayer"
     
