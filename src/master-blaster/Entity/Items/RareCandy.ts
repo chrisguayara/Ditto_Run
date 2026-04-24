@@ -9,7 +9,7 @@ export default class RareCandy extends Entity {
 
     private readonly HEAL_AMOUNT   = 3;
     private readonly ENERGY_AMOUNT = 0.25;
-    private readonly RESPAWN_TIME  = 300;       // 30 seconds
+    private readonly RESPAWN_TIME  = 300;       // should be 30 seconds, this is the problem line atm
     private readonly BOB_SPEED     = 2.0;      // radians/sec
     private readonly BOB_AMPLITUDE = 2.0;      // pixels
     private readonly GHOST_ALPHA   = 0.25;     // opacity while on cooldown

@@ -11,76 +11,75 @@
       "name": "Resume_Idle",
       "repeat" : true,
       "frames": [
-        { "index": 0, "duration": 500 },
-        { "index": 1, "duration": 500 }
+        { "index": 0, "duration": 100 },
+        { "index": 1, "duration": 100 }
       ]
     },
     {
       "name": "Resume_Selected",
       "repeat" : true,
       "frames": [
-        { "index": 2, "duration": 200 },
-        { "index": 3, "duration": 500 }
+        { "index": 2, "duration": 70 },
+        { "index": 3, "duration": 70 }
       ]
     },
     {
       "name": "Help_Idle",
       "frames": [
-        { "index": 4, "duration": 500 },
-        { "index": 5, "duration": 500 }
+        { "index": 4, "duration": 100 },
+        { "index": 5, "duration": 100 }
       ]
     },
     {
       "name": "Help_Selected",
       "repeat" : true,
       "frames": [
-        { "index": 6, "duration": 500 },
-        { "index": 7, "duration": 500 }
+        { "index": 6, "duration": 100 },
+        { "index": 7, "duration": 100 }
       ]
     },
     {
       "name": "Quit_idle",
       "frames": [
-        { "index": 8, "duration": 500 },
-        { "index": 9, "duration": 500 }
+        { "index": 8, "duration": 100 },
+        { "index": 9, "duration": 100 }
       ]
     },
     {
       "name": "Quit_Selected",
       "frames": [
-        { "index": 10, "duration": 500 },
-        { "index": 11, "duration": 500 }
+        { "index": 10, "duration": 70 },
+        { "index": 11, "duration": 70 }
       ]
     },
     {
       "name": "Restart_Selected",
       "frames": [
-        { "index": 12, "duration": 500 },
-        { "index": 13, "duration": 500 }
+        { "index": 12, "duration": 70 },
+        { "index": 13, "duration": 70 }
       ]
     },
     {
       "name": "Restart_Idle",
       "repeat" : true,
       "frames": [
-        { "index": 14, "duration": 500 },
-        { "index": 15, "duration": 500 }
+        { "index": 14, "duration": 500 }
       ]
     },
     {
       "name": "Settings_Idle",
       "repeat" : true,
       "frames": [
-        { "index": 16, "duration": 500 },
-        { "index": 17, "duration": 500 }
+        { "index": 15, "duration": 100 },
+        { "index": 16, "duration": 100 }
       ]
     },
     {
       "name": "Settings_Selected",
       "repeat" : true,
       "frames": [
-        { "index": 18, "duration": 500 },
-        { "index": 19, "duration": 500 }
+        { "index": 18, "duration": 70 },
+        { "index": 19, "duration": 70 }
       ]
     }
   ]

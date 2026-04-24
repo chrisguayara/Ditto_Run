@@ -37,7 +37,7 @@ General: Incomplete
 - [x] Tongue Grapple
 - [ ] Water Shurikens Weapon(I don't think we do this for now)
 - [ ] Complete Tileset
-- [ ] Greninja Spawn & Fight. 
+- [ ] Greninja Spawn & Fight.
 
 ### Map 3: Incomplete
 
