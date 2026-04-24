@@ -210,6 +210,11 @@ export default abstract class MBLevel extends Scene {
         for (const s of this.sludgePool) {
             if (s.isAlive) s.update(deltaT);
         }
+
+        // Update all entities
+        for (const entity of this.entities) {
+            (entity as any).update?.(deltaT);
+        }
     }
 
     public fireSludge(origin: Vec2, direction: Vec2): void {

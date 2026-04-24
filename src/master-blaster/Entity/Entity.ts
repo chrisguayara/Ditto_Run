@@ -24,7 +24,7 @@ export default abstract class Entity {
     public get isConsumed(): boolean { return this.consumed; }
 
     public get position(): Vec2 { return this.sprite.position; }
-
+    public update(deltaT: number): void { /* override in subclasses */ }
     protected destroy(): void {
         this.consumed = true;
         this.sprite.visible = false;

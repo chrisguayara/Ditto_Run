@@ -6,7 +6,7 @@ General: Incomplete
 - [ ] Attack Hurts Enemies
 - [ ] Weapon animation
 - [ ] Better Animations
-- [ ] Rotom Collisions
+- [x] Rotom Collisions
 
 ### Rare Candy Pickup: Incomplete
 - [ ] Logic (Should respawn after 30 secs)
@@ -17,8 +17,10 @@ General: Incomplete
 - [ ] Health
 - [ ] Energy
 - [ ] Transform
+- [ ] Timer
+
 ### Main Menu: Incomplete
-- [ ] Start Game
+- [ ] Start Game (is this not done already? -Kush)
 ### Pause Menu: 80%
 - [x] Resume Game
 - [x] Home
@@ -36,22 +38,25 @@ General: Incomplete
 - [ ] Water Shurikens Weapon(I don't think we do this for now)
 - [ ] Complete Tileset
 - [ ] Greninja Spawn & Fight. 
+
 ### Map 3: Incomplete
+
 - [ ] Tilemap
 - [ ] Complete Tileset
 - [ ] Lava/Fire Hurt Blocks
 - Magmar:
 - [ ] Fire Resistance
 - [ ] Slow , tanky movement
-- [ ] Can destroy Destructable Blocks 
+- [ ] Can destroy Destructable Blocks
 - [ ] Flamethrower weapon
 - Moltres
 - [ ] Flying Sequence into Into Next Map
 - [ ] Can Walk, Fly and Evade
-- [ ] Magma Pools 
+- [ ] Magma Pools
 
-## Lower Priority 
-- Overworld Level Select
+## Lower Priority
+
+- [ ] Overworld Level Select
 - [ ] Map  
 - [ ] Animation
 - [ ] Transition when changing maps
