@@ -12,16 +12,16 @@ export const RotomStates = {
 } as const;
 
 export const RotomAnimations = {
-    IDLE:  "IDLE",   // swap these for whatever keys are in your spritesheet JSON
+    IDLE:  "IDLE",
     FLOAT: "FLOAT",
 } as const;
 
 export default class RotomController extends PokemonController {
 
-    // How close Rotom tries to hover next to the player
     public readonly FOLLOW_DIST  = 32;
-    // How fast it considers the player "still" (pixels/sec threshold)
     public readonly STILL_THRESH = 8;
+
+    private _playerRef!: MBAnimatedSprite;
 
     protected addStates(): void {
         this.addState(RotomStates.FOLLOW,  new RotomFollow(this, this.owner));
@@ -29,10 +29,32 @@ export default class RotomController extends PokemonController {
         this.addState(RotomStates.FAINTED, new Fainted(this, this.owner));
         this.speed      = 90;
         this.maxHealth  = 999;
-        this._health    = 999; // set directly, skip event
+        this._health    = 999;
     }
 
-    // Override to avoid polluting the player health bar
+    public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
+        super.initializeAI(owner, options);
+        this._playerRef = options.playerRef;
+    }
+
+    public update(deltaT: number): void {
+        super.update(deltaT);
+
+        if (!this._playerRef) return;
+
+        const playerVelY = (this._playerRef._velocity as Vec2)?.y ?? 0;
+        const playerIsBelow = this._playerRef.position.y > this.owner.position.y;
+
+        // Phase through when player is below Rotom and moving upward
+        const shouldPhase = playerIsBelow && playerVelY < 0;
+
+        if (shouldPhase) {
+            this.owner.disablePhysics();
+        } else {
+            this.owner.enablePhysics();
+        }
+    }
+
     public set health(v: number) { this._health = v; }
     public get health(): number  { return this._health; }
 

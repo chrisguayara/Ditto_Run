@@ -20,19 +20,20 @@ General: Incomplete
 ### Main Menu: Incomplete
 - [ ] Start Game
 ### Pause Menu: 80%
-- [ ] Resume Game
-- [ ] Home
+- [x] Resume Game
+- [x] Home
+- [x] Restart
 - [ ] Controls
 - [ ] Hints
 ### Map 3: Incomplete
 ### Map 2: Incomplete
 -[ ] Tilemap 
 - Greninja :
-- [ ] Basic Movement
-- [ ] Wall Jump
+- [x] Basic Movement
+- [x] Wall Jump
 - [ ] Animations Set
-- [ ] Tongue Grapple
-- [ ] Water Shurikens Weapon
+- [x] Tongue Grapple
+- [ ] Water Shurikens Weapon(I don't think we do this for now)
 - [ ] Complete Tileset
 - [ ] Greninja Spawn & Fight. 
 ### Map 3: Incomplete
