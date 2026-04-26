@@ -27,6 +27,7 @@ export default class Walk extends PlayerState {
         } else if (Input.isJustPressed(MBControls.JUMP)) {
             this.finished(PlayerStates.JUMP);
         } else if (!this.owner.onGround && this.parent.velocity.y !== 0) {
+            // Transition to FALL for both falling (positive Y) and bouncing (negative Y)
             this.finished(PlayerStates.FALL);
         } else {
             this.parent.velocity.y += this.parent.effectiveGravity * deltaT;

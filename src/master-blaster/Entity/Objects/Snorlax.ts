@@ -5,7 +5,7 @@ import { MBEvents } from "../../MBEvents";
 export default class Snorlax extends Entity {
     public static readonly SPRITE_KEY = "Snorlax";
     public static readonly SPRITE_PATH = "game_assets/spritesheets/entities/snorlax.json";
-    private readonly BOUNCE_FORCE = -600; 
+    private readonly BOUNCE_FORCE = -1000; 
 
     public onPlayerContact(): void {
         if (this.consumed) return; 

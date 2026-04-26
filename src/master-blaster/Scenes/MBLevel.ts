@@ -578,7 +578,7 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_BOUNCE : {
                 const ctrl = this.player._ai as PlayerController;
-                ctrl.velocity = new Vec2(0,-500);
+                ctrl.velocity = new Vec2(0,-350);
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key : this.jumpAudioKey});
                 break;
             }

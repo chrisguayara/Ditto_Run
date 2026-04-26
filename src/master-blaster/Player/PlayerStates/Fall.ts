@@ -7,7 +7,8 @@ export default class Fall extends PlayerState {
 
     public onEnter(options: Record<string, any>): void {
         // Reset downward velocity unless the caller asked us to preserve it
-        if (!options.preserveVelocity) {
+        // OR if we're moving upward (e.g., from a bounce)
+        if (!options.preserveVelocity && this.parent.velocity.y > 0) {
             this.parent.velocity.y = 0;
         }
         this.owner.animation.play(this.parent.getAnimationKey("FALL"));

@@ -28,7 +28,8 @@ export default class Idle extends PlayerState {
             this.finished(PlayerStates.RUN);
         } else if (Input.isJustPressed(MBControls.JUMP)) {
             this.finished(PlayerStates.JUMP);
-        } else if (!this.owner.onGround && this.parent.velocity.y > 0) {
+        } else if (!this.owner.onGround && this.parent.velocity.y !== 0) {
+            // Transition to FALL for both falling (positive Y) and bouncing (negative Y)
             this.finished(PlayerStates.FALL);
         } else {
             this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
