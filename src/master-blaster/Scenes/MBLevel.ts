@@ -340,19 +340,32 @@ export default abstract class MBLevel extends Scene {
     protected updatePauseMenu(): void {
         this.repositionPauseMenu();
 
-        if (Input.isJustPressed(MBControls.ATTACK_UP)) {
+        // // Handle mouse clicks on buttons
+        // if (Input.isMouseJustPressed()) {
+        //     const mousePos = Input.getGlobalMousePosition();
+        //     const clickedButton = this.getClickedPauseButton(mousePos);
+        //     if (clickedButton !== -1) {
+        //         this.selectedPauseOption = clickedButton;
+        //         this.updatePauseButtonAnimations();
+        //         this.confirmPauseSelection();
+        //         return;
+        //     }
+        // }
+
+        if (Input.isJustPressed(MBControls.JUMP) 
+            ||Input.isJustPressed(MBControls.ATTACK_UP)) {
             this.selectedPauseOption = (this.selectedPauseOption - 1 + 4) % 4;
             this.updatePauseButtonAnimations();
         }
 
-        if (Input.isJustPressed(MBControls.ATTACK_DOWN)) {
+        if (Input.isJustPressed(MBControls.DOWN) 
+            ||Input.isJustPressed(MBControls.ATTACK_DOWN)) {
             this.selectedPauseOption = (this.selectedPauseOption + 1) % 4;
             this.updatePauseButtonAnimations();
         }
 
-       if (Input.isJustPressed(MBControls.JUMP) 
-            || Input.isJustPressed(MBControls.ATTACK)
-            || Input.isJustPressed(MBControls.CONFIRM)) {  // ← add CONFIRM
+       if ( Input.isJustPressed(MBControls.ATTACK)
+            || Input.isJustPressed(MBControls.CONFIRM)) {
             this.confirmPauseSelection();
         }
     }
@@ -399,6 +412,33 @@ export default abstract class MBLevel extends Scene {
             this.pauseButtonSprites[i].animation.playIfNotAlready(anim, true);
         }
     }
+    // protected getClickedPauseButton(mousePos: Vec2): number {
+    //     const size = this.viewport.getHalfSize().scaled(2);
+    //     const center = size.scaled(0.5);
+    //     const zoom = this.viewport.getZoomLevel();
+    //     const btnSpacing = 60/zoom;
+    //     const totalHeight = (this.pauseButtonSprites.length - 1) * btnSpacing;
+    //     const startY = center.y - totalHeight / 2;
+
+    //     // Check each button's position
+    //     for (let i = 0; i < this.pauseButtonSprites.length; i++) {
+    //         const btnY = startY + i * btnSpacing;
+    //         const btn = this.pauseButtonSprites[i];
+            
+    //         // Base sprite is 48px, but make hitbox more generous
+    //         const btnHalfWidth = 25 ;  
+    //         const btnHalfHeight = 15; 
+            
+    //         if (mousePos.x >= center.x - btnHalfWidth && 
+    //             mousePos.x <= center.x + btnHalfWidth &&
+    //             mousePos.y >= btnY - btnHalfHeight && 
+    //             mousePos.y <= btnY + btnHalfHeight) {
+    //             return i;
+    //         }
+    //     }
+        
+    //     return -1; // No button clicked
+    // }
 
     protected updateUI(): void {
         // transform circle
