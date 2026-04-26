@@ -96,6 +96,7 @@ export default class ForestLevel extends MBLevel {
         this.tileDestroyedAudioKey = ForestLevel.TILE_DESTROYED_KEY;
         this.levelEndAudioKey = ForestLevel.LEVEL_END_KEY;
         this.damageWallLayerKey = "damage";
+        
 
         
 
@@ -133,6 +134,8 @@ export default class ForestLevel extends MBLevel {
         this.load.spritesheet(RareCandy.SPRITE_KEY, RareCandy.SPRITE_PATH);
         this.load.spritesheet(Snorlax.SPRITE_KEY, Snorlax.SPRITE_PATH);
         this.load.spritesheet(this.hintSpriteKey, this.hintSpritePath);
+
+        this.load.spritesheet(this.transformUIkey,this.transformUIpath);
     }
 
     /**
@@ -152,12 +155,13 @@ export default class ForestLevel extends MBLevel {
         super.startScene();
         // Set the next level to be Level2
         this.nextLevel = MBLevel2;
-        (this.player._ai as PlayerController).transformations.unlockForm("PHANTUMP");
-        (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
         this.initializePKMN();
         this.initializeEntities();
         this.initializeHints(ForestLevel.TILEMAP_KEY);
         this.respawnPosition = this.playerSpawn.clone();
+
+        (this.player._ai as PlayerController).transformations.unlockForm("PHANTUMP");
+        (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
     }
     protected initializePKMN(): void {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
@@ -209,7 +213,7 @@ export default class ForestLevel extends MBLevel {
         
             // Snorlax as a trampoline platform — collidable=true so player lands on it
             this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44*16, 13*16), true);
-        }
+    }
     
 
     /**

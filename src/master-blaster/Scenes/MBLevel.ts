@@ -31,6 +31,9 @@ import Entity from "../Entity/Entity";
 import PokemonController from "../Pokemon/PokemonController";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import Game from "../../Wolfie2D/Loop/Game";
+import { Transformations } from "../Player/Transformation";
+
+import { DittoForms } from "../UI/DittoForms";
 /**
  * A const object for the layer names
  */
@@ -59,6 +62,7 @@ export default abstract class MBLevel extends Scene {
     // 0 = Resume, 1 = Restart, 2 = Quit
     protected pauseMenuBg!: AnimatedSprite;
     protected pauseButtonSprites!: AnimatedSprite[];
+    
     private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle", "Quit_idle", "Help_Idle"];
     private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected", "Quit_Selected", "Help_Selected"];
 
@@ -80,6 +84,10 @@ export default abstract class MBLevel extends Scene {
     private energyLabel!: Label;
     private energyBar!: Label;
     private energyBarBg!: Label;
+    protected UI_transformationSprite!: AnimatedSprite;
+    protected transformUIkey!: string ;
+    protected transformUIpath!: string ;
+    protected transformCurrentForm: string | null = "Ditto";
 
     // ── UI Positions ──────────────────────────────────────────────
     protected healthBarPos: Vec2 = new Vec2(300, 20);
@@ -112,6 +120,7 @@ export default abstract class MBLevel extends Scene {
     protected hintSprites: AnimatedSprite[] = [];
     protected hintSpriteKey!: string;
     protected hintSpritePath!: string;
+    
     
     
 
@@ -210,10 +219,17 @@ export default abstract class MBLevel extends Scene {
         this.add = new MBFactoryManager(this, this.tilemaps);
 
         this.selectAudioKey = "SELECT_AUDIO_KEY";
-        this.selectAudioPath = "game_assets/sounds/switch.wav"
+        this.selectAudioPath = "game_assets/sounds/switch.wav";
 
         this.hintSpriteKey = "HINT_SPRITE_KEY";
-        this.hintSpritePath = "game_assets/spritesheets/hints/hintsheet.json"
+        this.hintSpritePath = "game_assets/spritesheets/hints/hintsheet.json";
+
+        this.transformUIkey = "TRANSFORM_UI_KEY";
+        this.transformUIpath = "game_assets/spritesheets/ui/transformRing.json";
+
+        
+
+        
     }
 
     public loadPauseMenuAssets(): void {
@@ -276,6 +292,9 @@ export default abstract class MBLevel extends Scene {
         for (const entity of this.entities) {
             (entity as any).update?.(deltaT);
         }
+        this.updateUI(deltaT);
+
+        
     }
 
     public fireSludge(origin: Vec2, direction: Vec2): void {
@@ -324,6 +343,7 @@ export default abstract class MBLevel extends Scene {
             this.confirmPauseSelection();
         }
     }
+    
 
     protected confirmPauseSelection(): void {
         switch (this.selectedPauseOption) {
@@ -364,6 +384,36 @@ export default abstract class MBLevel extends Scene {
                 ? this.PAUSE_SELECTED_ANIMS[i]
                 : this.PAUSE_IDLE_ANIMS[i];
             this.pauseButtonSprites[i].animation.playIfNotAlready(anim, true);
+        }
+    }
+
+    protected updateUI(deltaT: number): void {
+        // transform circle
+
+        const ctrl = this.player._ai as PlayerController;
+        const activeForm = ctrl.transformations.activeForm;
+        
+        if(!activeForm){
+            this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.DITTO, true);
+            return;
+        }
+        const formName = activeForm.displayName;
+        console.log(formName);
+
+        switch(formName){
+            case DittoForms.ROWLET:
+                this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.ROWLET, true);
+                break;
+            case DittoForms.PHANTUMP: 
+                this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.PHANTUMP, true);
+                break;
+            case DittoForms.GRENINJA:
+                this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.GRENINJA, true);
+                break;
+            default:
+                this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.DITTO, true);
+                break;
+
         }
     }
 
@@ -734,10 +784,22 @@ export default abstract class MBLevel extends Scene {
 
     protected initializeUI(): void {
         const PAD = 16;
+
+        
     
         const screen = this.viewport.getHalfSize().scaled(2);
         const EP_CENTER_X = PAD + 80;
         const EP_MAX_WIDTH = 100;
+
+        // for the transform UI
+        this.UI_transformationSprite = this.add.animatedSprite(this.transformUIkey, MBLayers.UI);
+        this.UI_transformationSprite.position.set(PAD, PAD);
+        this.UI_transformationSprite.animation.play(DittoForms.DITTO, false);
+        this.UI_transformationSprite.visible = true;
+        
+        
+
+        
         this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2; 
     
         // --- ENERGY ---
@@ -838,6 +900,8 @@ export default abstract class MBLevel extends Scene {
             ],
             onEnd: MBEvents.LEVEL_START
         });
+
+        
     }
 
     protected initializeWeaponSystem(): void {

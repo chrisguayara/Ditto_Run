@@ -74,15 +74,29 @@ export default class TransformationManager {
 
     /** Toggle if a form is active deactivate it, otherwise activate selected */
     public toggle(): void {
-        this._activeForm ? this.deactivate() : this.activate();
+        if (this._activeForm) {
+            this.deactivate();
+        } else {
+            this.activate();
+        }
     }
 
     /** Cycle to the next unlocked form */
     public cycleNext(): void {
         if (this._unlockedForms.length === 0) return;
-        // Deactivate current form before switching
+    
+        const wasActive = this._activeForm !== null;
+        
+        // Always deactivate current form first
         if (this._activeForm) this.deactivate();
+        
+        // Advance to next form
         this._selectedIndex = (this._selectedIndex + 1) % this._unlockedForms.length;
+        
+        // If we were in a form, immediately activate the new one
+        if (wasActive) {
+            this.activate();
+        }
     }
 
     /** Add a form by key. Call this when Ditto defeats or touches a Pokemon */
