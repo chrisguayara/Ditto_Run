@@ -61,7 +61,7 @@ export const Transformations: Record<string, Transformation> = {
         gravityMultiplier: 0.0,   // floats, no gravity
         jumpForce: null,
         activationCost: 0.15,
-        drainRate: 0.12,
+        drainRate: 0.05,
         ability: "PHASE"          // pass through thin walls
     },
 
