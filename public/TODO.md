@@ -8,15 +8,15 @@ General: Incomplete
 - [ ] Better Animations
 - [x] Rotom Collisions
 
-### Rare Candy Pickup: 70%, test respawn with timer
-- [-] Logic (Should respawn after 30 secs)
+### Rare Candy Pickup: 
+- [x] Logic (Should respawn after 30 secs)
 - [x] Spawns Set
 
 ### GUI: Still Janky , Should be next
 - In World:
 - [ ] Health
 - [ ] Energy
-- [ ] Transform
+- [x] Transform
 - [ ] Timer
 
 ### Main Menu: Incomplete

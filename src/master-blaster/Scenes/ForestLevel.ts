@@ -20,7 +20,7 @@ import { MBEvents } from "../MBEvents";
  * The first level for MB - should be the one with the grass and the clouds.
  */
 export const CHECKPOINTS = {
-    SPAWN : new Vec2(40*16, 5*16) ,
+    SPAWN : new Vec2(5*16,9*16) ,
     // new Vec2(5*16,9*16),
     CHECKPOINT_ONE : new Vec2(73*16,10*16),
     CHECKPOINT_TWO : new Vec2(64*16,42*16),
@@ -159,9 +159,9 @@ export default class ForestLevel extends MBLevel {
         this.initializeEntities();
         this.initializeHints(ForestLevel.TILEMAP_KEY);
         this.respawnPosition = this.playerSpawn.clone();
-
-        (this.player._ai as PlayerController).transformations.unlockForm("PHANTUMP");
         (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
+        (this.player._ai as PlayerController).transformations.unlockForm("PHANTUMP");
+        
     }
     protected initializePKMN(): void {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
@@ -215,13 +215,16 @@ export default class ForestLevel extends MBLevel {
             this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44*16, 13*16), true);
     }
     
+    
 
     /**
      *  Current map size are the viewport limits
      */
     protected initializeViewport(): void {
-    super.initializeViewport();
-    this.viewport.setBounds(0, 0, 1600, 1600); // was 0, 128
-}
+        super.initializeViewport();
+        this.viewport.setBounds(0, 0, 1600, 1600); // was 0, 128
+    
+    }
+    
 
 }

@@ -394,9 +394,9 @@
 </data>
  </layer>
  <objectgroup id="9" name="hints">
-  <object id="9" name="Tran" type="Transform" x="624" y="32" width="48" height="32"/>
-  <object id="10" name="Tran" type="Transform" x="891.485" y="504.242" width="48" height="32"/>
-  <object id="11" name="Tran" type="Transform" x="1030" y="330.667" width="48" height="32"/>
+  <object id="9" name="Transform" type="Transform" x="624" y="32" width="48" height="32"/>
+  <object id="10" name="Transform" type="Transform" x="896.394" y="503.515" width="48" height="32"/>
+  <object id="11" name="Transform" type="Transform" x="1030" y="330.667" width="48" height="32"/>
   <object id="13" name="Fkey" x="1104" y="320" width="32" height="16"/>
   <object id="14" name="Ekey" x="1104" y="336" width="32" height="16"/>
   <object id="17" name="jump" x="688" y="160" width="32" height="16"/>
