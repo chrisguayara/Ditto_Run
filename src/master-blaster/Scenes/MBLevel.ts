@@ -513,6 +513,8 @@ export default abstract class MBLevel extends Scene {
                 this.player.alpha = 1;
                 this.player.rotation = 0;
                 ctrl.health = ctrl.maxHealth;
+                ctrl.transformations.energy = ctrl.transformations.maxEnergy;
+                ctrl.transformations.deactivate();
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 ctrl.velocity = Vec2.ZERO;
                 ctrl.changeState(PlayerStates.IDLE);
