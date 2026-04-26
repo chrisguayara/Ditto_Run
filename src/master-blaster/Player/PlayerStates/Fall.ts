@@ -17,6 +17,11 @@ export default class Fall extends PlayerState {
     public update(deltaT: number): void {
         super.update(deltaT);
 
+        // ── Fast fall ───────────────────────────────────────────
+        if (Input.isJustPressed(MBControls.DOWN)) {
+            this.parent.velocity.y = 140;
+        }
+
         // ── Greninja abilities ───────────────────────────────────
         if (this.parent.transformations.activeForm?.key === "GRENINJA") {
 

@@ -27,6 +27,13 @@ export default class Jump extends PlayerState {
     public update(deltaT: number): void {
         super.update(deltaT);
 
+        // ── Early exit: fast fall ───────────────────────────────
+        if (Input.isJustPressed(MBControls.DOWN)) {
+            this.finished(PlayerStates.FALL);
+            this.parent.velocity.y=140;
+            return;
+        }
+
         // ── Greninja abilities ──────────────────────────────────
         if (this.parent.transformations.activeForm?.key === "GRENINJA") {
 
