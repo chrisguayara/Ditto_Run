@@ -130,6 +130,7 @@ export default abstract class MBLevel extends Scene {
     protected checkpointOneArea!: Rect;
     protected checkpointTwoArea!: Rect;
     protected respawnPosition!: Vec2;
+    
 
     
 
@@ -141,6 +142,8 @@ export default abstract class MBLevel extends Scene {
     protected tileDestroyedAudioKey!: string;
     protected selectAudioKey!: string;
     protected selectAudioPath!: string;
+
+    public canUpdateTransform : boolean = true;
     
 
     public selectKey!: string;
@@ -292,7 +295,17 @@ export default abstract class MBLevel extends Scene {
         for (const entity of this.entities) {
             (entity as any).update?.(deltaT);
         }
-        this.updateUI(deltaT);
+
+        if (Input.isKeyJustPressed(MBControls.CYCLE_FORM) && this.canUpdateTransform){
+            this.updateUI();
+            this.canUpdateTransform = false
+        }
+        if (Input.isJustPressed(MBControls.TRANSFORM)) {
+            this.updateUI();
+        }   
+
+
+        
 
         
     }
@@ -387,34 +400,39 @@ export default abstract class MBLevel extends Scene {
         }
     }
 
-    protected updateUI(deltaT: number): void {
+    protected updateUI(): void {
         // transform circle
 
         const ctrl = this.player._ai as PlayerController;
-        const activeForm = ctrl.transformations.activeForm;
+        const activeForm = ctrl.transformations.selectedForm;
         
         if(!activeForm){
             this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.DITTO, true);
+            this.canUpdateTransform = true;
             return;
         }
         const formName = activeForm.displayName;
-        console.log(formName);
 
         switch(formName){
             case DittoForms.ROWLET:
                 this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.ROWLET, true);
+                console.log(formName);
                 break;
             case DittoForms.PHANTUMP: 
                 this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.PHANTUMP, true);
+                console.log(formName);
                 break;
             case DittoForms.GRENINJA:
                 this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.GRENINJA, true);
+                console.log(formName);
                 break;
             default:
                 this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.DITTO, true);
+                console.log(formName);
                 break;
 
         }
+        this.canUpdateTransform = true;
     }
 
     protected getViewportCenter(): Vec2 {
