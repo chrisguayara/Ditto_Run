@@ -8,11 +8,11 @@ General: Incomplete
 - [ ] Better Animations
 - [x] Rotom Collisions
 
-### Rare Candy Pickup: Incomplete
-- [x] Logic (Should respawn after 30 secs)
-- [ ] Spawns Set
+### Rare Candy Pickup: 70%, test respawn with timer
+- [-] Logic (Should respawn after 30 secs)
+- [x] Spawns Set
 
-### GUI: Incomplete
+### GUI: Still Janky , Should be next
 - In World:
 - [ ] Health
 - [ ] Energy
@@ -20,24 +20,26 @@ General: Incomplete
 - [ ] Timer
 
 ### Main Menu: Incomplete
-- [ ] Start Game (is this not done already? -Kush)
+- [ ] Start Game (is this not done already? -Kush
+
+it is but i wanted to update it prior to monday night)
 ### Pause Menu: 80%
 - [x] Resume Game
 - [x] Home
 - [x] Restart
 - [ ] Controls
-- [ ] Hints
-### Map 3: Incomplete
+- [x] Hints
+
 ### Map 2: Incomplete
--[ ] Tilemap 
+- [ ] Tilemap 
 - Greninja :
-- [x] Basic Movement
-- [x] Wall Jump
-- [ ] Animations Set
-- [x] Tongue Grapple
-- [ ] Water Shurikens Weapon(I don't think we do this for now)
-- [ ] Complete Tileset
-- [ ] Greninja Spawn & Fight.
+    - [x] Basic Movement
+    - [x] Wall Jump
+    - [ ] Animations Set
+    - [x] Tongue Grapple
+    - [ ] Water Shurikens Weapon(I don't think we do this for now)
+    - [ ] Complete Tileset
+    - [x] Greninja Spawn
 
 ### Map 3: Incomplete
 

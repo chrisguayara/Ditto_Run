@@ -102,14 +102,18 @@ export default abstract class MBLevel extends Scene {
     protected wallsLayerKey!: string;
     protected phantomWallLayerKey!: string;
     protected damageWallLayerKey!: string;
-    protected hintsLayerKey: string = "hints";
+    
     protected hintsVisible: boolean = false;
     protected tilemapScale!: Vec2;
     protected destructable!: OrthogonalTilemap;
     protected walls!: OrthogonalTilemap;
     protected phantomWalls!: OrthogonalTilemap;
     protected damageWalls!: OrthogonalTilemap;
-    protected hintsLayer!: OrthogonalTilemap;
+    protected hintSprites: AnimatedSprite[] = [];
+    protected hintSpriteKey!: string;
+    protected hintSpritePath!: string;
+    
+    
 
     // ── Checkpoints ───────────────────────────────────────────────
     protected checkpoint_sqr1!: Vec2;
@@ -161,7 +165,7 @@ export default abstract class MBLevel extends Scene {
 
         // Attach the AI controller
         sprite.addAI(ControllerClass, {
-            playerRef: this.player,         // ⚠️ adjust to match how your scene exposes the player node
+            playerRef: this.player,         
             patrolLeft:  position.x - 100,
             patrolRight: position.x + 100,
             ...options
@@ -171,25 +175,7 @@ export default abstract class MBLevel extends Scene {
         this.pokemonMap.set(sprite.id, controller);
         return controller;
     }
-    protected spawnEntity(
-        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
-        spriteKey: string,
-        position: Vec2,
-        collidable: boolean = false  // true = solid, false = trigger only
-    ): Entity {
-        const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
-        sprite.position.copy(position);
-        sprite.animation.play("IDLE", true);
-        sprite.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)), undefined, collidable, !collidable);
-        sprite.setGroup(MBPhysicsGroups.ENTITY);
-        sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
-
-        const entity = new EntityClass(sprite);
-        
-        this.entityMap.set(sprite.id, entity);
-        this.entities.push(entity);
-        return entity;
-    }
+    
 
     protected entityMap: Map<number, Entity> = new Map();
     protected pokemonMap: Map<number, PokemonController> = new Map();
@@ -225,6 +211,9 @@ export default abstract class MBLevel extends Scene {
 
         this.selectAudioKey = "SELECT_AUDIO_KEY";
         this.selectAudioPath = "game_assets/sounds/switch.wav"
+
+        this.hintSpriteKey = "HINT_SPRITE_KEY";
+        this.hintSpritePath = "game_assets/spritesheets/hints/hintsheet.json"
     }
 
     public loadPauseMenuAssets(): void {
@@ -245,6 +234,7 @@ export default abstract class MBLevel extends Scene {
         this.initializePauseMenu();
         this.initializeCheckpoints();
         this.initializeLevelEnds();
+        
 
         this.levelTransitionTimer = new Timer(500);
         this.levelEndTimer = new Timer(3000, () => {
@@ -356,17 +346,16 @@ export default abstract class MBLevel extends Scene {
                 break;
             case 3: // Hints()
                 this.resumeGame();
-                if (!this.hintsVisible) {
-                    this.hintsLayer.alpha = 1.0;
-                    this.hintsVisible = true;
+                this.hintsVisible = !this.hintsVisible;
+                console.log("YO IT SHOWS")
+                for (const s of this.hintSprites) {
+                    s.visible = this.hintsVisible;
                 }
-                else {
-                    this.hintsLayer.alpha = 0.0;
-                    this.hintsVisible = false;
-                }
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
+                break;
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
-                
-        }
+                            
+            }
     }
 
     protected updatePauseButtonAnimations(): void {
@@ -688,11 +677,37 @@ export default abstract class MBLevel extends Scene {
             }
         }
         
-        if (this.hintsLayerKey !== undefined) {
-            this.hintsLayer = this.getTilemap(this.hintsLayerKey) as OrthogonalTilemap;
-            if (this.hintsLayer && this.hintsVisible) {
-                this.hintsLayer.alpha = 1.0;
+        
+    }
+
+    
+    
+    protected initializeHints(tilemapKey: string): void {
+        const tilemapData = this.resourceManager.getTilemap(tilemapKey);
+        if (!tilemapData) return;
+
+        for (const layer of tilemapData.layers) {
+            if (layer.type !== "objectgroup") continue;
+            for (const obj of layer.objects) {
+                const animKey = this.getHintAnimKey(obj.name);
+                if (!animKey) continue;
+
+                const sprite = this.add.animatedSprite(this.hintSpriteKey, MBLayers.PRIMARY);
+                sprite.position.set(obj.x + obj.width / 2, obj.y + obj.height / 2);
+                sprite.animation.play(animKey, false);
+                sprite.visible = false;   // hidden by default
+                this.hintSprites.push(sprite);
             }
+        }
+    }
+
+    private getHintAnimKey(objName: string): string | null {
+        switch (objName) {
+            case "Transform": return "Transform";
+            case "Ekey":      return "E";
+            case "Fkey":      return "F";
+            case "jump":      return "jump";
+            default:          return null;
         }
     }
 
@@ -949,4 +964,28 @@ export default abstract class MBLevel extends Scene {
         return this.transformAudioKey;
     }
 
+    
+
+    protected spawnEntity(
+        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+        spriteKey: string,
+        position: Vec2,
+        collidable: boolean = false  // true = solid, false = trigger only
+    ): Entity {
+        const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
+        sprite.position.copy(position);
+        sprite.animation.play("IDLE", true);
+        sprite.addPhysics(new AABB(sprite.position.clone(), new Vec2(8, 8)), undefined, collidable, !collidable);
+        sprite.setGroup(MBPhysicsGroups.ENTITY);
+        sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+
+        const entity = new EntityClass(sprite);
+        
+        this.entityMap.set(sprite.id, entity);
+        this.entities.push(entity);
+
+        return entity;
+    }
+
+    
 }

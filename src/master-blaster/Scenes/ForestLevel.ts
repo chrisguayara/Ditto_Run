@@ -71,14 +71,7 @@ export default class ForestLevel extends MBLevel {
     public static readonly UI_HEALTH_KEY = "healthUI"
     public static readonly UI_ENERGY_KEY = "energyUI"
     public static readonly UI_ENERGY_PATH = ""
-
-
-    
-    
-    
-    
-
-    
+       
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
     
 
@@ -139,6 +132,7 @@ export default class ForestLevel extends MBLevel {
 
         this.load.spritesheet(RareCandy.SPRITE_KEY, RareCandy.SPRITE_PATH);
         this.load.spritesheet(Snorlax.SPRITE_KEY, Snorlax.SPRITE_PATH);
+        this.load.spritesheet(this.hintSpriteKey, this.hintSpritePath);
     }
 
     /**
@@ -162,6 +156,7 @@ export default class ForestLevel extends MBLevel {
         (this.player._ai as PlayerController).transformations.unlockForm("ROWLET");
         this.initializePKMN();
         this.initializeEntities();
+        this.initializeHints(ForestLevel.TILEMAP_KEY);
         this.respawnPosition = this.playerSpawn.clone();
     }
     protected initializePKMN(): void {
@@ -215,6 +210,7 @@ export default class ForestLevel extends MBLevel {
             // Snorlax as a trampoline platform — collidable=true so player lands on it
             this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44*16, 13*16), true);
         }
+    
 
     /**
      *  Current map size are the viewport limits

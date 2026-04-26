@@ -35,6 +35,8 @@ export default class OrthogonalTilemap extends Tilemap {
                 if(item.name === "Collidable" || item.name === "Phaseable"){
                     this.isCollidable = item.value;
 
+                    
+
                     // Set all tiles besides "empty: 0" to be collidable
                     for(let i = 1; i < this.collisionMap.length; i++){
                         this.collisionMap[i] = true;
