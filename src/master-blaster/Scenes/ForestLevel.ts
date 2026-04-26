@@ -179,6 +179,22 @@ export default class ForestLevel extends MBLevel {
         rowlet.animation.play("IDLE");
         this.pokemonMap.set(rowlet.id, rowlet.ai as PokemonController);                  
 
+        //  Rowlet at (263, 152)
+        let rowlet2 = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
+        rowlet2.position.set(263, 152);
+        rowlet2.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+        rowlet2.setGroup(MBPhysicsGroups.ENTITY);                                         
+        rowlet2.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
+        rowlet2.addAI(RowletController, {
+            playerRef:   this.player,
+            patrolLeft:  rowlet2.position.x - 80,
+            patrolRight: rowlet2.position.x + 80,
+            speed:       60,
+            maxHealth:   4,
+        });
+        rowlet2.animation.play("IDLE");
+        this.pokemonMap.set(rowlet2.id, rowlet2.ai as PokemonController);
+
         let rotom = this.add.animatedSprite(ForestLevel.ROTOM_SPRITE_KEY, "PRIMARY");
         rotom.position.set(ForestLevel.PLAYER_SPAWN.x + 20, ForestLevel.PLAYER_SPAWN.y - 20);
         rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));

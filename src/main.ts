@@ -35,6 +35,49 @@ import { MBControls } from "./master-blaster/MBControls";
     // Create a game with the options specified
     const game = new Game(options);
 
+    // Expose debugging functions to console
+    (window as any).getPlayerPos = () => {
+        const sceneManager = game.getSceneManager();
+        const scene = (sceneManager as any).currentScene;
+        if (scene && (scene as any).player) {
+            const pos = (scene as any).player.position;
+            console.log(`Player position: (${pos.x.toFixed(1)}, ${pos.y.toFixed(1)})`);
+            return { x: pos.x, y: pos.y };
+        } else {
+            console.log("No active scene with player found");
+            return null;
+        }
+    };
+
+    (window as any).getPlayerInfo = () => {
+        const sceneManager = game.getSceneManager();
+        const scene = (sceneManager as any).currentScene;
+        if (scene && (scene as any).player) {
+            const player = (scene as any).player;
+            const ctrl = player._ai;
+            console.log("=== PLAYER INFO ===");
+            console.log(`Position: (${player.position.x.toFixed(1)}, ${player.position.y.toFixed(1)})`);
+            console.log(`Velocity: (${player.velocity.x.toFixed(1)}, ${player.velocity.y.toFixed(1)})`);
+            console.log(`Health: ${ctrl.health}/${ctrl.maxHealth}`);
+            console.log(`Energy: ${ctrl.transformations.energy.toFixed(1)}/${ctrl.transformations.maxEnergy}`);
+            console.log(`Current Form: ${ctrl.transformations.activeForm?.displayName || 'Ditto'}`);
+            console.log(`State: ${ctrl.currentState?.constructor.name || 'Unknown'}`);
+            return {
+                position: { x: player.position.x, y: player.position.y },
+                velocity: { x: player.velocity.x, y: player.velocity.y },
+                health: ctrl.health,
+                maxHealth: ctrl.maxHealth,
+                energy: ctrl.transformations.energy,
+                maxEnergy: ctrl.transformations.maxEnergy,
+                form: ctrl.transformations.activeForm?.displayName || 'Ditto',
+                state: ctrl.currentState?.constructor.name || 'Unknown'
+            };
+        } else {
+            console.log("No active scene with player found");
+            return null;
+        }
+    };
+
     // Start our game
     game.start(MainMenu, {});
 })();
