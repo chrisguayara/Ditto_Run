@@ -173,6 +173,20 @@ export default class PlayerController extends StateMachineAI {
             }
         }
         const activeForm = this._transformations.activeForm?.key ?? null;
+        
+        // Phantump floating controls
+        if (activeForm === "PHANTUMP") {
+            const floatSpeed = 100; // pixels per second
+            if (Input.isPressed(MBControls.JUMP)) {
+                this.velocity.y = -floatSpeed;
+            } else if (Input.isPressed(MBControls.DOWN)) {
+                this.velocity.y = floatSpeed;
+            } else {
+                // No input = stay in place
+                this.velocity.y = 0;
+            }
+        }
+        
         if (activeForm !== "ROWLET" && this._sludgeTimer <= 0) {
             const dx = (Input.isPressed(MBControls.ATTACK_RIGHT) ? 1 : 0)
                     - (Input.isPressed(MBControls.ATTACK_LEFT)  ? 1 : 0);

@@ -529,6 +529,9 @@ export default abstract class MBLevel extends Scene {
                     // Swap to purple weapon
                     this.playerWeaponSystem.stopSystem();
                     this.playerWeaponSystem = this.phantumpWeaponSystem;
+                    // Kill y velocity to prevent uncontrolled floating
+                    const ctrl = this.player._ai as PlayerController;
+                    ctrl.velocity.y = 0;
                 }
                 break;
             }

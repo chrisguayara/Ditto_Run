@@ -5,6 +5,7 @@ export const MBControls = {
     MOVE_LEFT: "MOVE_LEFT",
     MOVE_RIGHT: "MOVE_RIGHT",
     JUMP: "JUMP",
+    DOWN: "DOWN",
     ATTACK: "ATTACK",
     TRANSFORM: "TRANSFORM",
     CYCLE_FORM: "CYCLE_FORM",

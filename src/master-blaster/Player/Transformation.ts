@@ -58,7 +58,7 @@ export const Transformations: Record<string, Transformation> = {
         key: "PHANTUMP",
         displayName: "Phantump",
         speedMultiplier: 0.8,
-        gravityMultiplier: 0.1,   // floats, no gravity
+        gravityMultiplier: 0.0,   // floats, no gravity
         jumpForce: null,
         activationCost: 0.15,
         drainRate: 0.12,
