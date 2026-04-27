@@ -643,6 +643,7 @@ export default abstract class MBLevel extends Scene {
                 if (controller && !controller.isFainted) {
                     controller.onHit(1);
                 }
+                
                 break;
             }
             default: {

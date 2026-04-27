@@ -10,6 +10,8 @@ export default abstract class Entity {
     protected sprite: MBAnimatedSprite;
     protected emitter: Emitter;
     protected consumed: boolean = false;
+    protected _isSnorlax: boolean = false;
+    
 
     constructor(sprite: MBAnimatedSprite) {
         this.sprite = sprite;
@@ -22,6 +24,9 @@ export default abstract class Entity {
 
     /** Whether this entity disappears after being used */
     public get isConsumed(): boolean { return this.consumed; }
+
+    public get isSnorlax(): boolean { return this._isSnorlax;}
+    // public set isSnorlax(tf : boolean): { this._isSnorlax =tf; }
 
     public get position(): Vec2 { return this.sprite.position; }
     public update(deltaT: number): void { /* override in subclasses */ }

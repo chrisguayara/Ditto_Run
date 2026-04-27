@@ -117,6 +117,8 @@ export default class WinterLevel extends MBLevel {
         this.load.spritesheet(WinterLevel.CRYO_GRENINJA_SPRITE_KEY, WinterLevel.CRYO_GRENINJA_SPRITE_PATH);
         this.load.spritesheet(RareCandy.SPRITE_KEY, RareCandy.SPRITE_PATH);
         this.load.spritesheet(Snorlax.SPRITE_KEY, Snorlax.SPRITE_PATH);
+        this.load.spritesheet(this.hintSpriteKey, this.hintSpritePath);
+        this.load.spritesheet(this.transformUIkey, this.transformUIpath);
         
         this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY, WinterLevel.TRANSFORM_AUDIO_PATH);
         

@@ -16,6 +16,7 @@ import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
 import { MBEvents } from "../MBEvents";
+import WinterLevel from "./WinterLevel";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -26,6 +27,7 @@ export const CHECKPOINTS = {
     CHECKPOINT_TWO : new Vec2(64*16,42*16),
     
 } as const;
+
 
 
 export default class ForestLevel extends MBLevel {
@@ -155,7 +157,7 @@ export default class ForestLevel extends MBLevel {
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
-        this.nextLevel = MBLevel2;
+        this.nextLevel = WinterLevel;
         this.initializePKMN();
         this.initializeEntities();
         this.initializeHints(ForestLevel.TILEMAP_KEY);
@@ -165,6 +167,7 @@ export default class ForestLevel extends MBLevel {
         
     }
     protected initializePKMN(): void {
+        
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
         rowlet.position.set(36*16, 6*8);
         rowlet.addPhysics(new AABB(new Vec2(3,3), new Vec2(3, 3)));
@@ -203,7 +206,7 @@ export default class ForestLevel extends MBLevel {
         let rotom = this.add.animatedSprite(ForestLevel.ROTOM_SPRITE_KEY, "PRIMARY");
         rotom.position.set(ForestLevel.PLAYER_SPAWN.x + 20, ForestLevel.PLAYER_SPAWN.y - 20);
         rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
-        rotom.setGroup(MBPhysicsGroups.ENTITY);                                             
+        rotom.setGroup(MBPhysicsGroups.ROTOM);                                             
         rotom.addAI(RotomController, {
             playerRef: this.player,
             speed:     90,
@@ -223,7 +226,7 @@ export default class ForestLevel extends MBLevel {
             playerRef:   this.player,
             patrolLeft:  phantump.position.x - 100,
             patrolRight: phantump.position.x + 100,
-            speed:       80,
+            speed:       40,
             maxHealth:   8,
             contactDamage: 5
         });
@@ -233,10 +236,10 @@ export default class ForestLevel extends MBLevel {
     protected initializeEntities(): void {
             
             this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(10*16, 8*16));
-            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(44*16, 9*16),true);
+            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(44*16, 9*16));
         
             // Snorlax as a trampoline platform — collidable=true so player lands on it
-            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44*16, 13*16), true);
+            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44.5*16, 13.5*16), true);
     }
     
     
