@@ -89,10 +89,6 @@ export default abstract class MBLevel extends Scene {
     protected transformUIpath!: string ;
     protected transformCurrentForm: string | null = "Ditto";
 
-    // ── UI Positions ──────────────────────────────────────────────
-    protected healthBarPos: Vec2 = new Vec2(300, 20);
-    protected energyBarPos: Vec2 = new Vec2(350, 20);
-    private energyBarLeftEdge: number = 0;
 
     // ── Level end ─────────────────────────────────────────────────
     protected levelEndPosition!: Vec2;
@@ -699,36 +695,9 @@ export default abstract class MBLevel extends Scene {
         }
     }
 
-    protected handleHealthChange(currentHealth: number, maxHealth: number): void {
-        const fullWidth = this.healthBarBg.size.x;
-        const unit = fullWidth / maxHealth;
     
-        this.healthBar.size.set(unit * currentHealth, this.healthBar.size.y);
-    
-        this.healthBar.position.set(
-            this.healthBarBg.position.x - fullWidth / 2 + (unit * currentHealth) / 2,
-            this.healthBarBg.position.y
-        );
-    
-        this.healthBar.backgroundColor =
-            currentHealth < maxHealth * 0.25 ? Color.RED :
-            currentHealth < maxHealth * 0.75 ? Color.YELLOW :
-            Color.GREEN;
-    }
 
-    protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
-        const maxWidth = 100;
-        const newWidth = Math.max(0, (currentEnergy / maxEnergy) * maxWidth);
-        
-        // Position center = leftEdge + newWidth/2
-        // leftEdge is fixed at energyBarLeftEdge
-        this.energyBar.size.set(newWidth, 10);
-        this.energyBar.position.set(
-            this.energyBarLeftEdge + newWidth / 2,
-            this.energyBarBg.position.y
-        );
-        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
-    }
+    
 
     /* Initialization methods for everything in the scene */
 
@@ -846,81 +815,65 @@ export default abstract class MBLevel extends Scene {
     }
 
     protected initializeUI(): void {
-        const PAD = 16;
-
-        
-    
         const screen = this.viewport.getHalfSize().scaled(2);
-        const EP_CENTER_X = PAD + 80;
-        const EP_MAX_WIDTH = 100;
-
-        // for the transform UI
+    
+        // Transform ring UI (keep as-is, top-left corner)
         this.UI_transformationSprite = this.add.animatedSprite(this.transformUIkey, MBLayers.UI);
-        this.UI_transformationSprite.position.set(PAD, PAD);
+        this.UI_transformationSprite.position.set(16, 16);
         this.UI_transformationSprite.animation.play(DittoForms.DITTO, false);
         this.UI_transformationSprite.visible = true;
-        
-        
-
-        
-        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2; 
     
         // --- ENERGY ---
         this.energyLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 20, PAD + 20),
-            text: "EP"
-            
+            position: new Vec2(50, 8),
+            text: "ENERGY:"
         });
         this.energyLabel.textColor = Color.WHITE;
         this.energyLabel.fontSize = 12;
         this.energyLabel.font = "Courier";
     
-        this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 40, PAD + 25),
-            text: ""
-        });
-        this.energyBarBg.size = new Vec2(100, 10);
-        this.energyBarBg.borderColor = Color.WHITE;
-        this.energyBarBg.backgroundColor = new Color(0, 0, 0, 0.5);
-    
         this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 40, PAD + 25),
+            position: new Vec2(90, 8),
             text: ""
         });
-        this.energyBar.size = new Vec2(100, 10);
+        this.energyBar.size = new Vec2(120, 20);
         this.energyBar.backgroundColor = Color.BLUE;
     
-        this.energyBarLeftEdge = EP_CENTER_X - EP_MAX_WIDTH / 2; 
+        this.energyBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(90, 8),
+            text: ""
+        });
+        this.energyBarBg.size = new Vec2(120, 20);
+        this.energyBarBg.borderColor = Color.WHITE;
     
         // --- HEALTH ---
         this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 20, PAD + 50),
-            text: "HP"
+            position: new Vec2(50, 22),
+            text: "HEALTH:"
         });
+        this.healthLabel.textColor = Color.WHITE;
         this.healthLabel.fontSize = 12;
         this.healthLabel.font = "Courier";
-        this.healthLabel.textColor = Color.WHITE;
-    
-        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 40, PAD + 60),
-            text: ""
-        });
-        this.healthBarBg.size = new Vec2(100, 10);
-        this.healthBarBg.borderColor = Color.BLACK;
     
         this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
-            position: new Vec2(PAD + 40, PAD + 60),
+            position: new Vec2(90, 22),
             text: ""
         });
-        this.healthBar.size = new Vec2(100, 10);
+        this.healthBar.size = new Vec2(120, 20);
         this.healthBar.backgroundColor = Color.GREEN;
+    
+        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(90, 22),
+            text: ""
+        });
+        this.healthBarBg.size = new Vec2(120, 20);
+        this.healthBarBg.borderColor = Color.BLACK;
     
         // --- LEVEL END ---
         this.levelEndLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
             position: new Vec2(screen.x / 2, -100),
             text: "Level Complete"
         });
-    
         this.levelEndLabel.size.set(300, 40);
         this.levelEndLabel.fontSize = 24;
         this.levelEndLabel.font = "PixelSimple";
@@ -932,40 +885,51 @@ export default abstract class MBLevel extends Scene {
             position: new Vec2(screen.x / 2, screen.y / 2),
             size: new Vec2(screen.x, screen.y)
         });
-    
         this.levelTransitionScreen.color = new Color(34, 32, 52);
         this.levelTransitionScreen.alpha = 1;
-    
         this.levelTransitionScreen.tweens.add("fadeIn", {
             startDelay: 0,
             duration: 1000,
-            effects: [
-                {
-                    property: TweenableProperties.alpha,
-                    start: 0,
-                    end: 1,
-                    ease: EaseFunctionType.IN_OUT_QUAD
-                }
-            ],
+            effects: [{ property: TweenableProperties.alpha, start: 0, end: 1, ease: EaseFunctionType.IN_OUT_QUAD }],
             onEnd: MBEvents.LEVEL_END
         });
-    
         this.levelTransitionScreen.tweens.add("fadeOut", {
             startDelay: 0,
             duration: 1000,
-            effects: [
-                {
-                    property: TweenableProperties.alpha,
-                    start: 1,
-                    end: 0,
-                    ease: EaseFunctionType.IN_OUT_QUAD
-                }
-            ],
+            effects: [{ property: TweenableProperties.alpha, start: 1, end: 0, ease: EaseFunctionType.IN_OUT_QUAD }],
             onEnd: MBEvents.LEVEL_START
         });
-
-        
     }
+    protected handleHealthChange(currentHealth: number, maxHealth: number): void {
+        const unit = this.healthBarBg.size.x / maxHealth;
+        this.healthBar.size.set(
+            this.healthBarBg.size.x - unit * (maxHealth - currentHealth),
+            this.healthBarBg.size.y
+        );
+        this.healthBar.position.set(
+            this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth),
+            this.healthBarBg.position.y
+        );
+        this.healthBar.backgroundColor =
+            currentHealth < maxHealth * 0.25 ? Color.RED :
+            currentHealth < maxHealth * 0.75 ? Color.YELLOW :
+            Color.GREEN;
+    }
+    
+    protected handleEnergyChange(currentEnergy: number, maxEnergy: number): void {
+        const unit = this.energyBarBg.size.x / maxEnergy;
+        this.energyBar.size.set(
+            this.energyBarBg.size.x - unit * (maxEnergy - currentEnergy),
+            this.energyBarBg.size.y
+        );
+        this.energyBar.position.set(
+            this.energyBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxEnergy - currentEnergy),
+            this.energyBarBg.position.y
+        );
+        this.energyBar.backgroundColor = currentEnergy < maxEnergy * 0.25 ? Color.RED : Color.BLUE;
+    }
+    
+    
 
     protected initializeWeaponSystem(): void {
         this.playerWeaponSystem = new PlayerWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);

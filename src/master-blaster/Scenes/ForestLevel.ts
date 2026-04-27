@@ -165,8 +165,8 @@ export default class ForestLevel extends MBLevel {
     }
     protected initializePKMN(): void {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
-        rowlet.position.set(36*16, 7*8);
-        rowlet.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+        rowlet.position.set(36*16, 6*8);
+        rowlet.addPhysics(new AABB(new Vec2(3,3), new Vec2(0, 3)));
         rowlet.setGroup(MBPhysicsGroups.ENTITY);                                         
         rowlet.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
         rowlet.addAI(RowletController, {
@@ -181,8 +181,8 @@ export default class ForestLevel extends MBLevel {
 
         //  Rowlet at (263, 152)
         let rowlet2 = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
-        rowlet2.position.set(263, 152);
-        rowlet2.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
+        rowlet2.position.set(263, 154);
+        rowlet2.addPhysics(new AABB(new Vec2(3,3), new Vec2(0, 3)));
         rowlet2.setGroup(MBPhysicsGroups.ENTITY);                                         
         rowlet2.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
         rowlet2.addAI(RowletController, {

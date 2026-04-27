@@ -75,15 +75,22 @@ export default abstract class PokemonController extends StateMachineAI {
     public set speed(s: number) { this._speed = s; }
 
     public get maxHealth(): number { return this._maxHealth; }
-    public set maxHealth(v: number) { this._maxHealth = v; }
+    public set maxHealth(v: number) { this._maxHealth = this.maxHealth;
+        // When the health changes, fire an event up to the scene.
+        this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {
+            curhp: this.health,
+            maxhp: this.maxHealth
+        }); }
 
     public get health(): number { return this._health; }
     public set health(v: number) {
-        this._health = MathUtils.clamp(v, 0, this.maxHealth);
+        this._health = MathUtils.clamp(this.health, 0, this.maxHealth);
+        // When the health changes, fire an event up to the scene.
         this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {
-            curhp: this._health,
-            maxhp: this._maxHealth,
+            curhp: this.health,
+            maxhp: this.maxHealth
         });
+        // If the health hit 0, change the state of the player
         if (this._health <= 0) {
             this.changeState(PokemonStates.FAINTED);
         }
