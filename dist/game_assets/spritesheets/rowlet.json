@@ -51,8 +51,8 @@
       ]
     },
     {
-        "name": "DYING",
-        "repeat": true,
+        "name": "DEAD",
+        "repeat": false,
         "frames": [
           {
             "index": 2,
@@ -65,6 +65,7 @@
             "duration": 23
           }
         ]
+        
       },
       {
         "name": "JUMP",
@@ -79,7 +80,7 @@
           }
         ]
       },      {
-        "name": "FAINTED",
+        "name": "DEADCONT",
         "repeat": true,
         "frames": [
           {

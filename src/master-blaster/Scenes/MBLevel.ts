@@ -198,20 +198,22 @@ export default abstract class MBLevel extends Scene {
                 MBPhysicsGroups.DESTRUCTABLE,
                 MBPhysicsGroups.PHANTOM_WALL,
                 MBPhysicsGroups.DAMAGE_WALL,
-                MBPhysicsGroups.ENTITY
+                MBPhysicsGroups.ENTITY,
+                MBPhysicsGroups.ROTOM
             ],
             collisions:
             [
             //   GND  PLR  PHP  WPN  DST  PHT DMG ENT
-                [0,   1,   1,   1,   0,   0, 0,   0],  // GROUND
-                [1,   0,   0,   0,   1,   1, 1,   1],  // PLAYER - collides with phantom walls
-                [1,   0,   0,   0,   1,   0, 1,   1],  // PLAYER_PHANTUMP - phases through phantom walls
-                [1,   0,   0,   0,   1,   0, 0 ,  0],  // WEAPON
-                [0,   1,   1,   1,   0,   0, 0 ,  0],  // DESTRUCTABLE
-                [0,   1,   0,   0,   0,   0, 0,   0],// PHANTOM_WALL
-                [0 ,  1,   1,   0,   0,   0, 0,   0],  // DAMAGE_WALL
+                [0,   1,   1,   1,   0,   0, 0,   0, 0],  // GROUND
+                [1,   0,   0,   0,   1,   1, 1,   1, 0],  // PLAYER - collides with phantom walls
+                [1,   0,   0,   0,   1,   0, 1,   1, 0 ],  // PLAYER_PHANTUMP - phases through phantom walls
+                [1,   0,   0,   0,   1,   0, 0 ,  0, 0],  // WEAPON
+                [0,   1,   1,   1,   0,   0, 0 ,  0, 0 ],  // DESTRUCTABLE
+                [0,   1,   0,   0,   0,   0, 0,   0, 0],// PHANTOM_WALL
+                [0 ,  1,   1,   0,   0,   0, 0,   0, 0],  // DAMAGE_WALL
                 // Add ENTITY column and row — triggers only, no physics blocking except Snorlax
-                [0 ,  1,   1,   0,   0,   0, 0, 0],  // ENTITY row
+                [0 ,  1,   1,   0,   0,   0, 0,    0,   0],
+                [0,   0,   0,   0,   0,   0, 0 , 0 ,0]  // ENTITY row
                 // and add 0 or 1 to each existing row's last column
             ]
         }});
@@ -597,10 +599,25 @@ export default abstract class MBLevel extends Scene {
             }
 
             case MBEvents.PLAYER_HIT_ENTITY: {
+            
                 const otherID = event.data.get("other");
+
                 const entity = this.entityMap.get(otherID);
-                if (entity) entity.onPlayerContact();
-                            break;
+                if (entity) {
+                    entity.onPlayerContact();
+                    break;
+                }
+
+                const pokemon = this.pokemonMap.get(otherID);
+                if (pokemon && !pokemon.isFainted) {
+                    const ctrl = this.player._ai as PlayerController;
+                    ctrl.health -= pokemon.contactDamage;
+
+                    // Knock player away from the pokemon
+                    const knockDir = this.player.position.clone().sub(pokemon.position).normalize();
+                    ctrl.velocity = new Vec2(knockDir.x * 200, -150);
+                }
+                break;
             }
             case MBEvents.PLAYER_HEAL: {
                 const ctrl = this.player._ai as PlayerController;
@@ -619,12 +636,12 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.POKEMON_HIT: {
-                const id: number = event.data.get("node") ?? event.data.get("id");
-                console.log("POKEMON_HIT fired, data keys:", event.data.keys());
-                console.log("pokemonMap ids:", [...this.pokemonMap.keys()]);
+                const id: number = event.data.get("other") ?? event.data.get("node");
+                
                 const controller = this.pokemonMap.get(id);
-                if (controller) {
-                    controller.onHit(1);   // 1 damage per particle hit; tune freely
+                
+                if (controller && !controller.isFainted) {
+                    controller.onHit(1);
                 }
                 break;
             }
@@ -932,7 +949,7 @@ export default abstract class MBLevel extends Scene {
     
 
     protected initializeWeaponSystem(): void {
-        this.playerWeaponSystem = new PlayerWeapon(200, Vec2.ZERO, 1000, 3, 0, 50);
+        this.playerWeaponSystem = new PlayerWeapon(100, Vec2.ZERO, 1000, 3, 0, 50);
         this.playerWeaponSystem.initializePool(this, MBLayers.PRIMARY);
         this.originalWeaponSystem = this.playerWeaponSystem;
 

@@ -62,5 +62,6 @@ export default class RotomController extends PokemonController {
 
     public initialize(startState: string): void {
         super.initialize(RotomStates.FOLLOW);
+        this.contactDamage = 0;
     }
 }

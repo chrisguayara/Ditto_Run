@@ -13,6 +13,8 @@ export const PokemonAnimations = {
     JUMP:    "JUMP",
     FALL:    "FALL",
     IDLE:    "IDLE",
+    DEAD: "DEAD",
+    DEADCONT: "DEADCONT"
 } as const;
 
 export const PokemonStates = {
@@ -28,6 +30,9 @@ export default abstract class PokemonController extends StateMachineAI {
     protected _velocity: Vec2;
     protected _speed!: number;
     protected _gravityMultiplier: number = 1.0;
+    public contactDamage: number = 1;
+    
+    
 
     public playerRef: MBAnimatedSprite;
 
@@ -44,6 +49,10 @@ export default abstract class PokemonController extends StateMachineAI {
         this.maxHealth   = options.maxHealth   ?? 5;
         this.health      = this.maxHealth;      // always full health on spawn
         this.velocity    = Vec2.ZERO;
+        this.contactDamage = options.contactDamage ?? 1;
+        this.isFainted = false;
+
+        
 
         this.addStates();                        // concrete class registers its states
         this.initialize(PokemonStates.PATROL);
@@ -63,6 +72,7 @@ export default abstract class PokemonController extends StateMachineAI {
     }
 
     public get isFainted(): boolean { return this._health === 0; }
+    public set isFainted(tf: boolean): { this.isFainted = tf;}
 
     public get velocity(): Vec2 { return this._velocity; }
     public set velocity(v: Vec2) { this._velocity = v; }
@@ -75,26 +85,19 @@ export default abstract class PokemonController extends StateMachineAI {
     public set speed(s: number) { this._speed = s; }
 
     public get maxHealth(): number { return this._maxHealth; }
-    public set maxHealth(v: number) { this._maxHealth = this.maxHealth;
-        // When the health changes, fire an event up to the scene.
-        this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {
-            curhp: this.health,
-            maxhp: this.maxHealth
-        }); }
-
-    public get health(): number { return this._health; }
+    public set maxHealth(v: number) {
+        this._maxHealth = v;
+    }
+    
     public set health(v: number) {
-        this._health = MathUtils.clamp(this.health, 0, this.maxHealth);
-        // When the health changes, fire an event up to the scene.
-        this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {
-            curhp: this.health,
-            maxhp: this.maxHealth
-        });
-        // If the health hit 0, change the state of the player
+        this._health = MathUtils.clamp(v, 0, this.maxHealth); // use v, not this.health
         if (this._health <= 0) {
             this.changeState(PokemonStates.FAINTED);
         }
     }
+
+    public get health(): number { return this._health; }
+    
 }
 
 

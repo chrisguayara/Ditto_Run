@@ -7,6 +7,7 @@ import Flee from "../PokemonStates/Flee";
 import Attack from "../PokemonStates/Attack";
 export default class PhantumpController extends HostileBehavior {
     protected addStates(): void {
+    this.contactDamage = 10;
     this.addState(PokemonStates.PATROL, new Patrol(this, this.owner));
     this.addState(PokemonStates.FAINTED, new Fainted(this, this.owner));
     this.addState(PokemonStates.FLEE, new Flee(this, this.owner));
@@ -16,4 +17,10 @@ export default class PhantumpController extends HostileBehavior {
         this.maxHealth = 4;
         this.health = this.maxHealth;
     }
+      
+    public onHit(damage: number): void {
+        this.health -= damage;  
+        console.log("WORKING FINE!");
+    }
+
 }

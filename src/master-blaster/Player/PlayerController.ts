@@ -79,6 +79,9 @@ export default class PlayerController extends StateMachineAI {
     protected _transformations!: TransformationManager;
     public scene! : MBLevel;
 
+    public damageCooldown: number = 0; // ms
+    private readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
+
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
         this.owner = owner;
         this.weapon = options.weaponSystem;
@@ -99,6 +102,7 @@ export default class PlayerController extends StateMachineAI {
         this.addState(PlayerStates.GRAPPLE,    new GreninjaTongueGrapple(this, this.owner));
 
         this.initialize(PlayerStates.IDLE);
+        
         this.scene = this.owner.getScene();
     }
 
@@ -136,7 +140,10 @@ export default class PlayerController extends StateMachineAI {
 
         return 0;
     }
-        public update(deltaT: number): void {
+    public update(deltaT: number): void {
+        if (this.damageCooldown > 0) {
+            this.damageCooldown -= deltaT;
+        }
         if (this.isPaused) return;
         super.update(deltaT);
         this._transformations.update(deltaT);
@@ -158,7 +165,7 @@ export default class PlayerController extends StateMachineAI {
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
         if (Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
             this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-            this.weapon.startSystem(500, 0, this.owner.position);
+            this.weapon.startSystem(500, 1, this.owner.position);
         }
 
         // Sludge uses arrow keys, blocked in Rowlet form

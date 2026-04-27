@@ -14,7 +14,7 @@ export const MBPhysicsGroups = {
     GROUND: "GROUND",
     DESTRUCTABLE: "DESTRUCTABLE",
     PHANTOM_WALL: "PHANTOM_WALL",
-    ROTOM: "ROTOM",
     DAMAGE_WALL: "DAMAGE_WALL",
-    ENTITY: "ENTITY"
+    ENTITY: "ENTITY",
+    ROTOM: "ROTOM",
 } as const;

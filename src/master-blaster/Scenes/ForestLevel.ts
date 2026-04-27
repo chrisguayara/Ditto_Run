@@ -24,6 +24,7 @@ export const CHECKPOINTS = {
     // new Vec2(5*16,9*16),
     CHECKPOINT_ONE : new Vec2(73*16,10*16),
     CHECKPOINT_TWO : new Vec2(64*16,42*16),
+    
 } as const;
 
 
@@ -166,9 +167,11 @@ export default class ForestLevel extends MBLevel {
     protected initializePKMN(): void {
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
         rowlet.position.set(36*16, 6*8);
-        rowlet.addPhysics(new AABB(new Vec2(3,3), new Vec2(0, 3)));
+        rowlet.addPhysics(new AABB(new Vec2(3,3), new Vec2(3, 3)));
         rowlet.setGroup(MBPhysicsGroups.ENTITY);                                         
-        rowlet.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
+        rowlet.setTrigger(MBPhysicsGroups.ENTITY, MBEvents.PLAYER_HIT_ENTITY, ""); 
+        rowlet.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+        rowlet.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "")
         rowlet.addAI(RowletController, {
             playerRef:   this.player,
             patrolLeft:  rowlet.position.x - 80,
@@ -184,7 +187,9 @@ export default class ForestLevel extends MBLevel {
         rowlet2.position.set(263, 154);
         rowlet2.addPhysics(new AABB(new Vec2(3,3), new Vec2(0, 3)));
         rowlet2.setGroup(MBPhysicsGroups.ENTITY);                                         
-        rowlet2.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
+        rowlet2.setTrigger(MBPhysicsGroups.ENTITY, MBEvents.PLAYER_HIT_ENTITY, ""); 
+        rowlet2.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");     
+        rowlet2.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "")
         rowlet2.addAI(RowletController, {
             playerRef:   this.player,
             patrolLeft:  rowlet2.position.x - 80,
@@ -198,11 +203,11 @@ export default class ForestLevel extends MBLevel {
         let rotom = this.add.animatedSprite(ForestLevel.ROTOM_SPRITE_KEY, "PRIMARY");
         rotom.position.set(ForestLevel.PLAYER_SPAWN.x + 20, ForestLevel.PLAYER_SPAWN.y - 20);
         rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
-        rotom.setGroup(MBPhysicsGroups.ENTITY);                                          
-        rotom.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");      
+        rotom.setGroup(MBPhysicsGroups.ENTITY);                                             
         rotom.addAI(RotomController, {
             playerRef: this.player,
             speed:     90,
+            contactDamage: 0
         });
         rotom.animation.play("IDLE");
         this.pokemonMap.set(rotom.id, rotom.ai as PokemonController);                   
@@ -211,13 +216,16 @@ export default class ForestLevel extends MBLevel {
         phantump.position.set(67*16, 24*13);
         phantump.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
         phantump.setGroup(MBPhysicsGroups.ENTITY);                                       
-        phantump.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");   
+        phantump.setTrigger(MBPhysicsGroups.ENTITY, MBEvents.PLAYER_HIT_ENTITY, ""); 
+        phantump.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY,""); 
+        phantump.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");
         phantump.addAI(PhantumpController, {
             playerRef:   this.player,
             patrolLeft:  phantump.position.x - 100,
             patrolRight: phantump.position.x + 100,
             speed:       80,
             maxHealth:   8,
+            contactDamage: 5
         });
         phantump.animation.play("IDLE");
         this.pokemonMap.set(phantump.id, phantump.ai as PokemonController);              

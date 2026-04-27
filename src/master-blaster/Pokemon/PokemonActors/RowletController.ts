@@ -17,4 +17,11 @@ export default class RowletController extends PassiveBehavior {
         this.addState(PokemonStates.FAINTED, new Fainted(this, this.owner));
         this.addState(PokemonStates.FLEE,    new RowletFlee(this, this.owner));
     }
+    public onHit(damage: number): void {
+        if (!this.isFainted){
+            this.health -= damage;  
+            console.log("WORKING FINE!");
+        }
+        
+    }
 }

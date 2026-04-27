@@ -19,8 +19,8 @@
             "scale": 0.45,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 694.4444444444445,
-                "y": 663.3333333333335
+                "x": 638.888888888889,
+                "y": 398.8888888888888
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/ForestLeveltiles.tmx#forest_tiles": {
@@ -47,14 +47,14 @@
             "selectedLayer": 0,
             "viewCenter": {
                 "x": 639.0317700453859,
-                "y": 400.5414443825146
+                "y": 400.54144438251456
             }
         },
         "tilemap_forest.tmx": {
             "scale": 1.6188,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 272.42401779095627,
+                "x": 272.7328885594267,
                 "y": 224.5490486780331
             }
         }
