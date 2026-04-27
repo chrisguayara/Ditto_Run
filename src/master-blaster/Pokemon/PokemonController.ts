@@ -50,7 +50,7 @@ export default abstract class PokemonController extends StateMachineAI {
         this.health      = this.maxHealth;      // always full health on spawn
         this.velocity    = Vec2.ZERO;
         this.contactDamage = options.contactDamage ?? 1;
-        this.isFainted = false;
+    
 
         
 
@@ -72,7 +72,7 @@ export default abstract class PokemonController extends StateMachineAI {
     }
 
     public get isFainted(): boolean { return this._health === 0; }
-    public set isFainted(tf: boolean): { this.isFainted = tf;}
+    
 
     public get velocity(): Vec2 { return this._velocity; }
     public set velocity(v: Vec2) { this._velocity = v; }
