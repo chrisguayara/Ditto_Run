@@ -6,6 +6,8 @@ import { GraphicType } from "../../../Wolfie2D/Nodes/Graphics/GraphicTypes";
 import { PlayerAnimations, PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import { MBLayers, MBLayer } from "../../Scenes/MBLevel";
+import { MBControls } from "../../MBControls";
+
 
 const enum GrapplePhase { CASTING, ATTACHED, MISSED }
 
@@ -13,11 +15,12 @@ export default class GreninjaTongueGrapple extends PlayerState {
 
     // ── Tuning ────────────────────────────────────────────────────
     private static readonly CAST_SPEED:   number = 700;   // px/s tongue travel
-    private static readonly MAX_RANGE:    number = 350;   // px
-    private static readonly PULL_FORCE:   number = 600;   // px/s²
-    private static readonly MAX_SPEED:    number = 450;   // px/s cap while attached
+    private static readonly MAX_RANGE:    number = 124;   // px
+    private static readonly PULL_FORCE:   number = 100;   // px/s²
+    private static readonly MAX_SPEED:    number = 520;   // px/s cap while attached
     private static readonly MISS_PAUSE:   number = 0.15;  // seconds before exiting on miss
-    private static readonly DETACH_DIST:  number = 24;    // px — auto-detach near anchor
+    private static readonly DETACH_DIST:  number = 0;    // px — auto-detach near anchor
+    private static readonly SWING_STEER:  number = 0.5;
     private static readonly ATTACH_GRAV:  number = 0.5;   // gravity fraction while swinging
 
     // ── Tongue rendering ──────────────────────────────────────────
@@ -116,8 +119,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
         const py   = this.anchor.y - this.owner.position.y;
         const dist = Math.hypot(px, py);
 
-        // Auto-detach when close enough to anchor
-        if (dist < GreninjaTongueGrapple.DETACH_DIST) {
+        if (dist < 4) {
             this.exit();
             return;
         }
@@ -125,18 +127,27 @@ export default class GreninjaTongueGrapple extends PlayerState {
         const nx = px / dist;
         const ny = py / dist;
 
-        // Reduced gravity for a swingier feel
-        this.parent.velocity.y += this.parent.effectiveGravity
-                                 * GreninjaTongueGrapple.ATTACH_GRAV
-                                 * deltaT;
+        // Full gravity while swinging now
+        this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
 
-        // Pull toward anchor
+        
+        const vDotN = this.parent.velocity.x * nx + this.parent.velocity.y * ny;
+        if (vDotN > 0) {
+            
+            this.parent.velocity.x -= vDotN * nx;
+            this.parent.velocity.y -= vDotN * ny;
+        }
+
+        // Gentle centripetal pull to keep rope from going slack
         this.parent.velocity.x += nx * GreninjaTongueGrapple.PULL_FORCE * deltaT;
         this.parent.velocity.y += ny * GreninjaTongueGrapple.PULL_FORCE * deltaT;
 
-        // Let player steer laterally for swing control
+        // Player steers the swing — lateral input only, no rope-direction component
         const inputDir = this.parent.inputDir;
-        this.parent.velocity.x += inputDir.x * this.parent.effectiveSpeed * 0.25;
+        const lateralX = inputDir.x - inputDir.x * nx * nx;
+        const lateralY =            - inputDir.x * nx * ny;
+        this.parent.velocity.x += lateralX * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
+        this.parent.velocity.y += lateralY * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
 
         // Speed cap
         const spd = Math.hypot(this.parent.velocity.x, this.parent.velocity.y);
@@ -144,19 +155,34 @@ export default class GreninjaTongueGrapple extends PlayerState {
             const scale = GreninjaTongueGrapple.MAX_SPEED / spd;
             this.parent.velocity.x *= scale;
             this.parent.velocity.y *= scale;
-        }
-
-        this.owner.move(this.parent.velocity.scaled(deltaT));
-        this.tipPos = this.anchor.clone(); // tongue tip stays pinned to anchor
-
-        // Detach conditions:
-        if (this.owner.onGround)          { this.exit(); return; }
-        if (Input.isMouseJustPressed())   { this.exit(); return; } // second click detaches
-
-        if (!this.parent.isTransforming) {
-            this.owner.animation.playIfNotAlready(PlayerAnimations.IDLE);
-        }
     }
+
+    this.owner.move(this.parent.velocity.scaled(deltaT));
+    this.tipPos = this.anchor.clone();
+
+    // Player explicitly releases — click again OR press jump to launch
+    if (Input.isMouseJustPressed()) {
+        this.exit();
+        return;
+    }
+
+    // Jump while grappling = release + boost upward (slingshot)
+    if (Input.isJustPressed(MBControls.JUMP)) {
+        // Boost perpendicular to rope direction = best launch angle
+        this.parent.velocity.y = Math.min(this.parent.velocity.y, -200);
+        this.exit();
+        return;
+    }
+
+    if (this.owner.onGround) {
+        this.exit();
+        return;
+    }
+
+    if (!this.parent.isTransforming) {
+        this.owner.animation.playIfNotAlready(PlayerAnimations.JUMP);
+    }
+}
 
     private updateMissed(deltaT: number): void {
         // Retract tip back toward player during the pause so the miss looks intentional

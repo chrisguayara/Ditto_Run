@@ -27,6 +27,7 @@ export default class Idle extends PlayerState {
         if (!dir.isZero() && dir.y === 0) {
             this.finished(PlayerStates.RUN);
         } else if (Input.isJustPressed(MBControls.JUMP)) {
+            console.log("IDLE: jump pressed, transitioning to JUMP state");
             this.finished(PlayerStates.JUMP);
         } else if (!this.owner.onGround && this.parent.velocity.y !== 0) {
             // Transition to FALL for both falling (positive Y) and bouncing (negative Y)

@@ -152,14 +152,15 @@ export default class WinterLevel extends MBLevel {
         greninja.position.set(42* 16,75*16)
         greninja.animation.play("DEFAULT");
         
-        let rotom = this.add.animatedSprite(WinterLevel.ROTOM_SPRITE_KEY, "PRIMARY");
-        rotom.position.set(WinterLevel.PLAYER_SPAWN.x + 20, WinterLevel.PLAYER_SPAWN.y - 20);
-        rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
-        rotom.addAI(RotomController, {
-            playerRef: this.player,
-            speed: 90,
-        });
-        rotom.animation.play("IDLE");
+        // TURNED OFF ROTOM
+        // let rotom = this.add.animatedSprite(WinterLevel.ROTOM_SPRITE_KEY, "PRIMARY");
+        // rotom.position.set(WinterLevel.PLAYER_SPAWN.x + 20, WinterLevel.PLAYER_SPAWN.y - 20);
+        // rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
+        // rotom.addAI(RotomController, {
+        //     playerRef: this.player,
+        //     speed: 90,
+        // });
+        // rotom.animation.play("IDLE");
 
         // CURRENTLY U
         // let rowlet = this.add.animatedSprite(WinterLevel.ROWLET_SPRITE_KEY, "PRIMARY");

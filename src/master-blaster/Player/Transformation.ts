@@ -82,9 +82,19 @@ export const Transformations: Record<string, Transformation> = {
         displayName: "Greninja",
         speedMultiplier: 1.4,           // fast ninja
         gravityMultiplier: 1.0,        
+        jumpForce: -200,                // higher than the -200 base
+        activationCost: 0.0,
+        drainRate: 0.001,
+        ability: "TONGUE_GRAPPLE"
+    },
+    CHARIZARD: {
+        key: "CHARIZARD",
+        displayName: "Charizard",
+        speedMultiplier: 0.9,           // fast ninja
+        gravityMultiplier: 0.81,        
         jumpForce: -320,                // higher than the -200 base
-        activationCost: 0.15,
-        drainRate: 0.10,
+        activationCost: 0.0,
+        drainRate: 0.001,
         ability: "TONGUE_GRAPPLE"
     },
 };

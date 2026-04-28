@@ -122,22 +122,18 @@ export default class PlayerController extends StateMachineAI {
      * Fallback: tilemap tile-check at ±halfWidth from the player's centre.
      */
     public get wallDir(): -1 | 0 | 1 {
-        const node = this.owner as any;
-
-        // Wolfie2D may set these booleans the same way it sets onGround/onCeiling
-        if (typeof node.onLeft  === "boolean" && node.onLeft)  return -1;
-        if (typeof node.onRight === "boolean" && node.onRight) return  1;
-
-        // Tilemap fallback — checks a 2-pixel probe on each side
-        try {
-            const pos   = this.owner.position;
-            const halfW = this.owner.size.x / 2 + 2;
-            const leftTile  = this.tilemap.getTileAtWorldPosition(new Vec2(pos.x - halfW, pos.y));
-            const rightTile = this.tilemap.getTileAtWorldPosition(new Vec2(pos.x + halfW, pos.y));
-            if (leftTile  > 0) return -1;
-            if (rightTile > 0) return  1;
-        } catch { /* ignore — position is off-map or API differs */ }
-
+        if (!this.owner.onWall) return 0;
+        
+        if (this.owner.onLeft)  return -1;
+        if (this.owner.onRight) return  1;
+        
+        // onWall set but no left/right flag — fall back to velocity then input
+        if (this._velocity.x < 0) return -1;
+        if (this._velocity.x > 0) return  1;
+        
+        if (Input.isPressed(MBControls.MOVE_LEFT))  return -1;
+        if (Input.isPressed(MBControls.MOVE_RIGHT)) return  1;
+        
         return 0;
     }
     public update(deltaT: number): void {
@@ -220,7 +216,9 @@ export default class PlayerController extends StateMachineAI {
         return this.BASE_GRAVITY * this._transformations.gravityMultiplier;
     }
     public get effectiveJumpForce(): number {
-        return this._transformations.jumpForce ?? this.BASE_JUMP_FORCE;
+        const force = this._transformations.jumpForce ?? this.BASE_JUMP_FORCE;
+        console.log("effectiveJumpForce:", force, "BASE_JUMP_FORCE:", this.BASE_JUMP_FORCE);
+        return force;
     }
     public get isTransforming(): boolean { return this._transforming; }
     public get tilemap(): OrthogonalTilemap { return this._tilemap; }

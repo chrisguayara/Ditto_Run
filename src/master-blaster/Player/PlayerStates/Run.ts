@@ -15,7 +15,9 @@ export default class Walk extends PlayerState {
 
     update(deltaT: number): void {
         super.update(deltaT);
-
+        if (this.parent.inputDir.x !== 0) {
+            this.owner.invertX = this.parent.inputDir.x < 0;
+        }   
         if (!this.parent.isTransforming) {
             this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("WALK"));
         }

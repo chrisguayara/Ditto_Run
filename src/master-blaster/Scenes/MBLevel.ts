@@ -1024,7 +1024,7 @@ export default abstract class MBLevel extends Scene {
 
         this.viewport.follow(this.player);
         this.viewport.setSize(320, 240);
-        this.viewport.setBounds(0, 0, 960, 960);
+        this.viewport.setBounds(16, 64, 16* 100, 16 * 74);
     }
 
     protected initializeLevelEnds(): void {

@@ -24,7 +24,6 @@ export default class Fall extends PlayerState {
 
         // ── Greninja abilities ───────────────────────────────────
         if (this.parent.transformations.activeForm?.key === "GRENINJA") {
-
             if (Input.isMouseJustPressed()) {
                 this.finished(PlayerStates.GRAPPLE);
                 return;
@@ -32,8 +31,13 @@ export default class Fall extends PlayerState {
 
             const wall = this.parent.wallDir;
             if (wall !== 0) {
-                this.finished(PlayerStates.WALL_SLIDE);
-                return;
+                // Require holding into the wall — same as Jump does
+                const holdingIn = (wall === 1  && Input.isPressed(MBControls.MOVE_RIGHT))
+                            || (wall === -1 && Input.isPressed(MBControls.MOVE_LEFT));
+                if (holdingIn) {
+                    this.finished(PlayerStates.WALL_SLIDE);
+                    return;
+                }
             }
         }
 
