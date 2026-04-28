@@ -29,6 +29,7 @@ export default class WallSlide extends PlayerState {
 
     public update(deltaT: number): void {
         super.update(deltaT);
+        
 
         this.owner.invertX = this.wallSide > 0;
 
@@ -49,16 +50,13 @@ export default class WallSlide extends PlayerState {
             
             return;
         }
-
-        // Replace the wallDir === 0 check with:
         // if (!this.owner.onWall) {
         //     console.log("NOT ON WALL");
         //     this.finished(PlayerStates.FALL);
         //     return;
         // }
 
-        // Wall jump — kick hard in opposite direction + upward
-        if (Input.isJustPressed(MBControls.JUMP)) {
+        if (Input.isJustPressed(MBControls.JUMP) && holdingIntoWall) {
             console.log("ATTEMPTING TO WALLJUMP");
             this._wallJumped = true;
             // Strong horizontal kick away from wall, good vertical
@@ -67,6 +65,12 @@ export default class WallSlide extends PlayerState {
             this.finished(PlayerStates.JUMP);
             return;
         }
+
+        // Replace the wallDir === 0 check with:
+        
+
+        // Wall jump — kick hard in opposite direction + upward
+        
 
         if (Input.isMouseJustPressed()) {
             this.finished(PlayerStates.GRAPPLE);

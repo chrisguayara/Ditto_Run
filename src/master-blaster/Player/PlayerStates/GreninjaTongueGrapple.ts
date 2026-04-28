@@ -220,7 +220,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
             line.color = GreninjaTongueGrapple.TONGUE_COLOR;
 
             // Taper: thick at mouth (i=0), thin at tip (i=N-1)
-            line.thickness = Math.max(1, 3.5 - (i / (N - 1)) * 2.5);
+            line.thickness = Math.max(8, 3.5 - (i / (N - 1)) * 2.5);
 
             this.tongueLines.push(line);
         }

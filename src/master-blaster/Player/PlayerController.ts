@@ -55,7 +55,7 @@ export const PlayerStates = {
 } as const
 
 export default class PlayerController extends StateMachineAI {
-    public readonly MAX_SPEED: number = 200;
+    public readonly MAX_SPEED: number = 300;
     public readonly MIN_SPEED: number = 100;
     public readonly BASE_JUMP_FORCE: number = -200;
     public readonly BASE_GRAVITY: number = 500;

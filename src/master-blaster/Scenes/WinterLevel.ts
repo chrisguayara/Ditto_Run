@@ -11,6 +11,7 @@ import RotomController from "../Pokemon/PokemonActors/RotomController";
 import SludgeWeapon from "../Player/SludgeWeapon";
 import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
+import ForestLevel from "./ForestLevel";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -140,7 +141,7 @@ export default class WinterLevel extends MBLevel {
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
-        this.nextLevel = MBLevel2;
+        this.nextLevel = ForestLevel;
         (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
         this.initializePKMN();
         this.initializeEntities();

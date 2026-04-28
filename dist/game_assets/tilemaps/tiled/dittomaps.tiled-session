@@ -3,12 +3,15 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "forest_tiles.tsx",
+    "activeFile": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
     "expandedProjectPaths": [
         "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "": {
+            "scaleInDock": 1
+        },
         "/Users/chrisguayara/Downloads/final_forestlevel_tileset.tsx": {
             "scaleInDock": 1
         },
@@ -30,25 +33,39 @@
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/ForestLeveltiles.tmx#forestlevel": {
             "scaleInDock": 1
         },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/Snowtileset.tsx": {
+            "scaleInDock": 3
+        },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/final_forestlevel_tileset.tsx": {
-            "scaleInDock": 1
+            "scaleInDock": 4
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/forestmap.tmx": {
-            "scale": 0.5,
-            "selectedLayer": 0,
+            "scale": 1.5,
+            "selectedLayer": 7,
             "viewCenter": {
-                "x": 648,
-                "y": 316
+                "x": 640,
+                "y": 299
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/hints.tsx": {
+            "scaleInDock": 1
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json": {
+            "scale": 0.75,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 722,
+                "y": 1085.3333333333333
+            }
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#wintermap": {
             "scaleInDock": 1
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.tmx": {
             "scale": 0.49058593749999996,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 623.7439286567403,
+                "x": 624.7631180826501,
                 "y": 731.7780078031691
             }
         },
@@ -76,8 +93,8 @@
             "scale": 1.61,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 268.3229813664596,
-                "y": 219.87577639751552
+                "x": 181.05590062111798,
+                "y": 214.90683229813664
             }
         }
     },
@@ -90,21 +107,22 @@
     "map.tileWidth": 16,
     "map.width": 40,
     "openFiles": [
-        "tilemap_forest.tmx",
-        "forest.tsx",
-        "forest_tiles.tsx",
-        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/ForestLeveltiles.tmx",
-        "forest_tiles.tsx"
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.tmx",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/forestmap.tmx",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
+        "tilemap_forest.tmx"
     ],
     "project": "dittomaps.tiled-project",
     "property.type": "bool",
     "recentFiles": [
-        "forestmap.tmx",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.tmx",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/forestmap.tmx",
         "tilemap_forest.tmx",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
+        "forestmap.tmx",
         "forest.tsx",
         "forest_tiles.tsx",
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/ForestLeveltiles.tmx",
-        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/forestmap.tmx",
         "final_forestlevel_tileset.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
