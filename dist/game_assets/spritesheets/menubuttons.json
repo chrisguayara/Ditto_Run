@@ -4,7 +4,7 @@
   "spriteWidth": 192,
   "spriteHeight": 48,
   "columns": 5,
-  "rows": 4,
+  "rows": 5,
   "durationType": "time",
   "animations": [
     {
@@ -81,6 +81,20 @@
       "frames": [
         { "index": 18, "duration": 70 },
         { "index": 19, "duration": 70 }
+      ]
+    },{
+      "name": "Controls_Idle",
+      "repeat" : true,
+      "frames": [
+        { "index": 19, "duration": 70 },
+        { "index": 20, "duration": 70 }
+      ]
+    },{
+      "name": "Controls_Selected",
+      "repeat" : true,
+      "frames": [
+        { "index": 21, "duration": 70 },
+        { "index": 22, "duration": 70 }
       ]
     }
   ]

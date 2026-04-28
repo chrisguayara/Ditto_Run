@@ -63,8 +63,8 @@ export default abstract class MBLevel extends Scene {
     protected pauseMenuBg!: AnimatedSprite;
     protected pauseButtonSprites!: AnimatedSprite[];
     
-    private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle", "Quit_idle", "Help_Idle"];
-    private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected", "Quit_Selected", "Help_Selected"];
+    private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle",  "Help_Idle", "Controls_Idle","Quit_idle"];
+    private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected",  "Help_Selected", "Controls_Selected","Quit_Selected"];
 
     // ── Weapon systems ────────────────────────────────────────────
     protected playerWeaponSystem!: PlayerWeapon;
@@ -108,6 +108,7 @@ export default abstract class MBLevel extends Scene {
     protected damageWallLayerKey!: string;
     
     protected hintsVisible: boolean = false;
+    protected controlsUIVisible: boolean = false;
     protected tilemapScale!: Vec2;
     protected destructable!: OrthogonalTilemap;
     protected walls!: OrthogonalTilemap;
@@ -254,7 +255,7 @@ export default abstract class MBLevel extends Scene {
         
 
         this.levelTransitionTimer = new Timer(500);
-        this.levelEndTimer = new Timer(3000, () => {
+        this.levelEndTimer = new Timer(1200, () => {
             this.levelTransitionScreen.tweens.play("fadeIn");
         });
 
@@ -352,13 +353,13 @@ export default abstract class MBLevel extends Scene {
 
         if (Input.isJustPressed(MBControls.JUMP) 
             ||Input.isJustPressed(MBControls.ATTACK_UP)) {
-            this.selectedPauseOption = (this.selectedPauseOption - 1 + 4) % 4;
+            this.selectedPauseOption = (this.selectedPauseOption - 1 + 5) % 5;
             this.updatePauseButtonAnimations();
         }
 
         if (Input.isJustPressed(MBControls.DOWN) 
             ||Input.isJustPressed(MBControls.ATTACK_DOWN)) {
-            this.selectedPauseOption = (this.selectedPauseOption + 1) % 4;
+            this.selectedPauseOption = (this.selectedPauseOption + 1) % 5;
             this.updatePauseButtonAnimations();
         }
 
@@ -391,15 +392,21 @@ export default abstract class MBLevel extends Scene {
             case 3: // Hints()
                 this.resumeGame();
                 this.hintsVisible = !this.hintsVisible;
-                console.log("YO IT SHOWS")
+                
                 for (const s of this.hintSprites) {
                     s.visible = this.hintsVisible;
                 }
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
                 break;
-                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
-                            
+            case 4: // Controls
+                this.controlsUIVisible = !this.controlsUIVisible;
+                console.log("control UI");
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
+
             }
+             
+    
+                
     }
 
     protected updatePauseButtonAnimations(): void {
@@ -509,7 +516,7 @@ export default abstract class MBLevel extends Scene {
         this.pauseMenuBg.animation.play("IDLE", true);
         this.pauseMenuBg.visible = false;
 
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 5; i++) {
             const btn = this.add.animatedSprite(MBLevel.MENU_BTN_KEY, MBLayers.PAUSE);
             btn.animation.play(this.PAUSE_IDLE_ANIMS[i], true);
             btn.visible = false;
@@ -547,6 +554,8 @@ export default abstract class MBLevel extends Scene {
             case MBEvents.PLAYER_DEAD: {
                 const ctrl = this.player._ai as PlayerController;
                 this.player.position.copy(this.respawnPosition);
+                this.player.scaleX = 1;
+                this.player.scaleY =1;
 
                 this.player.alpha = 1;
                 this.player.rotation = 0;
@@ -583,7 +592,7 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.PLAYER_ENTERED_CHECKPOINT: {
-                const nodeId = event.data.get("node");
+                const nodeId = event.data.get("other");
                 if (this.checkpointOneArea && nodeId === this.checkpointOneArea.id) {
                     this.respawnPosition = this.checkpoint_sqr1.clone();
                 } else if (this.checkpointTwoArea && nodeId === this.checkpointTwoArea.id) {
@@ -708,6 +717,7 @@ export default abstract class MBLevel extends Scene {
      */
     protected handleEnteredLevelEnd(): void {
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
+            
             this.levelEndTimer.start();
             this.levelEndLabel.tweens.play("slideIn");
         }
@@ -996,9 +1006,15 @@ export default abstract class MBLevel extends Scene {
             duration: 500,
             effects: [
                 {
-                    property: "rotation",
-                    start: 0,
-                    end: Math.PI,
+                    property: "scaleX",
+                    start: 1,
+                    end: 0,
+                    ease: EaseFunctionType.IN_OUT_QUAD
+                },
+                {
+                    property: "scaleY",
+                    start: 1,
+                    end: 0,
                     ease: EaseFunctionType.IN_OUT_QUAD
                 },
                 {
@@ -1038,7 +1054,7 @@ export default abstract class MBLevel extends Scene {
         });
         this.levelEndArea.addPhysics(undefined, undefined, false, true);
         this.levelEndArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_LEVEL_END, "");
-        this.levelEndArea.color = new Color(255, 0, 255, .20);
+        this.levelEndArea.color = new Color(255, 0, 255, .50);
     }
 
     protected initializeCheckpoints(): void {

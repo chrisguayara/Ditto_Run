@@ -21,8 +21,9 @@ import WinterLevel from "./WinterLevel";
  * The first level for MB - should be the one with the grass and the clouds.
  */
 export const CHECKPOINTS = {
-    SPAWN : new Vec2(5*16,9*16) ,
-    // new Vec2(5*16,9*16),
+    SPAWN : 
+    new Vec2(5*16,9*16) ,
+    // new Vec2(30*16,44*16),
     CHECKPOINT_ONE : new Vec2(73*16,10*16),
     CHECKPOINT_TWO : new Vec2(64*16,42*16),
     
@@ -99,12 +100,9 @@ export default class ForestLevel extends MBLevel {
         this.tileDestroyedAudioKey = ForestLevel.TILE_DESTROYED_KEY;
         this.levelEndAudioKey = ForestLevel.LEVEL_END_KEY;
         this.damageWallLayerKey = "damage";
-        
-
-        
 
         // Level end size and position
-        this.levelEndPosition = new Vec2(12*16, 39*16).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(12*16, 37*16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 =  CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
@@ -170,7 +168,7 @@ export default class ForestLevel extends MBLevel {
         
         let rowlet = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
         rowlet.position.set(36*16, 6*8);
-        rowlet.addPhysics(new AABB(new Vec2(3,3), new Vec2(3, 3)));
+        rowlet.addPhysics(new AABB(new Vec2(3,3), new Vec2(0, 0)));
         rowlet.setGroup(MBPhysicsGroups.ENTITY);                                         
         rowlet.setTrigger(MBPhysicsGroups.ENTITY, MBEvents.PLAYER_HIT_ENTITY, ""); 
         rowlet.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
@@ -188,7 +186,7 @@ export default class ForestLevel extends MBLevel {
         //  Rowlet at (263, 152)
         let rowlet2 = this.add.animatedSprite(ForestLevel.ROWLET_SPRITE_KEY, "PRIMARY");
         rowlet2.position.set(263, 154);
-        rowlet2.addPhysics(new AABB(new Vec2(3,3), new Vec2(0, 3)));
+        rowlet2.addPhysics(new AABB(new Vec2(3,3), new Vec2(0, 0)));
         rowlet2.setGroup(MBPhysicsGroups.ENTITY);                                         
         rowlet2.setTrigger(MBPhysicsGroups.ENTITY, MBEvents.PLAYER_HIT_ENTITY, ""); 
         rowlet2.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");     
@@ -235,11 +233,12 @@ export default class ForestLevel extends MBLevel {
     }
     protected initializeEntities(): void {
             
-            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(10*16, 8*16));
+            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(76*16, 23*16));
             this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(44*16, 9*16));
         
             // Snorlax as a trampoline platform — collidable=true so player lands on it
             this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44.5*16, 13.5*16), true);
+            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(35*16, 43.5*16), true);
     }
     
     
