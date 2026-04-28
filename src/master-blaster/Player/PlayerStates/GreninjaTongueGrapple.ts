@@ -62,7 +62,6 @@ export default class GreninjaTongueGrapple extends PlayerState {
         this.parent.grappleTip    = this.tipPos;
 
         this.createTongueLines();
-        this.owner.animation.play(PlayerAnimations.JUMP);
     }
 
     public update(deltaT: number): void {
@@ -76,6 +75,9 @@ export default class GreninjaTongueGrapple extends PlayerState {
 
         this.parent.grappleTip = this.tipPos.clone();
         this.updateTongueLines();
+
+        this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("GRAPPLE"));
+
     }
 
     public onExit(): Record<string, any> {
@@ -155,34 +157,34 @@ export default class GreninjaTongueGrapple extends PlayerState {
             const scale = GreninjaTongueGrapple.MAX_SPEED / spd;
             this.parent.velocity.x *= scale;
             this.parent.velocity.y *= scale;
-    }
+        }
 
-    this.owner.move(this.parent.velocity.scaled(deltaT));
-    this.tipPos = this.anchor.clone();
+        this.owner.move(this.parent.velocity.scaled(deltaT));
+        this.tipPos = this.anchor.clone();
 
-    // Player explicitly releases — click again OR press jump to launch
-    if (Input.isMouseJustPressed()) {
-        this.exit();
-        return;
-    }
+        // Player explicitly releases — click again OR press jump to launch
+        if (Input.isMouseJustPressed()) {
+            this.exit();
+            return;
+        }
 
-    // Jump while grappling = release + boost upward (slingshot)
-    if (Input.isJustPressed(MBControls.JUMP)) {
-        // Boost perpendicular to rope direction = best launch angle
-        this.parent.velocity.y = Math.min(this.parent.velocity.y, -200);
-        this.exit();
-        return;
-    }
+        // Jump while grappling = release + boost upward (slingshot)
+        if (Input.isJustPressed(MBControls.JUMP)) {
+            // Boost perpendicular to rope direction = best launch angle
+            this.parent.velocity.y = Math.min(this.parent.velocity.y, -200);
+            this.exit();
+            return;
+        }
 
-    if (this.owner.onGround) {
-        this.exit();
-        return;
-    }
+        if (this.owner.onGround) {
+            this.exit();
+            return;
+        }
 
-    if (!this.parent.isTransforming) {
-        this.owner.animation.playIfNotAlready(PlayerAnimations.JUMP);
+        if (!this.parent.isTransforming) {
+            this.owner.animation.playIfNotAlready(PlayerAnimations.JUMP);
+        }
     }
-}
 
     private updateMissed(deltaT: number): void {
         // Retract tip back toward player during the pause so the miss looks intentional

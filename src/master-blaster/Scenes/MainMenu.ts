@@ -14,7 +14,8 @@ import WinterLevel from "./WinterLevel";
 // Layers for the main menu scene
 export const MenuLayers = {
     MAIN: "MAIN",
-    BACKGROUND: "BACKGROUND"
+    BACKGROUND: "BACKGROUND",
+    BUTTONS: "BUTTONS"
 } as const;
 
 export default class MainMenu extends Scene {
@@ -30,6 +31,7 @@ export default class MainMenu extends Scene {
 
     protected selectAudioKey!: string;
     private canStart: boolean = false;  // guard against instant re-trigger on scene load
+    
 
     public loadScene(): void {
         this.load.audio(MainMenu.MUSIC_KEY, MainMenu.MUSIC_PATH);

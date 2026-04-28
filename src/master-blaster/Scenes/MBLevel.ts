@@ -141,7 +141,12 @@ export default abstract class MBLevel extends Scene {
     protected selectAudioPath!: string;
 
     public canUpdateTransform : boolean = true;
-    
+    private levelTimer: number = 0;
+    private timerLabel!: Label;
+    private timerRunning: boolean = false;
+
+    // ── Controls screen ───────────────────────────────────────────
+    private showingControls: boolean = false;
 
     public selectKey!: string;
 
@@ -271,6 +276,15 @@ export default abstract class MBLevel extends Scene {
     /* Update method for the scene */
 
     public updateScene(deltaT: number) {
+        if (this.timerRunning && !this.isPaused) {
+            this.levelTimer += deltaT;
+            const mins = Math.floor(this.levelTimer / 60);
+            const secs = Math.floor(this.levelTimer % 60);
+            const ms   = Math.floor((this.levelTimer % 1) * 100);
+            this.timerLabel.text = `${mins}:${secs.toString().padStart(2,'0')}.${ms.toString().padStart(2,'0')}`;
+        }
+
+        
         if (Input.isJustPressed(MBControls.PAUSE)) {
             this.isPaused ? this.resumeGame() : this.pauseGame();
             return;
@@ -526,13 +540,17 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.LEVEL_START: {
+                this.timerRunning = true;
                 Input.enableInput();
                 break;
             }
             
             case MBEvents.LEVEL_END: {
+                this.timerRunning = false;
+                // show final time briefly
+                
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
-                this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.levelEndAudioKey });
+                
                 this.sceneManager.changeToScene(this.nextLevel);
                 break;
             }
@@ -732,6 +750,10 @@ export default abstract class MBLevel extends Scene {
      */
     protected handleEnteredLevelEnd(): void {
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
+            this.timerRunning = false;
+            this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.levelEndAudioKey });
+            this.timerLabel.textColor = Color.YELLOW;
+            
             
             this.levelEndTimer.start();
             this.levelEndLabel.tweens.play("slideIn");
@@ -854,12 +876,22 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.PLAYER_ENERGY_RESTORE)
         this.receiver.subscribe(MBEvents.POKEMON_HIT);
         this.receiver.subscribe(MBEvents.FORM_SELECTED);
+        this.receiver.subscribe(MBEvents.SHOW_CONTROLS);
 
 
     }
 
     protected initializeUI(): void {
         const screen = this.viewport.getHalfSize().scaled(2);
+
+        const timerX = screen.x - 20;
+        this.timerLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
+            position: new Vec2(timerX, 10),
+            text: "0:00.00"
+        });
+        this.timerLabel.textColor = Color.WHITE;
+        this.timerLabel.fontSize = 24;
+        this.timerLabel.font = "Courier";
     
         // Transform ring UI (keep as-is, top-left corner)
         this.UI_transformationSprite = this.add.animatedSprite(this.transformUIkey, MBLayers.UI);

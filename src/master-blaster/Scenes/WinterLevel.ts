@@ -90,7 +90,7 @@ export default class WinterLevel extends MBLevel {
         this.damageWallLayerKey = "damage";
 
         // Level end size and position
-        this.levelEndPosition = new Vec2(12*16, 39*16).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(94*16, 19*16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 =  CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
@@ -122,7 +122,6 @@ export default class WinterLevel extends MBLevel {
         this.load.spritesheet(this.transformUIkey, this.transformUIpath);
         
         this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY, WinterLevel.TRANSFORM_AUDIO_PATH);
-        
     }
 
     /**
@@ -180,11 +179,12 @@ export default class WinterLevel extends MBLevel {
 
     protected initializeEntities(): void {
         
-        this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(14*16, 75*16));
-        this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(16*16, 75*16));
+        this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(35*16, 76*16));
+        this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(72*16, 33*16));
+        this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(7*16, 27*16));
     
         // Snorlax as a trampoline platform — collidable=true so player lands on it
-        this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(16*16, 75*16), true);
+        // this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(16*16, 75*16), true);
     }
 
     /**

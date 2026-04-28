@@ -198,7 +198,7 @@
           "index": 16,
           "duration": 23
         }
-        
+
       ]
     },{
       "name": "GRENINJA_JUMP",
@@ -214,10 +214,24 @@
           "index" : 19,
           "duration" : 23
         }
-        
       ]
     },{
-       "name": "TRANSFORMATION",
+      "name": "GRENINJA_GRAPPLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 17,
+          "duration": 23
+        },{
+          "index": 18,
+          "duration": 23
+        },{
+          "index" : 19,
+          "duration" : 23
+        }
+      ]}
+    ,{
+    "name": "TRANSFORMATION",
     "repeat": false,
     "frames": [
         { "index": 20, "duration": 5 },

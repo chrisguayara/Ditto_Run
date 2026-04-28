@@ -31,7 +31,7 @@ export const PlayerAnimations = {
     PHANTUMP_IDLE: "PHANTUMP_IDLE",
     TRANSFORMATION : "TRANSFORMATION",
     GRENINJA_IDLE:       "GRENINJA_IDLE",
-    GRENINJA_RUN:        "GRENINJA_RUN",
+    GRENINJA_WALK:        "GRENINJA_WALK",
     GRENINJA_JUMP:       "GRENINJA_JUMP",
     GRENINJA_FALL:       "GRENINJA_FALL",
     GRENINJA_WALL_SLIDE: "GRENINJA_WALL_SLIDE",
@@ -240,7 +240,7 @@ export default class PlayerController extends StateMachineAI {
         if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
     }
 
-    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL"): string {
+    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE"): string {
         const form = this._transformations.activeForm?.key ?? null;
 
         if (form === "ROWLET") {
@@ -256,10 +256,11 @@ export default class PlayerController extends StateMachineAI {
         if (form === "GRENINJA") {
             // Use base animations since Greninja animations aren't in spritesheet yet
             switch (base) {
-                case "IDLE": return PlayerAnimations.IDLE;
-                case "WALK": return PlayerAnimations.WALK;
-                case "JUMP": return PlayerAnimations.JUMP;
-                case "FALL": return PlayerAnimations.JUMP; // Use JUMP for FALL
+                case "IDLE": return PlayerAnimations.GRENINJA_IDLE;
+                case "WALK": return PlayerAnimations.GRENINJA_WALK;
+                case "JUMP": return PlayerAnimations.GRENINJA_JUMP;
+                case "FALL": return PlayerAnimations.GRENINJA_FALL; 
+                case "GRAPPLE" : return PlayerAnimations.GRENINJA_GRAPPLE;
             }
         }
         return PlayerAnimations[base];
