@@ -295,14 +295,7 @@ export default abstract class MBLevel extends Scene {
             (entity as any).update?.(deltaT);
         }
 
-        if (Input.isKeyJustPressed(MBControls.CYCLE_FORM) && this.canUpdateTransform){
-            this.updateUI();
-            this.canUpdateTransform = false
-        }
-        if (Input.isJustPressed(MBControls.TRANSFORM)) {
-            this.updateUI();
-        }   
-
+  
 
         
 
@@ -575,16 +568,18 @@ export default abstract class MBLevel extends Scene {
                     this.player.setGroup(MBPhysicsGroups.PLAYER_PHANTUMP);
                     // Swap to purple weapon
                     this.playerWeaponSystem.stopSystem();
-                    this.playerWeaponSystem = this.phantumpWeaponSystem;
+                    // this.playerWeaponSystem = this.phantumpWeaponSystem;
                     // Kill y velocity to prevent uncontrolled floating
                     const ctrl = this.player._ai as PlayerController;
                     ctrl.velocity.y = 0;
                 }
+                this.updateTransformRing(form); 
                 break;
             }
             case MBEvents.TRANSFORM_END: {
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 this.playerWeaponSystem = this.originalWeaponSystem;
+                this.UI_transformationSprite.animation.play(DittoForms.DITTO, true);
                 break;
             }
             case MBEvents.ENERGY_CHANGE: {
@@ -655,6 +650,10 @@ export default abstract class MBLevel extends Scene {
                 
                 break;
             }
+            case MBEvents.FORM_SELECTED: {
+                this.updateUI();
+                break;
+            }
             default: {
                 throw new Error(`Unhandled event caught in scene with type ${event.type}`);
             }
@@ -702,6 +701,22 @@ export default abstract class MBLevel extends Scene {
             sprite.visible = false;
             const s = new SludgeWeapon(sprite);
             this.sludgePool.push(s);
+        }
+    }
+    protected updateTransformRing(formName: string): void {
+        switch (formName) {
+            case "ROWLET":
+                this.UI_transformationSprite.animation.play(DittoForms.ROWLET, true);
+                break;
+            case "PHANTUMP":
+                this.UI_transformationSprite.animation.play(DittoForms.PHANTUMP, true);
+                break;
+            case "GRENINJA":
+                this.UI_transformationSprite.animation.play(DittoForms.GRENINJA, true);
+                break;
+            default:
+                this.UI_transformationSprite.animation.play(DittoForms.DITTO, true);
+                break;
         }
     }
 
@@ -838,6 +853,7 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.PLAYER_BOUNCE);
         this.receiver.subscribe(MBEvents.PLAYER_ENERGY_RESTORE)
         this.receiver.subscribe(MBEvents.POKEMON_HIT);
+        this.receiver.subscribe(MBEvents.FORM_SELECTED);
 
 
     }

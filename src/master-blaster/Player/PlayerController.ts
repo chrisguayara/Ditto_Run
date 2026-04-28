@@ -124,8 +124,8 @@ export default class PlayerController extends StateMachineAI {
     public get wallDir(): -1 | 0 | 1 {
         if (!this.owner.onWall) return 0;
         
-        if (this.owner.onLeft)  return -1;
-        if (this.owner.onRight) return  1;
+        // if (this.owner.onLeft)  return -1;
+        // if (this.owner.onRight) return  1;
         
         // onWall set but no left/right flag — fall back to velocity then input
         if (this._velocity.x < 0) return -1;
