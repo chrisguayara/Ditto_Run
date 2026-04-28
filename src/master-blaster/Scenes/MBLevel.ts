@@ -117,6 +117,10 @@ export default abstract class MBLevel extends Scene {
     protected hintSprites: AnimatedSprite[] = [];
     protected hintSpriteKey!: string;
     protected hintSpritePath!: string;
+
+    protected showingControlsScreen: boolean = false;
+    protected controlsLabels: Label[] = [];
+    protected controlsSelectedBack: number = 0;
     
     
     
@@ -281,7 +285,7 @@ export default abstract class MBLevel extends Scene {
             const mins = Math.floor(this.levelTimer / 60);
             const secs = Math.floor(this.levelTimer % 60);
             const ms   = Math.floor((this.levelTimer % 1) * 100);
-            this.timerLabel.text = `${mins}:${secs.toString().padStart(2,'0')}.${ms.toString().padStart(2,'0')}`;
+            this.timerLabel.text = `${mins}:${secs.toString()}:${ms.toString()}`;
         }
 
         
@@ -336,44 +340,53 @@ export default abstract class MBLevel extends Scene {
 
     protected resumeGame(): void {
         this.isPaused = false;
-
+        this.showingControlsScreen = false;
+        this.controlsLabels.forEach(l => l.visible = false);
         (this.player._ai as PlayerController).isPaused = false;
-
         this.pauseMenuBg.visible = false;
         this.pauseButtonSprites.forEach(b => b.visible = false);
     }
 
     protected updatePauseMenu(): void {
         this.repositionPauseMenu();
-
-        // // Handle mouse clicks on buttons
-        // if (Input.isMouseJustPressed()) {
-        //     const mousePos = Input.getGlobalMousePosition();
-        //     const clickedButton = this.getClickedPauseButton(mousePos);
-        //     if (clickedButton !== -1) {
-        //         this.selectedPauseOption = clickedButton;
-        //         this.updatePauseButtonAnimations();
-        //         this.confirmPauseSelection();
-        //         return;
-        //     }
-        // }
-
-        if (Input.isJustPressed(MBControls.JUMP) 
-            ||Input.isJustPressed(MBControls.ATTACK_UP)) {
+    
+        if (this.showingControlsScreen) {
+            this.repositionControlsLabels();
+            // Only one action: back
+            if (Input.isJustPressed(MBControls.ATTACK)
+                || Input.isJustPressed(MBControls.CONFIRM)
+                || Input.isJustPressed(MBControls.PAUSE)) {
+                this.showingControlsScreen = false;
+                this.controlsLabels.forEach(l => l.visible = false);
+                this.pauseButtonSprites.forEach(b => b.visible = true);
+                this.updatePauseButtonAnimations();
+            }
+            return; // don't process normal pause nav
+        }
+    
+        // ... rest of existing updatePauseMenu nav code unchanged
+        if (Input.isJustPressed(MBControls.JUMP) || Input.isJustPressed(MBControls.ATTACK_UP)) {
             this.selectedPauseOption = (this.selectedPauseOption - 1 + 5) % 5;
             this.updatePauseButtonAnimations();
         }
-
-        if (Input.isJustPressed(MBControls.DOWN) 
-            ||Input.isJustPressed(MBControls.ATTACK_DOWN)) {
+        if (Input.isJustPressed(MBControls.DOWN) || Input.isJustPressed(MBControls.ATTACK_DOWN)) {
             this.selectedPauseOption = (this.selectedPauseOption + 1) % 5;
             this.updatePauseButtonAnimations();
         }
-
-       if ( Input.isJustPressed(MBControls.ATTACK)
-            || Input.isJustPressed(MBControls.CONFIRM)) {
+        if (Input.isJustPressed(MBControls.ATTACK) || Input.isJustPressed(MBControls.CONFIRM)) {
             this.confirmPauseSelection();
         }
+    }
+    protected repositionControlsLabels(): void {
+        const screen = this.viewport.getHalfSize().scaled(2);
+        const cx = screen.x / 2;
+        const lineCount = this.controlsLabels.length; // includes Back
+        const totalH = lineCount * 14;
+        const startY = screen.y / 2 - totalH / 2;
+    
+        this.controlsLabels.forEach((lbl, i) => {
+            lbl.position.set(cx, startY + i * 14);
+        });
     }
     
 
@@ -406,9 +419,13 @@ export default abstract class MBLevel extends Scene {
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
                 break;
             case 4: // Controls
-                this.controlsUIVisible = !this.controlsUIVisible;
-                console.log("control UI");
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
+                this.showingControlsScreen = true;
+                // Hide pause buttons, show controls labels (bg stays visible)
+                this.pauseButtonSprites.forEach(b => b.visible = false);
+                this.repositionControlsLabels();
+                this.controlsLabels.forEach(l => l.visible = true);
+                break;
 
             }
              
@@ -519,18 +536,65 @@ export default abstract class MBLevel extends Scene {
 
     protected initializePauseMenu(): void {
         this.pauseButtonSprites = [];
-        this.pauseMenuBg = this.add.animatedSprite(MBLevel.PAUSE_BG_KEY, MBLayers.PAUSE_BG); 
+        this.pauseMenuBg = this.add.animatedSprite(MBLevel.PAUSE_BG_KEY, MBLayers.PAUSE_BG);
         this.pauseMenuBg.animation.play("IDLE", true);
         this.pauseMenuBg.visible = false;
-
+    
         for (let i = 0; i < 5; i++) {
             const btn = this.add.animatedSprite(MBLevel.MENU_BTN_KEY, MBLayers.PAUSE);
             btn.animation.play(this.PAUSE_IDLE_ANIMS[i], true);
             btn.visible = false;
             this.pauseButtonSprites.push(btn);
         }
-
+    
         this.repositionPauseMenu();
+        this.initializeControlsScreen(); // <-- add this
+    }
+    protected initializeControlsScreen(): void {
+        const lines = [
+            "── CONTROLS ──",
+            "",
+            "Move:        A / D",
+            "Jump:        W",
+            "Attack:      X",
+            "Transform:   E",
+            "Cycle Forms : F",
+            "Pause:       Escape",
+            
+            "── TIPS ──",
+            "Phantump phases through",
+            "vine walls.",
+            "Rowlet can fly.",
+        ];
+    
+        const screen = this.viewport.getHalfSize().scaled(2);
+        const cx = screen.x / 2;
+        const startY = screen.y / 2 - (lines.length * 14) / 2;
+    
+        lines.forEach((line, i) => {
+            const lbl = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
+                position: new Vec2(cx, startY + i * 14),
+                text: line
+            });
+            lbl.textColor = i === 0 ? Color.YELLOW : Color.WHITE;
+            lbl.fontSize = 10;
+            lbl.font = "Courier";
+            lbl.backgroundColor = new Color(0, 0, 0, 0);
+            lbl.visible = false;
+            this.controlsLabels.push(lbl);
+        });
+    
+        // "Back" button at the bottom
+        const backLbl = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
+            position: new Vec2(cx, startY + lines.length * 14 + 10),
+            text: "> BACK <"
+        });
+        backLbl.textColor = Color.YELLOW;
+        backLbl.fontSize = 12;
+        backLbl.font = "Courier";
+        backLbl.backgroundColor = new Color(0, 0, 0, 0);
+        backLbl.visible = false;
+        this.controlsLabels.push(backLbl); // last item is always Back
     }
 
     protected handleEvent(event: GameEvent): void {
