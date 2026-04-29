@@ -158,15 +158,89 @@
         
       ]
     },{
-       "name": "TRANSFORMATION",
+      "name": "GRENINJA_IDLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 10,
+          "duration": 23
+        }
+        
+      ]
+    },{
+      "name": "GRENINJA_WALK",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 11,
+          "duration": 23
+        },{
+          "index": 12,
+          "duration": 23
+        },{
+          "index": 13,
+          "duration": 23
+        },{
+          "index": 14,
+          "duration": 23
+        }
+        
+      ]
+    },
+    {
+      "name": "GRENINJA_FALL",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 15,
+          "duration": 23
+        },{
+          "index": 16,
+          "duration": 23
+        }
+
+      ]
+    },{
+      "name": "GRENINJA_JUMP",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 17,
+          "duration": 23
+        },{
+          "index": 18,
+          "duration": 23
+        },{
+          "index" : 19,
+          "duration" : 23
+        }
+      ]
+    },{
+      "name": "GRENINJA_GRAPPLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 17,
+          "duration": 23
+        },{
+          "index": 18,
+          "duration": 23
+        },{
+          "index" : 19,
+          "duration" : 23
+        }
+      ]}
+    ,{
+    "name": "TRANSFORMATION",
     "repeat": false,
     "frames": [
-        { "index": 10, "duration": 5 },
-        { "index": 11, "duration": 8},
-        { "index": 12, "duration": 12  },
-        { "index": 13, "duration": 8 },
-        { "index": 14, "duration": 10 }
+        { "index": 20, "duration": 5 },
+        { "index": 21, "duration": 8},
+        { "index": 22, "duration": 12  },
+        { "index": 23, "duration": 8 },
+        { "index": 24, "duration": 10 }
+        ]
+      
+      }
     ]
-    }
-  ]
 }
