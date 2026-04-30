@@ -345,10 +345,6 @@ export default abstract class MBLevel extends Scene {
             (entity as any).update?.(deltaT);
         }
 
-  
-
-        
-
         
     }
 

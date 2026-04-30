@@ -7,8 +7,8 @@ import PlayerState from "./PlayerState";
 export default class WallSlide extends PlayerState {
 
     // Slide faster — player should feel the wall, not float on it
-    private static readonly SLIDE_GRAVITY_MULT: number = 0.55;
-    private static readonly MAX_SLIDE_SPEED: number    = 120;
+    private static readonly SLIDE_GRAVITY_MULT: number = 0;
+    private static readonly MAX_SLIDE_SPEED: number    = 0;
 
     private wallSide: -1 | 1 = 1;
     private _wallJumped: boolean = false;
@@ -60,7 +60,7 @@ export default class WallSlide extends PlayerState {
             console.log("ATTEMPTING TO WALLJUMP");
             this._wallJumped = true;
             // Strong horizontal kick away from wall, good vertical
-            this.parent.velocity.x = -this.wallSide * 380;
+            this.parent.velocity.x = -this.wallSide * 500;
             this.parent.velocity.y = -340;
             this.finished(PlayerStates.JUMP);
             return;
