@@ -157,6 +157,9 @@ export default abstract class MBLevel extends Scene {
     private showingControls: boolean = false;
 
     public selectKey!: string;
+    protected idleTimeThreshold: number = 5; // seconds
+    private idleTimer: number = 0;
+    private escOverlayShowing: boolean = false;
 
     // Entity Logic ---------------------------
     
@@ -308,6 +311,25 @@ export default abstract class MBLevel extends Scene {
             this.updatePauseMenu();
 
             return;
+        }
+        const playerMoving =
+        Input.isPressed(MBControls.MOVE_LEFT)  ||
+        Input.isPressed(MBControls.MOVE_RIGHT) ||
+        Input.isJustPressed(MBControls.JUMP)   ||
+        Input.isJustPressed(MBControls.ATTACK);
+
+        if (playerMoving) {
+            this.idleTimer = 0;
+            if (this.escOverlayShowing) {
+                this.escOverlayShowing = false;
+                this.UI_escapeSprite.tweens.play("fadeOut");
+            }
+        } else if (!this.isPaused) {
+            this.idleTimer += deltaT;
+            if (this.idleTimer >= this.idleTimeThreshold && !this.escOverlayShowing) {
+                this.escOverlayShowing = true;
+                this.UI_escapeSprite.tweens.play("fadeIn");
+            }
         }
 
         while (this.receiver.hasNextEvent()) {
@@ -574,8 +596,7 @@ export default abstract class MBLevel extends Scene {
         { kind: "header", text: "TRANSFORM" },
         { kind: "row",    action: "Transform",   key: "E" },
         { kind: "header", text: "MENU" },
-        { kind: "row",    action: "Pause",       key: "Esc" },
-        { kind: "back",   text: "BACK" },
+        { kind: "row",    action: "Pause/Unpause",       key: "Esc" },
     ];
 
     const TITLE_H = 14, SEP_H = 10, HEADER_H = 14, ROW_H = 12;
@@ -592,7 +613,6 @@ export default abstract class MBLevel extends Scene {
             totalH += HEADER_H;
         }
         else if (item.kind === "row")    totalH += ROW_H;
-        else if (item.kind === "back")   totalH += BACK_MARGIN + ROW_H;
     }
 
     const YELLOW = Color.YELLOW;
@@ -607,7 +627,7 @@ export default abstract class MBLevel extends Scene {
         });
         lbl.textColor = color;
         lbl.fontSize = fontSize;
-        lbl.font = "PixelSimple";
+        lbl.font = "monospace";
         lbl.backgroundColor = new Color(0, 0, 0, 0);
         lbl.visible = false;
         this.controlsLabels.push(lbl);
@@ -615,11 +635,11 @@ export default abstract class MBLevel extends Scene {
     };
 
     // Second pass: create labels, walking y from the top of the centered block
-    let y = -totalH / 2 -10;
+    let y = -totalH / 2 -20;
     for (let i = 0; i < layout.length; i++) {
         const item = layout[i];
         if (item.kind === "title") {
-            addLabel(item.text, -10, y, YELLOW, 20);
+            addLabel(item.text, -10, y, CYAN, 26);
             y += TITLE_H + GAP_TITLE;
         } else if (item.kind === "sep") {
             addLabel(item.text, 0, y, GRAY, 16);
@@ -991,7 +1011,17 @@ export default abstract class MBLevel extends Scene {
         this.UI_escapeSprite = this.add.animatedSprite(MBLevel.ESCAPE_OVERLAY_KEY, MBLayers.UI);
         this.UI_escapeSprite.position.set(44, 180);
         this.UI_escapeSprite.animation.play("IDLE", true);
-        
+        this.UI_escapeSprite.alpha = 0;  // hidden by default
+        this.UI_escapeSprite.tweens.add("fadeIn", {
+            startDelay: 0,
+            duration: 600,
+            effects: [{ property: TweenableProperties.alpha, start: 0, end: 1, ease: EaseFunctionType.IN_OUT_QUAD }]
+        });
+        this.UI_escapeSprite.tweens.add("fadeOut", {
+            startDelay: 0,
+            duration: 300,
+            effects: [{ property: TweenableProperties.alpha, start: 1, end: 0, ease: EaseFunctionType.IN_OUT_QUAD }]
+        });
 
         const timerX = screen.x - 20;
         this.timerLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
