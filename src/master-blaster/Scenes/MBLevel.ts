@@ -63,7 +63,7 @@ export default abstract class MBLevel extends Scene {
     // 0 = Resume, 1 = Restart, 2 = Quit
     protected pauseMenuBg!: AnimatedSprite;
     protected pauseButtonSprites!: AnimatedSprite[];
-    
+    protected controlsLabelOffsets: Vec2[] = [];
     private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle",  "Help_Idle", "Controls_Idle","Quit_idle"];
     private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected",  "Help_Selected", "Controls_Selected","Quit_Selected"];
 
@@ -390,12 +390,10 @@ export default abstract class MBLevel extends Scene {
     protected repositionControlsLabels(): void {
         const screen = this.viewport.getHalfSize().scaled(2);
         const cx = screen.x / 2;
-        const lineCount = this.controlsLabels.length; // includes Back
-        const totalH = lineCount * 14;
-        const startY = screen.y / 2 - totalH / 2;
-    
+        const cy = screen.y / 2;
         this.controlsLabels.forEach((lbl, i) => {
-            lbl.position.set(cx, startY + i * 14);
+            const off = this.controlsLabelOffsets[i];
+            lbl.position.set(cx + off.x, cy + off.y);
         });
     }
     
@@ -521,7 +519,7 @@ export default abstract class MBLevel extends Scene {
 
         const zoom = this.viewport.getZoomLevel(); 
 
-        this.pauseMenuBg.position.set(center.x, center.y);
+        this.pauseMenuBg.position.set(center.x, center.y-15);
         this.pauseMenuBg.scale.set(1, 1);
 
         const baseSpriteHeight = 48;
@@ -557,52 +555,89 @@ export default abstract class MBLevel extends Scene {
         this.initializeControlsScreen(); // <-- add this
     }
     protected initializeControlsScreen(): void {
-        const lines = [
-            "── CONTROLS ──",
-            "",
-            "Move:        A / D",
-            "Jump:        W",
-            "Attack:      X",
-            "Transform:   E",
-            "Cycle Forms : F",
-            "Pause:       Escape",
-            
-            "── TIPS ──",
-            "Phantump phases through",
-            "vine walls.",
-            "Rowlet can fly.",
-        ];
-    
-        const screen = this.viewport.getHalfSize().scaled(2);
-        const cx = screen.x / 2;
-        const startY = screen.y / 2 - (lines.length * 14) / 2;
-    
-        lines.forEach((line, i) => {
-            const lbl = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
-                position: new Vec2(cx, startY + i * 14),
-                text: line
-            });
-            lbl.textColor = i === 0 ? Color.YELLOW : Color.WHITE;
-            lbl.fontSize = 10;
-            lbl.font = "Courier";
-            lbl.backgroundColor = new Color(0, 0, 0, 0);
-            lbl.visible = false;
-            this.controlsLabels.push(lbl);
-        });
-    
-        // "Back" button at the bottom
-        const backLbl = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
-            position: new Vec2(cx, startY + lines.length * 14 + 10),
-            text: "> BACK <"
-        });
-        backLbl.textColor = Color.YELLOW;
-        backLbl.fontSize = 12;
-        backLbl.font = "Courier";
-        backLbl.backgroundColor = new Color(0, 0, 0, 0);
-        backLbl.visible = false;
-        this.controlsLabels.push(backLbl); // last item is always Back
+    const screen = this.viewport.getHalfSize().scaled(2);
+    const cx = screen.x / 2 -400;
+    const cy = screen.y / 2 -400;
+
+    type Row =
+        | { kind: "title" | "sep" | "back"; text: string }
+        | { kind: "header"; text: string }
+        | { kind: "row"; action: string; key: string };
+
+    const layout: Row[] = [
+        { kind: "title",  text: "CONTROLS" },
+        { kind: "header", text: "MOVEMENT" },
+        { kind: "row",    action: "Move",       key: "A / D" },
+        { kind: "row",    action: "Jump",        key: "W" },
+        { kind: "header", text: "COMBAT" },
+        { kind: "row",    action: "GRAPPLE",      key: "Left Mouse" },
+        { kind: "header", text: "TRANSFORM" },
+        { kind: "row",    action: "Transform",   key: "E" },
+        { kind: "header", text: "MENU" },
+        { kind: "row",    action: "Pause",       key: "Esc" },
+        { kind: "back",   text: "BACK" },
+    ];
+
+    const TITLE_H = 14, SEP_H = 10, HEADER_H = 14, ROW_H = 12;
+    const GAP_TITLE = 0, GAP_SEP = 0, GAP_GROUP = 0, BACK_MARGIN = 0;
+
+    // First pass: measure total height so we can center it
+    let totalH = 0;
+    for (let i = 0; i < layout.length; i++) {
+        const item = layout[i];
+        if      (item.kind === "title")  totalH += TITLE_H + GAP_TITLE;
+        else if (item.kind === "sep")    totalH += SEP_H + GAP_SEP;
+        else if (item.kind === "header") {
+            if (i > 0 && layout[i - 1].kind === "row") totalH += GAP_GROUP;
+            totalH += HEADER_H;
+        }
+        else if (item.kind === "row")    totalH += ROW_H;
+        else if (item.kind === "back")   totalH += BACK_MARGIN + ROW_H;
     }
 
+    const YELLOW = Color.YELLOW;
+    const WHITE  = Color.WHITE;
+    const CYAN   = new Color(100, 220, 255);
+    const GRAY   = new Color(160, 160, 160);
+
+    const addLabel = (text: string, xOff: number, yOff: number, color: Color, fontSize: number) => {
+        const lbl = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
+            position: new Vec2(cx + xOff, cy + yOff),
+            text
+        });
+        lbl.textColor = color;
+        lbl.fontSize = fontSize;
+        lbl.font = "PixelSimple";
+        lbl.backgroundColor = new Color(0, 0, 0, 0);
+        lbl.visible = false;
+        this.controlsLabels.push(lbl);
+        this.controlsLabelOffsets.push(new Vec2(xOff, yOff));
+    };
+
+    // Second pass: create labels, walking y from the top of the centered block
+    let y = -totalH / 2 -10;
+    for (let i = 0; i < layout.length; i++) {
+        const item = layout[i];
+        if (item.kind === "title") {
+            addLabel(item.text, -10, y, YELLOW, 20);
+            y += TITLE_H + GAP_TITLE;
+        } else if (item.kind === "sep") {
+            addLabel(item.text, 0, y, GRAY, 16);
+            y += SEP_H + GAP_SEP;
+        } else if (item.kind === "header") {
+            if (i > 0 && layout[i - 1].kind === "row") y += GAP_GROUP;
+            addLabel(item.text, -10, y, YELLOW, 20);
+            y += HEADER_H;
+        } else if (item.kind === "row") {
+            addLabel(item.action, -30, y, WHITE, 16);
+            addLabel(item.key,    38,  y, CYAN,  16);
+            y += ROW_H;
+        } else if (item.kind === "back") {
+            y += BACK_MARGIN;
+            addLabel(item.text, -10, y, YELLOW, 20);
+        }
+    }
+}
     protected handleEvent(event: GameEvent): void {
         switch (event.type) {
             case MBEvents.PLAYER_ENTERED_LEVEL_END: {
