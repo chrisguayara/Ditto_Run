@@ -412,14 +412,7 @@ export default abstract class MBLevel extends Scene {
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.sceneManager.changeToScene(this.constructor as new (...args: any[]) => Scene);
                 break;
-            case 2: // Quit to Main Menu
-                this.resumeGame();
-                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
-                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
-                
-                this.sceneManager.changeToScene(MainMenu);
-                break;
-            case 3: // Hints()
+            case 2: // Hints()
                 this.resumeGame();
                 this.hintsVisible = !this.hintsVisible;
                 
@@ -428,13 +421,20 @@ export default abstract class MBLevel extends Scene {
                 }
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
                 break;
-            case 4: // Controls
+            case 3: // Controls
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
                 this.showingControlsScreen = true;
                 // Hide pause buttons, show controls labels (bg stays visible)
                 this.pauseButtonSprites.forEach(b => b.visible = false);
                 this.repositionControlsLabels();
                 this.controlsLabels.forEach(l => l.visible = true);
+                break;
+            case 4: // Quit to Main Menu
+                this.resumeGame();
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.selectAudioKey});
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                
+                this.sceneManager.changeToScene(MainMenu);
                 break;
 
             }
