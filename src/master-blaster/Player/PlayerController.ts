@@ -25,17 +25,19 @@ export const PlayerAnimations = {
     WALK: "WALK",
     JUMP: "JUMP",
     FALL: "FALL",   
-    ROWLET_IDLE: "ROWLET_IDLE",
-    ROWLET_FLY: "ROWLET_FLY",
-    PHANTUMP_FLY: "PHANTUMP_FLY",
-    PHANTUMP_IDLE: "PHANTUMP_IDLE",
+    // ROWLET_IDLE: "ROWLET_IDLE",
+    // ROWLET_FLY: "ROWLET_FLY",
+    // PHANTUMP_FLY: "PHANTUMP_FLY",
+    // PHANTUMP_IDLE: "PHANTUMP_IDLE",
     TRANSFORMATION : "TRANSFORMATION",
     GRENINJA_IDLE:       "GRENINJA_IDLE",
     GRENINJA_WALK:        "GRENINJA_WALK",
     GRENINJA_JUMP:       "GRENINJA_JUMP",
     GRENINJA_FALL:       "GRENINJA_FALL",
     GRENINJA_WALL_SLIDE: "GRENINJA_WALL_SLIDE",
-    GRENINJA_GRAPPLE:    "GRENINJA_GRAPPLE"
+    GRENINJA_GRAPPLE:    "GRENINJA_GRAPPLE",
+    CHARIZARD_IDLE: "CHARIZARD_IDLE",
+    CHARIZARD_BLITZ : "CHARIZARD_BLITZ"
 } as const
 
 export const PlayerTweens = {
@@ -52,6 +54,7 @@ export const PlayerStates = {
     TRANSFORMATION: "TRANSFORMATION",
     WALL_SLIDE: "WALL_SLIDE",      
     GRAPPLE:    "GRAPPLE",   
+    BLITZ: "BLITZ"
 } as const
 
 export default class PlayerController extends StateMachineAI {
@@ -178,32 +181,32 @@ export default class PlayerController extends StateMachineAI {
         const activeForm = this._transformations.activeForm?.key ?? null;
         
         // Phantump floating controls
-        if (activeForm === "PHANTUMP") {
-            const floatSpeed = 100; // pixels per second
-            if (Input.isPressed(MBControls.JUMP)) {
-                this.velocity.y = -floatSpeed;
-            } else if (Input.isPressed(MBControls.DOWN)) {
-                this.velocity.y = floatSpeed;
-            } else {
-                // No input = stay in place
-                this.velocity.y = 0;
-            }
-        }
+        // if (activeForm === "PHANTUMP") {
+        //     const floatSpeed = 100; // pixels per second
+        //     if (Input.isPressed(MBControls.JUMP)) {
+        //         this.velocity.y = -floatSpeed;
+        //     } else if (Input.isPressed(MBControls.DOWN)) {
+        //         this.velocity.y = floatSpeed;
+        //     } else {
+        //         // No input = stay in place
+        //         this.velocity.y = 0;
+        //     }
+        // }
         
-        if (activeForm !== "ROWLET" && this._sludgeTimer <= 0) {
-            const dx = (Input.isPressed(MBControls.ATTACK_RIGHT) ? 1 : 0)
-                    - (Input.isPressed(MBControls.ATTACK_LEFT)  ? 1 : 0);
-            const dy = (Input.isPressed(MBControls.ATTACK_DOWN)  ? 1 : 0)
-                    - (Input.isPressed(MBControls.ATTACK_UP)    ? 1 : 0);
+        // if (activeForm !== "ROWLET" && this._sludgeTimer <= 0) {
+        //     const dx = (Input.isPressed(MBControls.ATTACK_RIGHT) ? 1 : 0)
+        //             - (Input.isPressed(MBControls.ATTACK_LEFT)  ? 1 : 0);
+        //     const dy = (Input.isPressed(MBControls.ATTACK_DOWN)  ? 1 : 0)
+        //             - (Input.isPressed(MBControls.ATTACK_UP)    ? 1 : 0);
 
-            if (dx !== 0 || dy !== 0) {
-                const dir = new Vec2(dx, dy).normalize();
-                (this.owner.getScene() as MBLevel).fireSludge(
-                    this.owner.position.clone(), dir
-                );
-                this._sludgeTimer = this.SLUDGE_COOLDOWN;
-            }
-        }
+        //     if (dx !== 0 || dy !== 0) {
+        //         const dir = new Vec2(dx, dy).normalize();
+        //         (this.owner.getScene() as MBLevel).fireSludge(
+        //             this.owner.position.clone(), dir
+        //         );
+        //         this._sludgeTimer = this.SLUDGE_COOLDOWN;
+        //     }
+        // }
     }
 
     // ── Transformation passthrough ────────────────────────────────
@@ -240,18 +243,21 @@ export default class PlayerController extends StateMachineAI {
         if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
     }
 
-    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE"): string {
+    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ"): string {
         const form = this._transformations.activeForm?.key ?? null;
 
-        if (form === "ROWLET") {
-            return (base === "JUMP" || base === "FALL") 
-                ? PlayerAnimations.ROWLET_FLY 
-                : PlayerAnimations.ROWLET_IDLE;
-        }
-        if (form === "PHANTUMP") {
-            return base === "IDLE" 
-                ? PlayerAnimations.PHANTUMP_IDLE 
-                : PlayerAnimations.PHANTUMP_FLY;
+        // if (form === "ROWLET") {
+        //     return (base === "JUMP" || base === "FALL") 
+        //         ? PlayerAnimations.ROWLET_FLY 
+        //         : PlayerAnimations.ROWLET_IDLE;
+        // }
+        if (form === "CHARIZARD") {
+            switch(base){
+                case "IDLE" : return PlayerAnimations.CHARIZARD_IDLE;
+                case "BLITZ" : return PlayerAnimations.CHARIZARD_BLITZ;
+                default:
+                    return PlayerAnimations.CHARIZARD_IDLE;
+            }
         }
         if (form === "GRENINJA") {
             // Use base animations since Greninja animations aren't in spritesheet yet

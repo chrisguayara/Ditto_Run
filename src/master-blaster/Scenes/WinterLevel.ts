@@ -37,7 +37,7 @@ export default class WinterLevel extends MBLevel {
     public static readonly DAMAGE_LAYER_KEY ="damage"
 
     public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
-    public static readonly LEVEL_MUSIC_PATH = "game_assets/music/winterlevel_prototype.wav";
+    public static readonly LEVEL_MUSIC_PATH = "game_assets/music/jeanparker_synced-146-master.wav";
 
     public static readonly JUMP_AUDIO_KEY = "PLAYER_JUMP";
     public static readonly JUMP_AUDIO_PATH = "game_assets/sounds/jump.wav";
@@ -142,15 +142,21 @@ export default class WinterLevel extends MBLevel {
         // Set the next level to be Level2
         this.nextLevel = WinterLevel;
         (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
+        (this.player._ai as PlayerController).transformations.unlockForm("CHARIZARD");
+
+        (this.player._ai as PlayerController).transformations.activate();
+
+        this.updateTransformRing("GRENINJA");
+        
         this.initializePKMN();
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
     }
     protected initializePKMN(): void {
 
-        let greninja = this.add.animatedSprite(WinterLevel.CRYO_GRENINJA_SPRITE_KEY, "PRIMARY");
-        greninja.position.set(42* 16,75*16)
-        greninja.animation.play("DEFAULT");
+        // let greninja = this.add.animatedSprite(WinterLevel.CRYO_GRENINJA_SPRITE_KEY, "PRIMARY");
+        // greninja.position.set(42* 16,75*16)
+        // greninja.animation.play("DEFAULT");
         
         // TURNED OFF ROTOM
         // let rotom = this.add.animatedSprite(WinterLevel.ROTOM_SPRITE_KEY, "PRIMARY");
@@ -162,18 +168,6 @@ export default class WinterLevel extends MBLevel {
         // });
         // rotom.animation.play("IDLE");
 
-        // CURRENTLY U
-        // let rowlet = this.add.animatedSprite(WinterLevel.ROWLET_SPRITE_KEY, "PRIMARY");
-        // rowlet.position.set(16*16, 16*8);
-        // rowlet.addPhysics(new AABB(Vec2.ZERO, new Vec2(8, 8)));
-        // rowlet.addAI(RowletController, {
-        //     playerRef: this.player,          
-        //     patrolLeft:  rowlet.position.x - 80,
-        //     patrolRight: rowlet.position.x + 80,
-        //     speed: 60,
-        //     maxHealth: 4,
-        // });
-        
         
     }
 

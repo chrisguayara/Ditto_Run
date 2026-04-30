@@ -42,39 +42,39 @@ export interface Transformation {
  */
 export const Transformations: Record<string, Transformation> = {
 
-    // ── Forest forms ──────────────────────────────────────────────
-    ROWLET: {
-        key: "ROWLET",
-        displayName: "Rowlet",
-        speedMultiplier: 1.1,
-        gravityMultiplier: 0.3,   // slow fall / glide
-        jumpForce: null,
-        activationCost: 0.1,
-        drainRate: 0.08,
-        ability: "GLIDE"
-    },
+    // // ── Forest forms ──────────────────────────────────────────────
+    // ROWLET: {
+    //     key: "ROWLET",
+    //     displayName: "Rowlet",
+    //     speedMultiplier: 1.1,
+    //     gravityMultiplier: 0.3,   // slow fall / glide
+    //     jumpForce: null,
+    //     activationCost: 0.1,
+    //     drainRate: 0.08,
+    //     ability: "GLIDE"
+    // },
 
-    PHANTUMP: {
-        key: "PHANTUMP",
-        displayName: "Phantump",
-        speedMultiplier: 0.8,
-        gravityMultiplier: 0.0,   // floats, no gravity
-        jumpForce: null,
-        activationCost: 0.15,
-        drainRate: 0.05,
-        ability: "PHASE"          // pass through thin walls
-    },
+    // PHANTUMP: {
+    //     key: "PHANTUMP",
+    //     displayName: "Phantump",
+    //     speedMultiplier: 0.8,
+    //     gravityMultiplier: 0.0,   // floats, no gravity
+    //     jumpForce: null,
+    //     activationCost: 0.15,
+    //     drainRate: 0.05,
+    //     ability: "PHASE"          // pass through thin walls
+    // },
 
-    KECLEON: {
-        key: "KECLEON",
-        displayName: "Kecleon",
-        speedMultiplier: 0.6,     // slower while camouflaged
-        gravityMultiplier: 1.0,
-        jumpForce: null,
-        activationCost: 0.08,
-        drainRate: 0.07,
-        ability: "CAMOUFLAGE"
-    },
+    // KECLEON: {
+    //     key: "KECLEON",
+    //     displayName: "Kecleon",
+    //     speedMultiplier: 0.6,     // slower while camouflaged
+    //     gravityMultiplier: 1.0,
+    //     jumpForce: null,
+    //     activationCost: 0.08,
+    //     drainRate: 0.07,
+    //     ability: "CAMOUFLAGE"
+    // },
 
     // ── Add ice/mountain forms below when we reach that level ────
     GRENINJA: {
@@ -84,17 +84,17 @@ export const Transformations: Record<string, Transformation> = {
         gravityMultiplier: 1.0,        
         jumpForce: -200,                // higher than the -200 base
         activationCost: 0.0,
-        drainRate: 0.001,
+        drainRate: 0.0,
         ability: "TONGUE_GRAPPLE"
     },
     CHARIZARD: {
         key: "CHARIZARD",
         displayName: "Charizard",
-        speedMultiplier: 0.9,           // fast ninja
-        gravityMultiplier: 0.81,        
-        jumpForce: -320,                // higher than the -200 base
+        speedMultiplier: 0.84,           
+        gravityMultiplier: 1.2,        
+        jumpForce: -280,               
         activationCost: 0.0,
-        drainRate: 0.001,
+        drainRate: 0.0,
         ability: "TONGUE_GRAPPLE"
     },
 };
