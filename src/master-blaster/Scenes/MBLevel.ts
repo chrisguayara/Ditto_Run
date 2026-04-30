@@ -34,6 +34,7 @@ import Game from "../../Wolfie2D/Loop/Game";
 import { Transformations } from "../Player/Transformation";
 
 import { DittoForms } from "../UI/DittoForms";
+import AudioManager from "../../Wolfie2D/Sound/AudioManager";
 /**
  * A const object for the layer names
  */
@@ -85,6 +86,9 @@ export default abstract class MBLevel extends Scene {
     private energyBar!: Label;
     private energyBarBg!: Label;
     protected UI_transformationSprite!: AnimatedSprite;
+    protected UI_escapeSprite!: AnimatedSprite;
+    public static readonly ESCAPE_OVERLAY_PATH = "game_assets/spritesheets/ui/escape.json";
+    public static readonly ESCAPE_OVERLAY_KEY = "escapeOverlay";
     protected transformUIkey!: string ;
     protected transformUIpath!: string ;
     protected transformCurrentForm: string | null = "Ditto";
@@ -238,6 +242,8 @@ export default abstract class MBLevel extends Scene {
         this.transformUIkey = "TRANSFORM_UI_KEY";
         this.transformUIpath = "game_assets/spritesheets/ui/transformRing.json";
 
+        this.load.spritesheet(MBLevel.ESCAPE_OVERLAY_KEY, MBLevel.ESCAPE_OVERLAY_PATH);
+
         
 
         
@@ -247,6 +253,7 @@ export default abstract class MBLevel extends Scene {
         
         this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
         this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
+        
     }
 
     public startScene(): void {
@@ -261,6 +268,8 @@ export default abstract class MBLevel extends Scene {
         this.initializePauseMenu();
         this.initializeCheckpoints();
         this.initializeLevelEnds();
+
+        
         
 
         this.levelTransitionTimer = new Timer(500);
@@ -287,6 +296,7 @@ export default abstract class MBLevel extends Scene {
             const ms   = Math.floor((this.levelTimer % 1) * 100);
             this.timerLabel.text = `${mins}:${secs.toString()}:${ms.toString()}`;
         }
+        
 
         
         if (Input.isJustPressed(MBControls.PAUSE)) {
@@ -483,12 +493,8 @@ export default abstract class MBLevel extends Scene {
         const formName = activeForm.displayName;
 
         switch(formName){
-            case DittoForms.ROWLET:
-                this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.ROWLET, true);
-                console.log(formName);
-                break;
-            case DittoForms.PHANTUMP: 
-                this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.PHANTUMP, true);
+            case DittoForms.CHARIZARD:
+                // this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.CHARIZARD, true);
                 console.log(formName);
                 break;
             case DittoForms.GRENINJA:
@@ -605,6 +611,9 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.LEVEL_START: {
                 this.timerRunning = true;
+                const ctrl = this.player._ai as PlayerController;
+                this.handleHealthChange(ctrl.health, ctrl.maxHealth);
+                
                 Input.enableInput();
                 break;
             }
@@ -645,16 +654,7 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.TRANSFORM_START: {
                 const form = event.data.get("form");
-                if (form === "PHANTUMP") {
-                    // Swap to PLAYER_PHANTUMP group so phantom walls are passable
-                    this.player.setGroup(MBPhysicsGroups.PLAYER_PHANTUMP);
-                    // Swap to purple weapon
-                    this.playerWeaponSystem.stopSystem();
-                    // this.playerWeaponSystem = this.phantumpWeaponSystem;
-                    // Kill y velocity to prevent uncontrolled floating
-                    const ctrl = this.player._ai as PlayerController;
-                    ctrl.velocity.y = 0;
-                }
+                
                 this.updateTransformRing(form); 
                 break;
             }
@@ -736,6 +736,10 @@ export default abstract class MBLevel extends Scene {
                 this.updateUI();
                 break;
             }
+            case MBEvents.SHOW_CONTROLS: {
+
+                break;
+            }
             default: {
                 throw new Error(`Unhandled event caught in scene with type ${event.type}`);
             }
@@ -787,11 +791,9 @@ export default abstract class MBLevel extends Scene {
     }
     protected updateTransformRing(formName: string): void {
         switch (formName) {
-            case "ROWLET":
-                this.UI_transformationSprite.animation.play(DittoForms.ROWLET, true);
-                break;
-            case "PHANTUMP":
-                this.UI_transformationSprite.animation.play(DittoForms.PHANTUMP, true);
+            
+            case "CHARIZARD":
+                this.UI_transformationSprite.animation.play(DittoForms.CHARIZARD, true);
                 break;
             case "GRENINJA":
                 this.UI_transformationSprite.animation.play(DittoForms.GRENINJA, true);
@@ -815,6 +817,8 @@ export default abstract class MBLevel extends Scene {
     protected handleEnteredLevelEnd(): void {
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
             this.timerRunning = false;
+            this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
+            
             this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.levelEndAudioKey });
             this.timerLabel.textColor = Color.YELLOW;
             
@@ -838,6 +842,7 @@ export default abstract class MBLevel extends Scene {
         this.addUILayer(MBLayers.UI);
         this.addUILayer(MBLayers.PAUSE_BG);
         this.addUILayer(MBLayers.PAUSE);
+        
         
         
         this.addLayer(MBLayers.PRIMARY);
@@ -948,6 +953,11 @@ export default abstract class MBLevel extends Scene {
     protected initializeUI(): void {
         const screen = this.viewport.getHalfSize().scaled(2);
 
+        this.UI_escapeSprite = this.add.animatedSprite(MBLevel.ESCAPE_OVERLAY_KEY, MBLayers.UI);
+        this.UI_escapeSprite.position.set(44, 180);
+        this.UI_escapeSprite.animation.play("IDLE", true);
+        
+
         const timerX = screen.x - 20;
         this.timerLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
             position: new Vec2(timerX, 10),
@@ -1039,6 +1049,10 @@ export default abstract class MBLevel extends Scene {
             effects: [{ property: TweenableProperties.alpha, start: 1, end: 0, ease: EaseFunctionType.IN_OUT_QUAD }],
             onEnd: MBEvents.LEVEL_START
         });
+
+        
+
+        
     }
     protected handleHealthChange(currentHealth: number, maxHealth: number): void {
         const unit = this.healthBarBg.size.x / maxHealth;
@@ -1083,6 +1097,8 @@ export default abstract class MBLevel extends Scene {
             this.playerWeaponSystem.setTilemap(this.walls);
             this.phantumpWeaponSystem.setTilemap(this.walls);
         }
+
+        
     }
 
     protected initializePlayer(key: string): void {
@@ -1097,7 +1113,7 @@ export default abstract class MBLevel extends Scene {
         this.player.scale.set(1, 1);
         this.player.position.copy(this.playerSpawn);
 
-        this.player.addPhysics(new AABB(this.player.position.clone(), new Vec2(6, 8)));
+        this.player.addPhysics(new AABB(this.player.position.clone(), new Vec2(8, 16)));
         this.player.setGroup(MBPhysicsGroups.PLAYER);
 
         this.player.tweens.add(PlayerTweens.FLIP, {
@@ -1143,6 +1159,8 @@ export default abstract class MBLevel extends Scene {
             weaponSystem: this.playerWeaponSystem,
             tilemap: this.destructibleLayerKey ?? this.wallsLayerKey
         });
+
+        
     }
 
     protected initializeViewport(): void {

@@ -24,7 +24,7 @@ export default class MainMenu extends Scene {
     public static readonly START_SCREEN_PATH = "game_assets/spritesheets/STARTSCREEN.json"
 
     public static readonly MUSIC_KEY = "MAIN_MENU_MUSIC";
-    public static readonly MUSIC_PATH = "game_assets/music/traverse_loop.mp3";
+    public static readonly MUSIC_PATH = "game_assets/music/jeanparker_insideout105master.wav";
 
     public static readonly SELECT_AUDIO_KEY = "SELECT_AUDIO_KEY"
     public static readonly SELECT_AUDIO_PATH = "game_assets/sounds/pickup.mp3"

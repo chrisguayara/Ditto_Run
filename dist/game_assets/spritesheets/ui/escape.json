@@ -1,0 +1,13 @@
+{
+    "name": "escapeOverlay",
+    "spriteSheetImage": "escape.png",
+    "spriteWidth": 64,
+    "spriteHeight": 32,
+    "columns": 1,
+    "rows": 1,
+    "durationType": "time",
+    "animations": [
+      {"name": "IDLE", "repeat": true, "frames": [{"index": 0, "duration": 10}]}
+      
+    ]
+  }

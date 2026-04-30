@@ -17,7 +17,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
     private static readonly CAST_SPEED:   number = 700;   // px/s tongue travel
     private static readonly MAX_RANGE:    number = 124;   // px
     private static readonly PULL_FORCE:   number = 100;   // px/s²
-    private static readonly MAX_SPEED:    number = 520;   // px/s cap while attached
+    private static readonly MAX_SPEED:    number = 490;   // px/s cap while attached
     private static readonly MISS_PAUSE:   number = 0.15;  // seconds before exiting on miss
     private static readonly DETACH_DIST:  number = 0;    // px — auto-detach near anchor
     private static readonly SWING_STEER:  number = 0.5;

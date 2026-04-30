@@ -74,9 +74,20 @@ export default class TransformationManager {
 
     /** Toggle if a form is active deactivate it, otherwise activate selected */
     public toggle(): void {
+        // if (this._activeForm) {
+        //     this.deactivate();
+        // } else {
+        //     this.activate();
+        // }
+        if (this._unlockedForms.length === 0) return;
+    
         if (this._activeForm) {
+            // Deactivate current, advance to next, activate it
             this.deactivate();
+            this._selectedIndex = (this._selectedIndex + 1) % this._unlockedForms.length;
+            this.activate();
         } else {
+            // No form active — activate current selection
             this.activate();
         }
     }

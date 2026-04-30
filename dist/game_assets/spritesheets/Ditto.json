@@ -5,7 +5,7 @@
   "spriteWidth": 32,
   "spriteHeight": 32,
   "columns": 10,
-  "rows": 2,
+  "rows": 5,
   "durationType": "time",
   "animations": [
     {
@@ -173,16 +173,16 @@
       "frames": [
         {
           "index": 11,
-          "duration": 23
+          "duration": 8
         },{
           "index": 12,
-          "duration": 23
+          "duration": 8
         },{
           "index": 13,
-          "duration": 23
+          "duration": 8
         },{
           "index": 14,
-          "duration": 23
+          "duration": 8
         }
         
       ]
@@ -241,6 +241,26 @@
         { "index": 24, "duration": 10 }
         ]
       
-      }
+      },{
+        "name": "CHARIZARD_IDLE",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 30,
+            "duration": 23
+          }
+        ]},{
+        "name": "CHARIZARD_BLITZ",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 31,
+            "duration": 8
+          },{
+            "index": 32,
+            "duration": 8
+          }
+        ]}
+
     ]
 }
