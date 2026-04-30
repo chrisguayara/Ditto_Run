@@ -27,7 +27,11 @@ export default class Idle extends PlayerState {
             this.parent.velocity.x *= 1 - (8 * deltaT); // quick friction
             if (Math.abs(this.parent.velocity.x) < 5) this.parent.velocity.x = 0;
         }
-
+        if (Input.isMouseJustPressed()
+            && this.parent.transformations.activeForm?.key === "CHARIZARD") {
+            this.finished(PlayerStates.BLITZ);
+            return;
+        }
         if (!dir.isZero() && dir.y === 0) {
             this.finished(PlayerStates.RUN);
         } else if (Input.isJustPressed(MBControls.JUMP)) {

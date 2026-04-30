@@ -95,6 +95,6 @@ export const Transformations: Record<string, Transformation> = {
         jumpForce: -280,               
         activationCost: 0.0,
         drainRate: 0.0,
-        ability: "TONGUE_GRAPPLE"
+        ability: "ROCKET_JUMP", 
     },
 };

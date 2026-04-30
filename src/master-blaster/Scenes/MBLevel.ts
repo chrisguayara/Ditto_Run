@@ -1275,6 +1275,20 @@ export default abstract class MBLevel extends Scene {
     public getJumpAudioKey(): string {
         return this.jumpAudioKey;
     }
+    public getWalls(): OrthogonalTilemap {
+        return this.walls;
+    }
+
+    public getDestructable(): OrthogonalTilemap | undefined {
+        return this.destructable;
+    }
+
+    /** Returns the owner sprites of all live pokemon so BlitzState can hit them. */
+    public getPokemonOwners(): MBAnimatedSprite[] {
+        return [...this.pokemonMap.values()]
+            .map(ctrl => (ctrl as any).owner as MBAnimatedSprite)
+            .filter(s => s?.visible);
+    }
 
     public getTransformAudioKey(): string {
         return this.transformAudioKey;

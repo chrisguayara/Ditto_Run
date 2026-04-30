@@ -19,6 +19,8 @@ import MathUtils from "../../Wolfie2D/Utils/MathUtils";
 import { MBEvents } from "../MBEvents";
 import MBLevel from "../Scenes/MBLevel";
 import Scene from "../../Wolfie2D/Scene/Scene";
+import BlitzState from "./PlayerStates/BlitzState";
+import GlideState from "./PlayerStates/GlideState";
 
 export const PlayerAnimations = {
     IDLE: "IDLE",
@@ -53,6 +55,7 @@ export const PlayerStates = {
     DEAD: "DEAD",
     TRANSFORMATION: "TRANSFORMATION",
     WALL_SLIDE: "WALL_SLIDE",      
+    GLIDE: "GLIDE",
     GRAPPLE:    "GRAPPLE",   
     BLITZ: "BLITZ"
 } as const
@@ -103,9 +106,9 @@ export default class PlayerController extends StateMachineAI {
         this.addState(PlayerStates.DEAD, new Dead(this, this.owner));
         this.addState(PlayerStates.WALL_SLIDE, new WallSlide(this, this.owner));
         this.addState(PlayerStates.GRAPPLE,    new GreninjaTongueGrapple(this, this.owner));
-
+        this.addState(PlayerStates.BLITZ, new BlitzState(this, this.owner));
+        this.addState(PlayerStates.GLIDE, new GlideState(this, this.owner));
         this.initialize(PlayerStates.IDLE);
-        
         this.scene = this.owner.getScene();
     }
 
@@ -162,23 +165,24 @@ export default class PlayerController extends StateMachineAI {
         }
         // Phantump weapon rotation (mouse-aimed, unchanged)
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-        if (Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
+        const isCharizard = this._transformations.activeForm?.key === "CHARIZARD";
+        if (!isCharizard && Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
             this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
             this.weapon.startSystem(500, 1, this.owner.position);
         }
 
         // Sludge uses arrow keys, blocked in Rowlet form
-        if (this._sludgeTimer > 0) {
-            this._sludgeTimer -= deltaT;
-        }
-        if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
-            this._transformations.cycleNext();
-            const selected = this._transformations.selectedForm;
-            if (selected) {
-                this.emitter.fireEvent(MBEvents.FORM_SELECTED, { displayName: selected.displayName });
-            }
-        }
-        const activeForm = this._transformations.activeForm?.key ?? null;
+        // if (this._sludgeTimer > 0) {
+        //     this._sludgeTimer -= deltaT;
+        // }
+        // if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
+        //     this._transformations.cycleNext();
+        //     const selected = this._transformations.selectedForm;
+        //     if (selected) {
+        //         this.emitter.fireEvent(MBEvents.FORM_SELECTED, { displayName: selected.displayName });
+        //     }
+        // }
+        // const activeForm = this._transformations.activeForm?.key ?? null;
         
         // Phantump floating controls
         // if (activeForm === "PHANTUMP") {

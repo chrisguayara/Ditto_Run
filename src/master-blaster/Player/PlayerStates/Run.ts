@@ -23,7 +23,11 @@ export default class Walk extends PlayerState {
         }
 
         let dir = this.parent.inputDir;
-
+        if (Input.isMouseJustPressed()
+            && this.parent.transformations.activeForm?.key === "CHARIZARD") {
+            this.finished(PlayerStates.BLITZ);
+            return;
+        }
         if (dir.isZero()) {
             this.finished(PlayerStates.IDLE);
         } else if (Input.isJustPressed(MBControls.JUMP)) {

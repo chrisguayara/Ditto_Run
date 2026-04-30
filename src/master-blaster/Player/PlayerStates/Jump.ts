@@ -4,6 +4,7 @@ import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
+import GlideState from "./GlideState";
 
 export default class Jump extends PlayerState {
 
@@ -56,6 +57,19 @@ export default class Jump extends PlayerState {
             this.finished(PlayerStates.IDLE);
             return;
         }
+        if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
+        if (Input.isMouseJustPressed()) {
+            this.finished(PlayerStates.BLITZ);
+            return;
+        }
+        // Glide becomes available once the rocket-jump arc has peaked enough.
+        // GlideState.GLIDE_ENTRY_VY = -120: player rising at < 120 px/s.
+        if (Input.isPressed(MBControls.JUMP)
+            && this.parent.velocity.y > GlideState.GLIDE_ENTRY_VY) {
+            this.finished(PlayerStates.GLIDE);
+            return;
+        }
+    }
 
         if (this.owner.onCeiling || this.parent.velocity.y >= 0) {
             this.finished(PlayerStates.FALL);
