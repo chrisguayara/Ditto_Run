@@ -5,7 +5,7 @@
   "spriteWidth": 32,
   "spriteHeight": 32,
   "columns": 10,
-  "rows": 2,
+  "rows": 4,
   "durationType": "time",
   "animations": [
     {
@@ -241,6 +241,15 @@
         { "index": 24, "duration": 10 }
         ]
       
-      }
+      },{
+        "name": "CHARIZARD_IDLE",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 29,
+            "duration": 23
+          }
+        ]}
+
     ]
 }

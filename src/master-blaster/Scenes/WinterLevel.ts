@@ -140,7 +140,7 @@ export default class WinterLevel extends MBLevel {
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
-        this.nextLevel = ForestLevel;
+        this.nextLevel = WinterLevel;
         (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
         this.initializePKMN();
         this.initializeEntities();
