@@ -4,6 +4,8 @@ import { MBControls } from "../../MBControls";
 import PlayerState from "./PlayerState";
 
 export default class Walk extends PlayerState {
+    private timer :number = 0;
+    private speedboost : number = 0;
 
     onEnter(options: Record<string, any>): void {
         this.parent.speed = this.parent.MIN_SPEED;
@@ -11,6 +13,8 @@ export default class Walk extends PlayerState {
         if (!this.parent.isTransforming) {
             this.owner.animation.play(this.parent.getAnimationKey("WALK"));
         }
+        
+
     }
 
     update(deltaT: number): void {
@@ -36,10 +40,22 @@ export default class Walk extends PlayerState {
             // Transition to FALL for both falling (positive Y) and bouncing (negative Y)
             this.finished(PlayerStates.FALL);
         } else {
+            
+            if (this.timer == 1000){
+                this.speedboost = 20;
+            }
             this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-            this.parent.velocity.x = dir.x * this.parent.effectiveSpeed;
+            this.parent.velocity.x = dir.x * this.parent.effectiveSpeed +this.speedboost;
             this.owner.move(this.parent.velocity.scaled(deltaT));
         }
+
+        if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
+            if (Input.isMouseJustPressed()) {
+                this.finished(PlayerStates.BLITZ);
+                return;
+            }
+        }
+        this.timer++;
     }
 
     onExit(): Record<string, any> {

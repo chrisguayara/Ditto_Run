@@ -9,6 +9,7 @@ import { MBControls } from "../MBControls";
 import ForestLevel from "./ForestLevel";
 import Level1 from "./MBLevel1";
 import WinterLevel from "./WinterLevel";
+import CastleLevel from "./CastleLevel";
 
 
 // Layers for the main menu scene

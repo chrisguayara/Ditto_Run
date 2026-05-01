@@ -7,7 +7,7 @@ import { MBControls } from "../../MBControls";
 
 export default class FlareBlitz extends PlayerState {
 
-    protected static MAX_DIST = 64;
+    protected static MAX_DIST = 16;
     public onEnter(options: Record<string, any>): void {
         const origin = this.owner.position;
         const mouse  = Input.getGlobalMousePosition();
