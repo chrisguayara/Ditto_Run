@@ -10,9 +10,9 @@ import Input from "../../Wolfie2D/Input/Input";
 import { MBControls } from "../MBControls";
 import MainMenu from "./MainMenu";
 
-const CX = 600;
-const CY = 400;
-const FONT = "PixelSimple";
+const CX = 150;
+const CY = 100;
+const FONT = "monospace";
 
 const COL_BG      = new Color( 22,  20,  40, 1.0);
 const COL_PANEL   = new Color( 34,  32,  60, 0.95);
@@ -34,21 +34,21 @@ type Row =
     | { kind: "row"; action: string; key: string };
 
 const LAYOUT: Row[] = [
-    { kind: "title",  text: "~ CONTROLS ~" },
-    { kind: "sep",    text: "────────────────────" },
+    { kind: "title",  text: "CONTROLS" },
     { kind: "header", text: "MOVEMENT" },
     { kind: "row",    action: "Move",        key: "A / D"  },
     { kind: "row",    action: "Jump",         key: "W"      },
-    { kind: "header", text: "COMBAT" },
-    { kind: "row",    action: "Attack",       key: "Mouse"  },
+    { kind: "row",    action: "Fall",         key: "S"      },
+    { kind: "header", text: "ABILITIES" },
+    { kind: "row",    action: "Grapple",       key: "Mouse Click"  },
+    { kind: "row",    action: "BLitz",       key: "Mouse Click"  },
     { kind: "header", text: "TRANSFORM" },
     { kind: "row",    action: "Transform",    key: "E"      },
     { kind: "header", text: "MENU" },
     { kind: "row",    action: "Pause",        key: "Esc"    },
-    { kind: "back",   text: "> BACK <" },
 ];
 
-const TITLE_H = 18, SEP_H = 10, HEADER_H = 16, ROW_H = 14;
+const TITLE_H = 18, SEP_H = -10, HEADER_H = 16, ROW_H = 14;
 const GAP_TITLE = 8, GAP_SEP = 6, GAP_GROUP = 8, BACK_MARGIN = 14;
 
 export default class ControlsMenu extends Scene {
@@ -61,7 +61,7 @@ export default class ControlsMenu extends Scene {
         this.addUILayer(LAYERS.BG);
         this.addUILayer(LAYERS.MAIN);
 
-        this.viewport.setSize(320, 240);
+        this.viewport.setSize(300, 200);
         this.viewport.setBounds(0, 0, 1200, 800);
         this.viewport.setFocus(new Vec2(CX, CY));
 
@@ -103,7 +103,7 @@ export default class ControlsMenu extends Scene {
                 text,
             });
             l.textColor = color;
-            l.fontSize  = size;
+            l.fontSize  = 25;
             l.font      = FONT;
             l.backgroundColor = new Color(0, 0, 0, 0);
         };

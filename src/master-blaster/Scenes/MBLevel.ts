@@ -583,18 +583,19 @@ export default abstract class MBLevel extends Scene {
         | { kind: "row"; action: string; key: string };
 
     const layout: Row[] = [
-        { kind: "title",  text: "CONTROLS" },
-        { kind: "header", text: "MOVEMENT" },
-        { kind: "row",    action: "Move",       key: "A / D" },
-        { kind: "row",    action: "Jump",        key: "W" },
-        { kind: "header", text: "COMBAT" },
-        { kind: "row",    action: "GRAPPLE",      key: "Left Mouse" },
-        { kind: "header", text: "TRANSFORM" },
-        { kind: "row",    action: "Transform",   key: "E" },
-        { kind: "header", text: "MENU" },
-        { kind: "row",    action: "Pause/Unpause",       key: "Esc" },
-    ];
-
+    { kind: "title",  text: "CONTROLS" },
+    { kind: "header", text: "MOVEMENT" },
+    { kind: "row",    action: "Move",        key: "A / D"  },
+    { kind: "row",    action: "Jump",         key: "W"      },
+    { kind: "row",    action: "Fall",         key: "S"      },
+    { kind: "header", text: "ABILITIES" },
+    { kind: "row",    action: "Grapple",       key: "Mouse Click"  },
+    { kind: "row",    action: "BLitz",       key: "Mouse Click"  },
+    { kind: "header", text: "TRANSFORM" },
+    { kind: "row",    action: "Transform",    key: "E"      },
+    { kind: "header", text: "MENU" },
+    { kind: "row",    action: "Pause/Unpause",        key: "Esc"    },
+];
     const TITLE_H = 14, SEP_H = 10, HEADER_H = 14, ROW_H = 12;
     const GAP_TITLE = 0, GAP_SEP = 0, GAP_GROUP = 0, BACK_MARGIN = 0;
 
