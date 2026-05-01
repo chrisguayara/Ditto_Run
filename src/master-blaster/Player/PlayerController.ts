@@ -61,6 +61,10 @@ export const PlayerStates = {
 } as const
 
 export default class PlayerController extends StateMachineAI {
+    public grappleCooldown: number = 0;
+    public blitzCooldown:   number = 0;
+    public readonly GRAPPLE_COOLDOWN_TIME: number = 3.0;
+    public readonly BLITZ_COOLDOWN_TIME:   number = 3.0;
     public readonly MAX_SPEED: number = 300;
     public readonly MIN_SPEED: number = 100;
     public readonly BASE_JUMP_FORCE: number = -200;
@@ -143,6 +147,9 @@ export default class PlayerController extends StateMachineAI {
         return 0;
     }
     public update(deltaT: number): void {
+        
+        if (this.grappleCooldown > 0) this.grappleCooldown -= deltaT;
+        if (this.blitzCooldown   > 0) this.blitzCooldown   -= deltaT;
         if (this.damageCooldown > 0) {
             this.damageCooldown -= deltaT;
         }

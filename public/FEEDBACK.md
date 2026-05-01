@@ -67,6 +67,7 @@ My proposal:
 	- [ ] Flare Blitz: Can use his side special / up special move from smash ultimate:
 		- [ ] Moves in any direction the player is moving towards for a SET distance
 		- [ ] This makes it a great mobility tool that is predictable yet punishable if exploited too much
+        - [ ]
 - [ ] Maps might need to be more uniform since lack of time to make too many different tilesets, however we do have a bunch to choose from now anyways. 
 - [ ] Resource Management: 
 	- [ ] Rare candy now gives a small speed boost

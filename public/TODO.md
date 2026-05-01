@@ -1,4 +1,3 @@
-
 ## Great Priority 
 General: Incomplete
 ### Ditto & Rotom: Incomplete
