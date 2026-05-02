@@ -8,6 +8,7 @@ import PlayerState from "./PlayerState";
 import { MBLayer } from "../../Scenes/MBLevel";
 import { MBControls } from "../../MBControls";
 import Fall from "./Fall";
+import AABB from "../../../Wolfie2D/DataTypes/Shapes/AABB";
 
 const enum GrapplePhase { CASTING, ATTACHED, MISSED }
 
@@ -69,63 +70,73 @@ export default class GreninjaTongueGrapple extends PlayerState {
     }
 
     private updateCasting(deltaT: number): void {
-        const step = GreninjaTongueGrapple.CAST_SPEED * deltaT;
-        this.castDist += step;
-
-        this.tipPos.x += this.castDir.x * step;
-        this.tipPos.y += this.castDir.y * step;
-
+        const totalStep = GreninjaTongueGrapple.CAST_SPEED * deltaT;
+        const tileSize = 16;
+        const subStepSize = tileSize * 0.5;
+        const steps = Math.ceil(totalStep / subStepSize);
+        const subStep = totalStep / steps;
+    
+        let hit = false;
+        for (let s = 0; s < steps; s++) {
+            this.castDist += subStep;
+            this.tipPos.x += this.castDir.x * subStep;
+            this.tipPos.y += this.castDir.y * subStep;
+    
+            if (this.hitsTile(this.tipPos)) {
+                this.anchor = this.tipPos.clone();
+                this.parent.grappleAnchor = this.anchor;
+                this.phase = GrapplePhase.ATTACHED;
+                hit = true;
+                break;
+            }
+    
+            if (this.castDist >= GreninjaTongueGrapple.MAX_RANGE) {
+                this.phase = GrapplePhase.MISSED;
+                this.missTimer = GreninjaTongueGrapple.MISS_PAUSE;
+                hit = true; // stop the loop
+                break;
+            }
+        }
+    
+        // Player body still moves normally during cast — sweep covers it
+        const bodyVel = this.parent.velocity.scaled(deltaT);
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-        this.owner.move(this.parent.velocity.scaled(deltaT));
-
-        if (this.hitsTile(this.tipPos)) {
-            this.anchor = this.tipPos.clone();
-            this.parent.grappleAnchor = this.anchor;
-            this.phase = GrapplePhase.ATTACHED;
-            return;
-        }
-
-        if (this.castDist >= GreninjaTongueGrapple.MAX_RANGE) {
-            this.phase = GrapplePhase.MISSED;
-            this.missTimer = GreninjaTongueGrapple.MISS_PAUSE;
-        }
+        this.owner.sweptRect.sweep(bodyVel, this.owner.position.clone(), 
+            (this.owner.collisionShape as AABB).halfSize);
+        this.owner.move(bodyVel);
     }
 
     private updateAttached(deltaT: number): void {
         const px = this.anchor.x - this.owner.position.x;
         const py = this.anchor.y - this.owner.position.y;
         const dist = Math.hypot(px, py);
-
-        if (dist < 4) {
-            this.exit();
-            return;
-        }
-
+    
+        if (dist < 4) { this.exit(); return; }
+    
         const nx = px / dist;
         const ny = py / dist;
-
+    
         // ── Gravity ──
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-
-        // ── Remove inward velocity (rope constraint core) ──
+    
+        // ── Remove inward velocity ──
         const vDotN = this.parent.velocity.x * nx + this.parent.velocity.y * ny;
         if (vDotN > 0) {
             this.parent.velocity.x -= vDotN * nx;
             this.parent.velocity.y -= vDotN * ny;
         }
-
-        // ── RESTORED: centripetal pull (THIS fixes horizontal swing) ──
+    
+        // ── Centripetal pull ──
         this.parent.velocity.x += nx * 80 * deltaT;
         this.parent.velocity.y += ny * 80 * deltaT;
-
+    
         // ── Steering ──
         const inputDir = this.parent.inputDir;
         const lateralX = inputDir.x - inputDir.x * nx * nx;
         const lateralY = -inputDir.x * nx * ny;
-
         this.parent.velocity.x += lateralX * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
         this.parent.velocity.y += lateralY * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
-
+    
         // ── Speed cap ──
         const spd = Math.hypot(this.parent.velocity.x, this.parent.velocity.y);
         if (spd > GreninjaTongueGrapple.MAX_SPEED) {
@@ -133,65 +144,72 @@ export default class GreninjaTongueGrapple extends PlayerState {
             this.parent.velocity.x *= scale;
             this.parent.velocity.y *= scale;
         }
-
-        // ── Move ──
+    
+        // ── Ceiling tunnel prevention via tilemap probe ──
+        // If we're moving upward, check a point slightly above the player's head.
+        // If that point is already inside a tile, kill upward velocity and exit
+        // before the engine ever gets a chance to tunnel through it.
+        if (this.parent.velocity.y < 0) {
+            const collider = this.owner.collisionShape as AABB;
+            // Probe at head + a small margin so we catch it before contact
+            const probeMargin = 2;
+            const headY = this.owner.position.y - collider.halfSize.y - probeMargin;
+            const probeCenter = new Vec2(this.owner.position.x, headY);
+    
+            // Also probe slightly left and right to catch corner cases
+            const probeLeft  = new Vec2(this.owner.position.x - collider.halfSize.x * 0.5, headY);
+            const probeRight = new Vec2(this.owner.position.x + collider.halfSize.x * 0.5, headY);
+    
+            if (this.hitsTile(probeCenter) || this.hitsTile(probeLeft) || this.hitsTile(probeRight)) {
+                this.parent.velocity.y = 0;
+                this.exit();
+                return;
+            }
+        }
+    
+        // ── Move (unchanged from original — full speed, full feel) ──
         this.owner.move(this.parent.velocity.scaled(deltaT));
         this.tipPos = this.anchor.clone();
-
-        // ── Rope constraint (FIXED properly) ──
+    
+        // ── Rope length constraint ──
         const dx = this.owner.position.x - this.anchor.x;
         const dy = this.owner.position.y - this.anchor.y;
         const dist2 = Math.hypot(dx, dy);
-
         const maxLen = GreninjaTongueGrapple.MAX_RANGE;
-
+    
         if (dist2 > maxLen) {
             const nx2 = dx / dist2;
             const ny2 = dy / dist2;
-
             const vDot = this.parent.velocity.x * nx2 + this.parent.velocity.y * ny2;
-
-            // ONLY block outward motion
             if (vDot > 0) {
                 this.parent.velocity.x -= vDot * nx2;
                 this.parent.velocity.y -= vDot * ny2;
             }
-
-            // Snap but slightly INSIDE to prevent wall sticking
             const epsilon = 0.5;
             this.owner.position.x = this.anchor.x + nx2 * (maxLen - epsilon);
             this.owner.position.y = this.anchor.y + ny2 * (maxLen - epsilon);
         }
-
-        // ── Collision escape (NEW: fixes wall sticking properly) ──
+    
+        // ── Collision exits (engine flags, post-move) ──
         if (this.owner.onWall) {
-            this.parent.velocity.x *= 0.5; // damp instead of flip
+            this.parent.velocity.x *= 0.5;
             this.exit();
             return;
         }
-
         if (this.owner.onCeiling) {
             this.parent.velocity.y = 0;
             this.exit();
             return;
         }
-
+    
         // ── Inputs ──
-        if (Input.isMouseJustPressed()) {
-            this.exit();
-            return;
-        }
-
+        if (Input.isMouseJustPressed()) { this.exit(); return; }
         if (Input.isJustPressed(MBControls.JUMP)) {
             this.parent.velocity.y = Math.min(this.parent.velocity.y, -200);
             this.exit();
             return;
         }
-
-        if (this.owner.onGround) {
-            this.exit();
-            return;
-        }
+        if (this.owner.onGround) { this.exit(); return; }
     }
 
     private updateMissed(deltaT: number): void {
