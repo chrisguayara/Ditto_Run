@@ -17,6 +17,7 @@
     "openFiles": [
     ],
     "project": "map2.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
     ],
     "tileset.embedInMap": true,

@@ -60,7 +60,7 @@ export default class WallSlide extends PlayerState {
             console.log("ATTEMPTING TO WALLJUMP");
             this._wallJumped = true;
             // Strong horizontal kick away from wall, good vertical
-            this.parent.velocity.x = -this.wallSide * 500;
+            this.parent.velocity.x = -this.wallSide * 220;
             this.parent.velocity.y = -340;
             this.finished(PlayerStates.JUMP);
             return;

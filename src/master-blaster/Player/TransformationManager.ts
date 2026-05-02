@@ -33,16 +33,7 @@ export default class TransformationManager {
 
     /** Call this every frame from PlayerController.update() */
     public update(deltaT: number): void {
-        if (this._activeForm) {
-            // Drain energy while a form is held
-            this.energy -= this._activeForm.drainRate * deltaT;
-
-            // Auto-cancel if energy runs out
-            if (this._energy <= 0) {
-                this.deactivate();
-            }
-        } else {
-            // Recharge when no form is active
+        if (this._energy < this._maxEnergy) {
             this.energy += this.RECHARGE_RATE * deltaT;
         }
     }
@@ -73,24 +64,7 @@ export default class TransformationManager {
     }
 
     /** Toggle if a form is active deactivate it, otherwise activate selected */
-    public toggle(): void {
-        // if (this._activeForm) {
-        //     this.deactivate();
-        // } else {
-        //     this.activate();
-        // }
-        if (this._unlockedForms.length === 0) return;
     
-        if (this._activeForm) {
-            // Deactivate current, advance to next, activate it
-            this.deactivate();
-            this._selectedIndex = (this._selectedIndex + 1) % this._unlockedForms.length;
-            this.activate();
-        } else {
-            // No form active — activate current selection
-            this.activate();
-        }
-    }
 
     /** Cycle to the next unlocked form */
     public cycleNext(): void {
@@ -155,6 +129,26 @@ export default class TransformationManager {
             cur: this._energy,
             max: this._maxEnergy
         });
+    }
+    /** Force-activate a form by key without energy cost. Used for spawn/respawn. */
+    public forceActivate(key: string): void {
+        const form = Transformations[key];
+        if (!form) return;
+        if (!this._unlockedForms.find(f => f.key === key)) {
+            this._unlockedForms.push(form);
+        }
+        this._selectedIndex = this._unlockedForms.findIndex(f => f.key === key);
+        this._activeForm = form;
+        this._energy = this._maxEnergy; // full energy on force-activate
+        this.emitter.fireEvent(MBEvents.TRANSFORM_START, { form: form.key });
+    }
+    
+    public toggle(): void {
+        if (this._unlockedForms.length === 0) return;
+        // Cycle to next — never drop to base
+        this._selectedIndex = (this._selectedIndex + 1) % this._unlockedForms.length;
+        this._activeForm = this._unlockedForms[this._selectedIndex];
+        this.emitter.fireEvent(MBEvents.TRANSFORM_START, { form: this._activeForm.key });
     }
 
     public get maxEnergy(): number { return this._maxEnergy; }

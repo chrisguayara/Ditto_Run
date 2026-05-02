@@ -35,7 +35,7 @@ export default class WinterLevel extends MBLevel {
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
     public static readonly WALLS_LAYER_KEY = "Ground";
-    public static readonly DAMAGE_LAYER_KEY ="damage"
+    public static readonly DAMAGE_LAYER_KEY ="Damage"
 
     public static readonly LEVEL_MUSIC_KEY = "LEVEL_MUSIC";
     public static readonly LEVEL_MUSIC_PATH = "game_assets/music/jeanparker_synced-146-master.wav";

@@ -5,18 +5,13 @@ import PlayerState from "./PlayerState";
 import { MBEvents } from "../../MBEvents";
 import { MBControls } from "../../MBControls";
 
-/**
- * BlitzState — Charizard's Flare Blitz
- * ──────────────────────────────────────
- * TWO MODES (toggle with ROCKET_JUMP_MODE flag):
- *
+/*
  * ROCKET_JUMP (true):  Launch OPPOSITE the click direction — like a rocket jump.
  *                      Great for vertical/diagonal escape and momentum chaining.
  *
  * FLARE_BLITZ (false): Launch TOWARD the click direction — charge dash.
  *                      Great for horizontal rushes and aggressive movement.
  *
- * Both modes preserve and amplify existing horizontal momentum.
  */
 export default class BlitzState extends PlayerState {
 
@@ -24,8 +19,8 @@ export default class BlitzState extends PlayerState {
     private static readonly ROCKET_JUMP_MODE: boolean = true;
 
     // ── Tuning ────────────────────────────────────────────────────
-    private static readonly DURATION:          number = 0.40;   // seconds blitz owns physics
-    private static readonly LAUNCH_SPEED:      number = 400;    // base launch magnitude
+    private static readonly DURATION:          number = 0.70;   // seconds blitz owns physics
+    private static readonly LAUNCH_SPEED:      number = 300;    // base launch magnitude
     private static readonly MOMENTUM_CARRY:    number = 0.70;    // how much existing velocity blends in
     private static readonly HORIZONTAL_BIAS:   number = 1.3;    // multiply x component — makes it feel fast
     private static readonly VERTICAL_BIAS:     number = 0.85;   // slightly reduce y — keeps it readable

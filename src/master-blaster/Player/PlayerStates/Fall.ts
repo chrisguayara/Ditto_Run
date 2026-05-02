@@ -24,7 +24,7 @@ export default class Fall extends PlayerState {
 
         // ── Greninja abilities ───────────────────────────────────
         if (this.parent.transformations.activeForm?.key === "GRENINJA") {
-            if (Input.isMouseJustPressed()) {
+            if (Input.isMouseJustPressed() && this.parent.grappleCooldown <=0) {
                 this.finished(PlayerStates.GRAPPLE);
                 return;
             }
@@ -49,7 +49,6 @@ export default class Fall extends PlayerState {
         }
 
         if (this.owner.onGround) {
-            this.parent.health -= Math.floor(this.parent.velocity.y / 300);
             this.finished(PlayerStates.IDLE);
             return;
         }
