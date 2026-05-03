@@ -11,6 +11,7 @@ import Input from "../../Wolfie2D/Input/Input";
 import { MBControls } from "../MBControls";
 import MainMenu from "./MainMenu";
 import WinterLevel from "./WinterLevel";
+import CastleLevel from "./CastleLevel";
 
 // ─── Layers ───────────────────────────────────────────────────────────────────
 
@@ -43,7 +44,8 @@ const CY = 400;
 
 const LEVELS: Array<{ label: string; scene: new (...args: any[]) => Scene }> = [
     { label: "WINTER",  scene: WinterLevel  },
-    // { label: "FOREST",  scene: ForestLevel  },  ← uncomment when ready
+    { label: "STRONGHOLD",  scene: CastleLevel  },
+    // { label: "FOREST",  scene: ForestLevel  },  Format
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
