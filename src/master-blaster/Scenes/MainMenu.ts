@@ -161,8 +161,7 @@ export default class MainMenu extends Scene {
                 this.navigateTo(ControlsMenu);
                 break;
             case "FEEDBACK":
-                // Replace this URL with the actual Google Form link
-                window.open("https://forms.gle/REPLACE_WITH_REAL_URL", "_blank");
+                window.open("https://forms.gle/8RLwPVrickHJFTWPA", "Feedback form");
                 break;
         }
     }
