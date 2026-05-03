@@ -24,10 +24,10 @@ export default class GlideState extends PlayerState {
     // ── Tuning ────────────────────────────────────────────────────
 
     /** Gravity applied per second while gliding (normal 500). */
-    private static readonly GLIDE_GRAVITY   = 250;
+    private static readonly GLIDE_GRAVITY   = 350;
 
     /** Hard cap on downward velocity (px/s) during glide. */
-    private static readonly GLIDE_FALL_CAP  = 40;
+    private static readonly GLIDE_FALL_CAP  = 60;
 
     /**
      * The player's upward velocity must be below this (i.e., rising slower
@@ -62,13 +62,11 @@ export default class GlideState extends PlayerState {
             return;
         }
 
-        // ── Exit: click → blitz ───────────────────────────────────
         if (Input.isMouseJustPressed()) {
             this.finished(PlayerStates.BLITZ);
             return;
         }
 
-        // ── Reduced gravity ───────────────────────────────────────
         this.parent.velocity.y += GlideState.GLIDE_GRAVITY * deltaT;
         if (this.parent.velocity.y > GlideState.GLIDE_FALL_CAP) {
             this.parent.velocity.y = GlideState.GLIDE_FALL_CAP;
@@ -78,7 +76,7 @@ export default class GlideState extends PlayerState {
         const dir = this.parent.inputDir;
         if (dir.x !== 0) {
             this.owner.invertX = dir.x < 0;
-            this.parent.velocity.x += dir.x * this.parent.effectiveSpeed * 0.85 * deltaT;
+            this.parent.velocity.x += dir.x * this.parent.effectiveSpeed * 0.95 * deltaT;
         } else {
             // Gentle air friction
             this.parent.velocity.x *= 1 - (1.5 * deltaT);

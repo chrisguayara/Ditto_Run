@@ -5,190 +5,216 @@ import Line from "../../../Wolfie2D/Nodes/Graphics/Line";
 import { GraphicType } from "../../../Wolfie2D/Nodes/Graphics/GraphicTypes";
 import { PlayerAnimations, PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
-import { MBLayers, MBLayer } from "../../Scenes/MBLevel";
+import { MBLayer } from "../../Scenes/MBLevel";
 import { MBControls } from "../../MBControls";
-
+import Fall from "./Fall";
+import AABB from "../../../Wolfie2D/DataTypes/Shapes/AABB";
 
 const enum GrapplePhase { CASTING, ATTACHED, MISSED }
 
 export default class GreninjaTongueGrapple extends PlayerState {
 
-    // ── Tuning ────────────────────────────────────────────────────
-    private static readonly CAST_SPEED:   number = 700;   // px/s tongue travel
-    private static readonly MAX_RANGE:    number = 124;   // px
-    private static readonly PULL_FORCE:   number = 100;   // px/s²
-    private static readonly MAX_SPEED:    number = 490;   // px/s cap while attached
-    private static readonly MISS_PAUSE:   number = 0.15;  // seconds before exiting on miss
-    private static readonly DETACH_DIST:  number = 0;    // px — auto-detach near anchor
-    private static readonly SWING_STEER:  number = 0.5;
-    private static readonly ATTACH_GRAV:  number = 0.5;   // gravity fraction while swinging
+    private static readonly CAST_SPEED = 700;
+    private static readonly MAX_RANGE = 124;
+    private static readonly MAX_SPEED = 490;
+    private static readonly MISS_PAUSE = 0.15;
+    private static readonly SWING_STEER = 0.2;
 
-    // ── Tongue rendering ──────────────────────────────────────────
-    private static readonly NUM_SEGMENTS: number = 7;
-    /** Sine-wave amplitude as a fraction of total tongue length */
-    private static readonly WAVE_SCALE:   number = 0.09;
-    /** Hard cap on wave amplitude in px */
-    private static readonly MAX_WAVE_AMP: number = 8;
+    private static readonly NUM_SEGMENTS = 7;
+    private static readonly WAVE_SCALE = 0.09;
+    private static readonly MAX_WAVE_AMP = 8;
     private static readonly TONGUE_LAYER: MBLayer = "PRIMARY";
+    private static readonly TONGUE_COLOR: Color = new Color(225,110,122);
 
-    private static readonly TONGUE_COLOR: Color  = new Color(225,110,122);
+    private phase = GrapplePhase.CASTING;
+    private castDir = new Vec2(0, -1);
+    private anchor = new Vec2(0, 0);
+    private tipPos = new Vec2(0, 0);
+    private castDist = 0;
+    private missTimer = 0;
+    private tongueLines: Line[] = [];
 
-    // ── Runtime state ─────────────────────────────────────────────
-    private phase:       GrapplePhase = GrapplePhase.CASTING;
-    private castDir:     Vec2         = new Vec2(0, -1);
-    private anchor:      Vec2         = new Vec2(0, 0);
-    private tipPos:      Vec2         = new Vec2(0, 0);
-    private castDist:    number       = 0;
-    private missTimer:   number       = 0;
-    private tongueLines: Line[]       = [];
-
-    // ── Lifecycle ─────────────────────────────────────────────────
-    public onEnter(options: Record<string, any>): void {
+    public onEnter(): void {
         const origin = this.owner.position;
-        const mouse  = Input.getGlobalMousePosition();
+        const mouse = Input.getGlobalMousePosition();
 
-        // Snapshot direction toward cursor at the moment of click
-        const dx  = mouse.x - origin.x;
-        const dy  = mouse.y - origin.y;
+        const dx = mouse.x - origin.x;
+        const dy = mouse.y - origin.y;
         const len = Math.hypot(dx, dy);
-        this.castDir  = len > 0 ? new Vec2(dx / len, dy / len) : new Vec2(0, -1);
 
-        this.tipPos    = origin.clone();
-        this.castDist  = 0;
-        this.phase     = GrapplePhase.CASTING;
-        this.missTimer = 0;
+        this.castDir = len > 0 ? new Vec2(dx / len, dy / len) : new Vec2(0, -1);
 
-        this.parent.grappleAnchor = null;
-        this.parent.grappleTip    = this.tipPos;
+        this.tipPos = origin.clone();
+        this.castDist = 0;
+        this.phase = GrapplePhase.CASTING;
 
         this.createTongueLines();
     }
 
     public update(deltaT: number): void {
-        super.update(deltaT);
-
         switch (this.phase) {
-            case GrapplePhase.CASTING:  this.updateCasting(deltaT);  break;
+            case GrapplePhase.CASTING: this.updateCasting(deltaT); break;
             case GrapplePhase.ATTACHED: this.updateAttached(deltaT); break;
-            case GrapplePhase.MISSED:   this.updateMissed(deltaT);   break;
+            case GrapplePhase.MISSED: this.updateMissed(deltaT); break;
         }
 
         this.parent.grappleTip = this.tipPos.clone();
         this.updateTongueLines();
-
-        this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("GRAPPLE"));
-
     }
 
     public onExit(): Record<string, any> {
-        this.owner.animation.stop();
         this.parent.grappleAnchor = null;
-        this.parent.grappleTip    = null;
+        this.parent.grappleTip = null;
         this.destroyTongueLines();
         return {};
     }
 
-    // ── Phase updates ─────────────────────────────────────────────
-
     private updateCasting(deltaT: number): void {
-        // Tongue flies freely — no early cancel during cast
-        const step = GreninjaTongueGrapple.CAST_SPEED * deltaT;
-        this.castDist += step;
-        this.tipPos.x += this.castDir.x * step;
-        this.tipPos.y += this.castDir.y * step;
-
-        // Player still falls while tongue is in flight
+        const totalStep = GreninjaTongueGrapple.CAST_SPEED * deltaT;
+        const tileSize = 16;
+        const subStepSize = tileSize * 0.5;
+        const steps = Math.ceil(totalStep / subStepSize);
+        const subStep = totalStep / steps;
+    
+        let hit = false;
+        for (let s = 0; s < steps; s++) {
+            this.castDist += subStep;
+            this.tipPos.x += this.castDir.x * subStep;
+            this.tipPos.y += this.castDir.y * subStep;
+    
+            if (this.hitsTile(this.tipPos)) {
+                this.anchor = this.tipPos.clone();
+                this.parent.grappleAnchor = this.anchor;
+                this.phase = GrapplePhase.ATTACHED;
+                hit = true;
+                break;
+            }
+    
+            if (this.castDist >= GreninjaTongueGrapple.MAX_RANGE) {
+                this.phase = GrapplePhase.MISSED;
+                this.missTimer = GreninjaTongueGrapple.MISS_PAUSE;
+                hit = true; // stop the loop
+                break;
+            }
+        }
+    
+        // Player body still moves normally during cast — sweep covers it
+        const bodyVel = this.parent.velocity.scaled(deltaT);
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-        this.owner.move(this.parent.velocity.scaled(deltaT));
-
-        // Hit a tile → attach
-        if (this.hitsTile(this.tipPos)) {
-            this.anchor               = this.tipPos.clone();
-            this.parent.grappleAnchor = this.anchor;
-            this.phase                = GrapplePhase.ATTACHED;
-            return;
-        }
-
-        // Max range → miss
-        if (this.castDist >= GreninjaTongueGrapple.MAX_RANGE) {
-            this.phase     = GrapplePhase.MISSED;
-            this.missTimer = GreninjaTongueGrapple.MISS_PAUSE;
-        }
+        this.owner.sweptRect.sweep(bodyVel, this.owner.position.clone(), 
+            (this.owner.collisionShape as AABB).halfSize);
+        this.owner.move(bodyVel);
     }
 
     private updateAttached(deltaT: number): void {
-        const px   = this.anchor.x - this.owner.position.x;
-        const py   = this.anchor.y - this.owner.position.y;
+        const px = this.anchor.x - this.owner.position.x;
+        const py = this.anchor.y - this.owner.position.y;
         const dist = Math.hypot(px, py);
-
-        if (dist < 4) {
-            this.exit();
-            return;
-        }
-
+    
+        if (dist < 4) { this.exit(); return; }
+    
         const nx = px / dist;
         const ny = py / dist;
-
-        // Full gravity while swinging now
+    
+        // ── Gravity ──
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-
-        
+    
+        // ── Remove inward velocity ──
         const vDotN = this.parent.velocity.x * nx + this.parent.velocity.y * ny;
         if (vDotN > 0) {
-            
             this.parent.velocity.x -= vDotN * nx;
             this.parent.velocity.y -= vDotN * ny;
         }
-
-        // Gentle centripetal pull to keep rope from going slack
-        this.parent.velocity.x += nx * GreninjaTongueGrapple.PULL_FORCE * deltaT;
-        this.parent.velocity.y += ny * GreninjaTongueGrapple.PULL_FORCE * deltaT;
-
-        // Player steers the swing — lateral input only, no rope-direction component
+    
+        // ── Centripetal pull ──
+        this.parent.velocity.x += nx * 80 * deltaT;
+        this.parent.velocity.y += ny * 80 * deltaT;
+    
+        // ── Steering ──
         const inputDir = this.parent.inputDir;
         const lateralX = inputDir.x - inputDir.x * nx * nx;
-        const lateralY =            - inputDir.x * nx * ny;
+        const lateralY = -inputDir.x * nx * ny;
         this.parent.velocity.x += lateralX * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
         this.parent.velocity.y += lateralY * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
-
-        // Speed cap
+    
+        // ── Speed cap ──
         const spd = Math.hypot(this.parent.velocity.x, this.parent.velocity.y);
         if (spd > GreninjaTongueGrapple.MAX_SPEED) {
             const scale = GreninjaTongueGrapple.MAX_SPEED / spd;
             this.parent.velocity.x *= scale;
             this.parent.velocity.y *= scale;
         }
-
+    
+        // ── Ceiling tunnel prevention via tilemap probe ──
+        // If we're moving upward, check a point slightly above the player's head.
+        // If that point is already inside a tile, kill upward velocity and exit
+        // before the engine ever gets a chance to tunnel through it.
+        if (this.parent.velocity.y < 0) {
+            const collider = this.owner.collisionShape as AABB;
+            // Probe at head + a small margin so we catch it before contact
+            const probeMargin = 2;
+            const headY = this.owner.position.y - collider.halfSize.y - probeMargin;
+            const probeCenter = new Vec2(this.owner.position.x, headY);
+    
+            // Also probe slightly left and right to catch corner cases
+            const probeLeft  = new Vec2(this.owner.position.x - collider.halfSize.x * 0.5, headY);
+            const probeRight = new Vec2(this.owner.position.x + collider.halfSize.x * 0.5, headY);
+    
+            if (this.hitsTile(probeCenter) || this.hitsTile(probeLeft) || this.hitsTile(probeRight)) {
+                this.parent.velocity.y = 0;
+                this.exit();
+                return;
+            }
+        }
+    
+        // ── Move (unchanged from original — full speed, full feel) ──
         this.owner.move(this.parent.velocity.scaled(deltaT));
         this.tipPos = this.anchor.clone();
-
-        // Player explicitly releases — click again OR press jump to launch
-        if (Input.isMouseJustPressed()) {
+    
+        // ── Rope length constraint ──
+        const dx = this.owner.position.x - this.anchor.x;
+        const dy = this.owner.position.y - this.anchor.y;
+        const dist2 = Math.hypot(dx, dy);
+        const maxLen = GreninjaTongueGrapple.MAX_RANGE;
+    
+        if (dist2 > maxLen) {
+            const nx2 = dx / dist2;
+            const ny2 = dy / dist2;
+            const vDot = this.parent.velocity.x * nx2 + this.parent.velocity.y * ny2;
+            if (vDot > 0) {
+                this.parent.velocity.x -= vDot * nx2;
+                this.parent.velocity.y -= vDot * ny2;
+            }
+            const epsilon = 0.5;
+            this.owner.position.x = this.anchor.x + nx2 * (maxLen - epsilon);
+            this.owner.position.y = this.anchor.y + ny2 * (maxLen - epsilon);
+        }
+    
+        // ── Collision exits (engine flags, post-move) ──
+        if (this.owner.onWall) {
+            this.parent.velocity.x *= 0.5;
             this.exit();
             return;
         }
-
-        // Jump while grappling = release + boost upward (slingshot)
+        if (this.owner.onCeiling) {
+            this.parent.velocity.y = 0;
+            this.exit();
+            return;
+        }
+    
+        // ── Inputs ──
+        if (Input.isMouseJustPressed()) { this.exit(); return; }
         if (Input.isJustPressed(MBControls.JUMP)) {
-            // Boost perpendicular to rope direction = best launch angle
             this.parent.velocity.y = Math.min(this.parent.velocity.y, -200);
             this.exit();
             return;
         }
-
-        if (this.owner.onGround) {
-            this.exit();
-            return;
-        }
-
-        if (!this.parent.isTransforming) {
-            this.owner.animation.playIfNotAlready(PlayerAnimations.JUMP);
-        }
+        if (this.owner.onGround) { this.exit(); return; }
     }
 
     private updateMissed(deltaT: number): void {
-        // Retract tip back toward player during the pause so the miss looks intentional
         const t = Math.min(1, deltaT * 10);
+
         this.tipPos.x += (this.owner.position.x - this.tipPos.x) * t;
         this.tipPos.y += (this.owner.position.y - this.tipPos.y) * t;
 
@@ -196,14 +222,6 @@ export default class GreninjaTongueGrapple extends PlayerState {
         if (this.missTimer <= 0) this.exit();
     }
 
-    // ── Tongue rendering ──────────────────────────────────────────
-
-    /**
-     * Creates NUM_SEGMENTS Line nodes on the scene.
-     *  Two things to verify against Wolfie2D 
-     *   1. scene.add.graphic(GraphicType.LINE, layer, {}) — adjust if the API differs
-     *   2. TONGUE_LAYER — must match an actual layer in MBLevel
-     */
     private createTongueLines(): void {
         const scene = this.owner.getScene();
         const N     = GreninjaTongueGrapple.NUM_SEGMENTS;
@@ -228,12 +246,6 @@ export default class GreninjaTongueGrapple extends PlayerState {
         }
     }
 
-    /**
-     * Repositions the N Line nodes in a sine-wave arc each frame.
-     *
-     * The wave has zero offset at both ends (mouth and tip) and peaks
-     * in the middle — gives the tongue a natural bowed shape.
-     */
     private updateTongueLines(): void {
         const start = this.owner.position;
         const end   = this.tipPos;
@@ -282,20 +294,14 @@ export default class GreninjaTongueGrapple extends PlayerState {
         this.tongueLines = [];
     }
 
-    // ── Helpers ───────────────────────────────────────────────────
-
     private exit(): void {
         this.finished(this.owner.onGround ? PlayerStates.IDLE : PlayerStates.FALL);
+        
     }
 
-    /**
-     * Verify getTileAtWorldPosition exists on OrthogonalTilemap.
-     * Alternatives: getTileAtRowCol, isTileCollidable, etc.
-     */
     private hitsTile(pos: Vec2): boolean {
         try {
-            const tile = this.parent.tilemap.getTileAtWorldPosition(pos);
-            return tile > 0;
+            return this.parent.tilemap.getTileAtWorldPosition(pos) > 0;
         } catch {
             return false;
         }

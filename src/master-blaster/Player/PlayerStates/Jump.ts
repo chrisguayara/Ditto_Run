@@ -27,61 +27,75 @@ export default class Jump extends PlayerState {
 
     public update(deltaT: number): void {
         super.update(deltaT);
-
-        // ── Early exit: fast fall ───────────────────────────────
+    
         if (Input.isJustPressed(MBControls.DOWN)) {
+            this.parent.velocity.y = 140;
             this.finished(PlayerStates.FALL);
-            this.parent.velocity.y=140;
             return;
         }
-
-        // ── Greninja abilities ──────────────────────────────────
+    
         if (this.parent.transformations.activeForm?.key === "GRENINJA") {
-
-            // Tongue grapple
-            if (Input.isMouseJustPressed()) {
+            if (Input.isMouseJustPressed() && this.parent.grappleCooldown <= 0) {
                 this.finished(PlayerStates.GRAPPLE);
                 return;
             }
-
-            // Wall slide — enter when touching any wall while airborne
             const wall = this.parent.wallDir;
             if (wall !== 0 && this.parent.velocity.y > 0) {
                 this.finished(PlayerStates.WALL_SLIDE);
                 return;
             }
         }
-
-        // ── Standard jump logic ──────────────────────────────────
+    
         if (this.owner.onGround) {
             this.finished(PlayerStates.IDLE);
             return;
         }
+    
         if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
-        if (Input.isMouseJustPressed()) {
-            this.finished(PlayerStates.BLITZ);
-            return;
+            if (Input.isMouseJustPressed()) {
+                this.finished(PlayerStates.BLITZ);
+                return;
+            }
+            if (Input.isPressed(MBControls.JUMP)
+                && this.parent.velocity.y > GlideState.GLIDE_ENTRY_VY) {
+                this.finished(PlayerStates.GLIDE);
+                return;
+            }
         }
-        // Glide becomes available once the rocket-jump arc has peaked enough.
-        // GlideState.GLIDE_ENTRY_VY = -120: player rising at < 120 px/s.
-        if (Input.isPressed(MBControls.JUMP)
-            && this.parent.velocity.y > GlideState.GLIDE_ENTRY_VY) {
-            this.finished(PlayerStates.GLIDE);
-            return;
-        }
-    }
-
+    
         if (this.owner.onCeiling || this.parent.velocity.y >= 0) {
             this.finished(PlayerStates.FALL);
             return;
         }
-
+    
         const dir = this.parent.inputDir;
-        this.parent.velocity.x += dir.x * this.parent.effectiveSpeed / 3.5
-                                 - 0.3 * this.parent.velocity.x;
+        const isGreninja = this.parent.transformations.activeForm?.key === "GRENINJA";
+    
+        if (isGreninja) {
+            
+            const targetVx = dir.x * this.parent.effectiveSpeed;
+            const currentAbs = Math.abs(this.parent.velocity.x);
+    
+            if (dir.x !== 0) {
+                // If we're already moving faster than base speed in the right direction,
+                // only apply a tiny correction so we don't instantly bleed the bonus speed.
+                const carryingMomentum = Math.sign(this.parent.velocity.x) === dir.x
+                                      && currentAbs > this.parent.effectiveSpeed;
+                const blendRate = carryingMomentum ? 0.03 : 0.10;
+                this.parent.velocity.x += (targetVx - this.parent.velocity.x) * blendRate;
+            } else {
+                // No input: very light passive drag so Greninja still floats a bit
+                this.parent.velocity.x *= 0.98;
+            }
+        } else {
+            // Non-Greninja: original feel, moderate air control with drag
+            this.parent.velocity.x += dir.x * this.parent.effectiveSpeed / 3.5
+                                     - 0.3 * this.parent.velocity.x;
+        }
+    
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
         this.owner.move(this.parent.velocity.scaled(deltaT));
-
+    
         if (!this.parent.isTransforming) {
             this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("JUMP"));
         }

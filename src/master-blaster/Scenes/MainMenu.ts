@@ -12,6 +12,7 @@ import { MBControls } from "../MBControls";
 import AnimatedSprite from "../../Wolfie2D/Nodes/Sprites/AnimatedSprite";
 import LevelSelectMenu from "./LevelSelectMenu";
 import ControlsMenu from "./ControlsMenu";
+import CastleLevel from "./CastleLevel";
 
 // ─── Layers ───────────────────────────────────────────────────────────────────
 

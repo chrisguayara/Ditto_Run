@@ -17,10 +17,6 @@ export default class Fall extends PlayerState {
     public update(deltaT: number): void {
         super.update(deltaT);
 
-        if (this.parent.inputDir.x !== 0) {
-            this.owner.invertX = this.parent.inputDir.x < 0;
-        }   
-
         // ── Fast fall ───────────────────────────────────────────
         if (Input.isJustPressed(MBControls.DOWN)) {
             this.parent.velocity.y = 140;
@@ -28,7 +24,7 @@ export default class Fall extends PlayerState {
 
         // ── Greninja abilities ───────────────────────────────────
         if (this.parent.transformations.activeForm?.key === "GRENINJA") {
-            if (Input.isMouseJustPressed()) {
+            if (Input.isMouseJustPressed() && this.parent.grappleCooldown <=0) {
                 this.finished(PlayerStates.GRAPPLE);
                 return;
             }
@@ -47,31 +43,19 @@ export default class Fall extends PlayerState {
 
         if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
             if (Input.isMouseJustPressed()) {
-                // this.finished(PlayerStates.BLITZ);
-                console.log("CHARIZARD STILL DIDNT GET WORKING");
+                this.finished(PlayerStates.BLITZ);
                 return;
             }
         }
 
         if (this.owner.onGround) {
-            // fall damage is just annoying and punishes grapples/blitz as charizard
-            // this.parent.health -= Math.floor(this.parent.velocity.y / 300);
             this.finished(PlayerStates.IDLE);
             return;
         }
-        
-        
 
         const dir = this.parent.inputDir;
-        const maxX = this.parent.effectiveSpeed * 1.3;
-
-        this.parent.velocity.x += dir.x * 220 * deltaT;
-
-        
-        if (Math.abs(this.parent.velocity.x) > maxX) {
-            this.parent.velocity.x *= 1 - (1.5 * deltaT);
-        }
-
+        this.parent.velocity.x += dir.x * this.parent.speed / 3.5
+                                 - 0.3 * this.parent.velocity.x;
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
         this.owner.move(this.parent.velocity.scaled(deltaT));
 

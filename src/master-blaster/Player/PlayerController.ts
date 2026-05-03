@@ -61,6 +61,10 @@ export const PlayerStates = {
 } as const
 
 export default class PlayerController extends StateMachineAI {
+    public grappleCooldown: number = 0;
+    public blitzCooldown:   number = 0;
+    public readonly GRAPPLE_COOLDOWN_TIME: number = 3.0;
+    public readonly BLITZ_COOLDOWN_TIME:   number = 3.0;
     public readonly MAX_SPEED: number = 300;
     public readonly MIN_SPEED: number = 100;
     public readonly BASE_JUMP_FORCE: number = -200;
@@ -86,26 +90,32 @@ export default class PlayerController extends StateMachineAI {
     public scene! : MBLevel;
 
     public damageCooldown: number = 0; // ms
-    private readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
+    public readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
 
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
         this.owner = owner;
         this.weapon = options.weaponSystem;
         this._transformations = new TransformationManager();
-
+    
         this._tilemap = this.owner.getScene().getTilemap(options.tilemap) as OrthogonalTilemap;
         this.speed = 400;
         this.velocity = Vec2.ZERO;
-        this.health = 10;
-        this.maxHealth = 10;
-
+        this.health = 3;
+        this.maxHealth = 3;
+        this.damageCooldown = 0; // ensure clean state
+    
+        // Always start as Greninja, Charizard available via toggle
+        this._transformations.unlockForm("GRENINJA");
+        this._transformations.unlockForm("CHARIZARD");
+        this._transformations.forceActivate("GRENINJA");
+    
         this.addState(PlayerStates.IDLE, new Idle(this, this.owner));
         this.addState(PlayerStates.RUN, new Run(this, this.owner));
         this.addState(PlayerStates.JUMP, new Jump(this, this.owner));
         this.addState(PlayerStates.FALL, new Fall(this, this.owner));
         this.addState(PlayerStates.DEAD, new Dead(this, this.owner));
         this.addState(PlayerStates.WALL_SLIDE, new WallSlide(this, this.owner));
-        this.addState(PlayerStates.GRAPPLE,    new GreninjaTongueGrapple(this, this.owner));
+        this.addState(PlayerStates.GRAPPLE, new GreninjaTongueGrapple(this, this.owner));
         this.addState(PlayerStates.BLITZ, new BlitzState(this, this.owner));
         this.addState(PlayerStates.GLIDE, new GlideState(this, this.owner));
         this.initialize(PlayerStates.IDLE);
@@ -143,6 +153,9 @@ export default class PlayerController extends StateMachineAI {
         return 0;
     }
     public update(deltaT: number): void {
+        
+        if (this.grappleCooldown > 0) this.grappleCooldown -= deltaT;
+        if (this.blitzCooldown   > 0) this.blitzCooldown   -= deltaT;
         if (this.damageCooldown > 0) {
             this.damageCooldown -= deltaT;
         }

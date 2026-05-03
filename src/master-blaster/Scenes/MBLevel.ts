@@ -32,6 +32,7 @@ import PokemonController from "../Pokemon/PokemonController";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import Game from "../../Wolfie2D/Loop/Game";
 import { Transformations } from "../Player/Transformation";
+import Enemy from "../Entity/Enemy";
 
 import { DittoForms } from "../UI/DittoForms";
 import AudioManager from "../../Wolfie2D/Sound/AudioManager";
@@ -691,17 +692,21 @@ export default abstract class MBLevel extends Scene {
                 const ctrl = this.player._ai as PlayerController;
                 this.player.position.copy(this.respawnPosition);
                 this.player.scaleX = 1;
-                this.player.scaleY =1;
-
+                this.player.scaleY = 1;
                 this.player.alpha = 1;
                 this.player.rotation = 0;
+            
+                ctrl.damageCooldown = 0; // critical — must clear or player is immune after respawn
+                ctrl.velocity = Vec2.ZERO;
                 ctrl.health = ctrl.maxHealth;
                 ctrl.transformations.energy = ctrl.transformations.maxEnergy;
-                ctrl.transformations.deactivate();
+            
+                // Re-activate whatever form they were in — no Ditto
+                const currentFormKey = ctrl.transformations.activeForm?.key ?? "GRENINJA";
+                ctrl.transformations.forceActivate(currentFormKey);
+            
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
-                ctrl.velocity = Vec2.ZERO;
                 ctrl.changeState(PlayerStates.IDLE);
-
                 break;
             }
             case MBEvents.TRANSFORM_START: {
@@ -731,8 +736,11 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
                 const ctrl = this.player._ai as PlayerController;
-                ctrl.health = 0;
-                console.log("PLAYER_HIT!");
+                // Only damage if cooldown has expired
+                if (ctrl.damageCooldown <= 0) {
+                    ctrl.health -= 1;
+                    ctrl.damageCooldown = ctrl.DAMAGE_COOLDOWN_TIME;
+                }
                 break;
             }
 
@@ -743,6 +751,18 @@ export default abstract class MBLevel extends Scene {
                 const entity = this.entityMap.get(otherID);
                 if (entity) {
                     entity.onPlayerContact();
+            
+                    // If it's an enemy, apply contact damage directly here
+                    if (entity instanceof Enemy && !(entity as Enemy).isFainted) {
+                        const ctrl = this.player._ai as PlayerController;
+                        if (ctrl.damageCooldown <= 0) {
+                            ctrl.health -= (entity as Enemy).contactDamage;
+                            ctrl.damageCooldown = ctrl.DAMAGE_COOLDOWN_TIME;
+                            const knockDir = this.player.position.clone()
+                                .sub(entity.position).normalize();
+                            ctrl.velocity = new Vec2(knockDir.x * 200, -150);
+                        }
+                    }
                     break;
                 }
 

@@ -12,26 +12,25 @@ import SludgeWeapon from "../Player/SludgeWeapon";
 import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
 import ForestLevel from "./ForestLevel";
-import CastleLevel from "./CastleLevel";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
 export const CHECKPOINTS = {
-    SPAWN : new Vec2(13*16,75*16),
+    SPAWN : new Vec2(2*16,31*16),
     CHECKPOINT_ONE : new Vec2(73*16,10*16),
     CHECKPOINT_TWO : new Vec2(64*16,42*16),
 } as const;
 
 
-export default class WinterLevel extends MBLevel {
+export default class CastleLevel extends MBLevel {
     
     // public static readonly PLAYER_SPAWN = new Vec2(5*16, 160);
     public static readonly PLAYER_SPAWN = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
 
-    public static readonly TILEMAP_KEY = "Wintermap";
-    public static readonly TILEMAP_PATH = "game_assets/tilemaps/wintermap.json";
+    public static readonly TILEMAP_KEY = "Castlemap";
+    public static readonly TILEMAP_PATH = "game_assets/tilemaps/castle.json";
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
     public static readonly WALLS_LAYER_KEY = "Ground";
@@ -72,22 +71,22 @@ export default class WinterLevel extends MBLevel {
         super(viewport, sceneManager, renderingManager, options);
 
         // Set the keys for the different layers of the tilemap
-        this.tilemapKey = WinterLevel.TILEMAP_KEY;
-        this.tilemapScale = WinterLevel.TILEMAP_SCALE;
-        // this.destructibleLayerKey = WinterLevel.DESTRUCTIBLE_LAYER_KEY;
-        this.wallsLayerKey = WinterLevel.WALLS_LAYER_KEY;
+        this.tilemapKey = CastleLevel.TILEMAP_KEY;
+        this.tilemapScale = CastleLevel.TILEMAP_SCALE;
+        // this.destructibleLayerKey = CastleLevel.DESTRUCTIBLE_LAYER_KEY;
+        this.wallsLayerKey = CastleLevel.WALLS_LAYER_KEY;
         this.phantomWallLayerKey = "phasewalls"; 
         // Set the key for the player's sprite
-        this.playerSpriteKey = WinterLevel.PLAYER_SPRITE_KEY;
+        this.playerSpriteKey = CastleLevel.PLAYER_SPRITE_KEY;
         // Set the player's spawn
-        this.playerSpawn = WinterLevel.PLAYER_SPAWN;
+        this.playerSpawn = CastleLevel.PLAYER_SPAWN;
         this.respawnPosition = this.playerSpawn.clone();
         // Music and sound
-        this.levelMusicKey = WinterLevel.LEVEL_MUSIC_KEY
-        this.jumpAudioKey = WinterLevel.JUMP_AUDIO_KEY;
-        this.transformAudioKey = WinterLevel.TRANSFORM_AUDIO_KEY;
-        this.tileDestroyedAudioKey = WinterLevel.TILE_DESTROYED_KEY;
-        this.levelEndAudioKey = WinterLevel.LEVEL_END_KEY;
+        this.levelMusicKey = CastleLevel.LEVEL_MUSIC_KEY
+        this.jumpAudioKey = CastleLevel.JUMP_AUDIO_KEY;
+        this.transformAudioKey = CastleLevel.TRANSFORM_AUDIO_KEY;
+        this.tileDestroyedAudioKey = CastleLevel.TILE_DESTROYED_KEY;
+        this.levelEndAudioKey = CastleLevel.LEVEL_END_KEY;
         this.damageWallLayerKey = "damage";
 
         // Level end size and position
@@ -104,25 +103,25 @@ export default class WinterLevel extends MBLevel {
      */
     public loadScene(): void {
         // Load in the tilemap
-        this.load.tilemap(this.tilemapKey, WinterLevel.TILEMAP_PATH);
+        this.load.tilemap(this.tilemapKey, CastleLevel.TILEMAP_PATH);
         this.loadPauseMenuAssets();
         // Load in the player's sprite
-        this.load.spritesheet(this.playerSpriteKey, WinterLevel.PLAYER_SPRITE_PATH);
+        this.load.spritesheet(this.playerSpriteKey, CastleLevel.PLAYER_SPRITE_PATH);
         this.load.spritesheet(SludgeWeapon.SLUDGE_KEY, SludgeWeapon.SLUDGE_PATH);
-        this.load.spritesheet(WinterLevel.ROTOM_SPRITE_KEY, WinterLevel.ROTOM_SPRITE_PATH);
+        this.load.spritesheet(CastleLevel.ROTOM_SPRITE_KEY, CastleLevel.ROTOM_SPRITE_PATH);
 
         // Audio and music
-        this.load.audio(this.levelMusicKey, WinterLevel.LEVEL_MUSIC_PATH);
-        this.load.audio(this.jumpAudioKey, WinterLevel.JUMP_AUDIO_PATH);
-        this.load.audio(this.tileDestroyedAudioKey, WinterLevel.TILE_DESTROYED_PATH);
-        this.load.audio(this.levelEndAudioKey, WinterLevel.LEVEL_END_AUDIO_PATH);
-        this.load.spritesheet(WinterLevel.CRYO_GRENINJA_SPRITE_KEY, WinterLevel.CRYO_GRENINJA_SPRITE_PATH);
+        this.load.audio(this.levelMusicKey, CastleLevel.LEVEL_MUSIC_PATH);
+        this.load.audio(this.jumpAudioKey, CastleLevel.JUMP_AUDIO_PATH);
+        this.load.audio(this.tileDestroyedAudioKey, CastleLevel.TILE_DESTROYED_PATH);
+        this.load.audio(this.levelEndAudioKey, CastleLevel.LEVEL_END_AUDIO_PATH);
+        this.load.spritesheet(CastleLevel.CRYO_GRENINJA_SPRITE_KEY, CastleLevel.CRYO_GRENINJA_SPRITE_PATH);
         this.load.spritesheet(RareCandy.SPRITE_KEY, RareCandy.SPRITE_PATH);
         this.load.spritesheet(Snorlax.SPRITE_KEY, Snorlax.SPRITE_PATH);
         this.load.spritesheet(this.hintSpriteKey, this.hintSpritePath);
         this.load.spritesheet(this.transformUIkey, this.transformUIpath);
         
-        this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY, WinterLevel.TRANSFORM_AUDIO_PATH);
+        this.load.audio(CastleLevel.TRANSFORM_AUDIO_KEY, CastleLevel.TRANSFORM_AUDIO_PATH);
     }
 
     /**
@@ -135,7 +134,6 @@ export default class WinterLevel extends MBLevel {
         this.load.keepAudio(this.transformAudioKey);
         this.load.keepAudio(this.tileDestroyedAudioKey);
         this.load.keepAudio(this.levelEndAudioKey);
-        
     }
 
     public startScene(): void {
@@ -155,13 +153,13 @@ export default class WinterLevel extends MBLevel {
     }
     protected initializePKMN(): void {
 
-        // let greninja = this.add.animatedSprite(WinterLevel.CRYO_GRENINJA_SPRITE_KEY, "PRIMARY");
+        // let greninja = this.add.animatedSprite(CastleLevel.CRYO_GRENINJA_SPRITE_KEY, "PRIMARY");
         // greninja.position.set(42* 16,75*16)
         // greninja.animation.play("DEFAULT");
         
         // TURNED OFF ROTOM
-        // let rotom = this.add.animatedSprite(WinterLevel.ROTOM_SPRITE_KEY, "PRIMARY");
-        // rotom.position.set(WinterLevel.PLAYER_SPAWN.x + 20, WinterLevel.PLAYER_SPAWN.y - 20);
+        // let rotom = this.add.animatedSprite(CastleLevel.ROTOM_SPRITE_KEY, "PRIMARY");
+        // rotom.position.set(CastleLevel.PLAYER_SPAWN.x + 20, CastleLevel.PLAYER_SPAWN.y - 20);
         // rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
         // rotom.addAI(RotomController, {
         //     playerRef: this.player,
@@ -187,7 +185,7 @@ export default class WinterLevel extends MBLevel {
      */
     protected initializeViewport(): void {
     super.initializeViewport();
-    this.viewport.setBounds(0, 0, 1600, 1600); // was 0, 128
+    this.viewport.setBounds(0, 0, 140*16, 140*16); // was 0, 128
 
     
     }   
