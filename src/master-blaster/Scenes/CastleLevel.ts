@@ -64,7 +64,7 @@ export default class CastleLevel extends MBLevel {
     
 
     
-    public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
+    public static readonly LEVEL_END = new AABB(new Vec2(159*16, 232), new Vec2(24, 16));
     
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
@@ -90,7 +90,7 @@ export default class CastleLevel extends MBLevel {
         this.damageWallLayerKey = CastleLevel.DAMAGE_LAYER_KEY;
 
         // Level end size and position
-        this.levelEndPosition = new Vec2(94*16, 19*16).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(159*16, 36*16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 =  CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
@@ -185,7 +185,7 @@ export default class CastleLevel extends MBLevel {
      */
     protected initializeViewport(): void {
     super.initializeViewport();
-    this.viewport.setBounds(0, 0, 140*16, 140*16); // was 0, 128
+    this.viewport.setBounds(0, 0, 200*16, 50*16); // was 0, 128
 
     
     }   

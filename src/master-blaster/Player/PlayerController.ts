@@ -89,7 +89,6 @@ export default class PlayerController extends StateMachineAI {
     protected _transformations!: TransformationManager;
     public scene! : MBLevel;
 
-    public damageCooldown: number = 0; // ms
     public readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
 
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
@@ -102,7 +101,6 @@ export default class PlayerController extends StateMachineAI {
         this.velocity = Vec2.ZERO;
         this.health = 3;
         this.maxHealth = 3;
-        this.damageCooldown = 0; // ensure clean state
     
         // Always start as Greninja, Charizard available via toggle
         this._transformations.unlockForm("GRENINJA");
@@ -156,9 +154,7 @@ export default class PlayerController extends StateMachineAI {
         
         if (this.grappleCooldown > 0) this.grappleCooldown -= deltaT;
         if (this.blitzCooldown   > 0) this.blitzCooldown   -= deltaT;
-        if (this.damageCooldown > 0) {
-            this.damageCooldown -= deltaT;
-        }
+        
         if (this.isPaused) return;
         super.update(deltaT);
         this._transformations.update(deltaT);

@@ -51,6 +51,9 @@ export type MBLayer = typeof MBLayers[keyof typeof MBLayers];
 export default abstract class MBLevel extends Scene {
     /** Override the factory manager */
     public add: MBFactoryManager;
+    private damageFlashTimer: number = 0;
+    private readonly DAMAGE_FLASH_DURATION = 1.5; // seconds of iframes
+    private readonly DAMAGE_FLASH_RATE = 0.1; 
 
     // ── Pause menu assets ─────────────────────────────────────────
     public static readonly PAUSE_BG_KEY = "PAUSE_MENU_BG";
@@ -335,6 +338,15 @@ export default abstract class MBLevel extends Scene {
 
         while (this.receiver.hasNextEvent()) {
             this.handleEvent(this.receiver.getNextEvent());
+        }
+        // In updateScene, replace the flash block:
+        if (this.damageFlashTimer > 0) {
+            this.damageFlashTimer = Math.max(0, this.damageFlashTimer - deltaT);
+            const flashPhase = Math.floor(this.damageFlashTimer / this.DAMAGE_FLASH_RATE);
+            this.player.alpha = (flashPhase % 2 === 0) ? 1 : 0;
+            if (this.damageFlashTimer === 0) {
+                this.player.alpha = 1;
+            }
         }
         // Tick all live sludge projectiles
         for (const s of this.sludgePool) {
@@ -660,6 +672,7 @@ export default abstract class MBLevel extends Scene {
         switch (event.type) {
             case MBEvents.PLAYER_ENTERED_LEVEL_END: {
                 this.handleEnteredLevelEnd();
+                console.log("Entered Level End");
                 break;
             }
             case MBEvents.LEVEL_START: {
@@ -690,21 +703,17 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_DEAD: {
                 const ctrl = this.player._ai as PlayerController;
+                this.damageFlashTimer = 0;      // ← replaces damageCooldown = 0
+                this.player.alpha = 1;
                 this.player.position.copy(this.respawnPosition);
                 this.player.scaleX = 1;
                 this.player.scaleY = 1;
-                this.player.alpha = 1;
                 this.player.rotation = 0;
-            
-                ctrl.damageCooldown = 0; // critical — must clear or player is immune after respawn
                 ctrl.velocity = Vec2.ZERO;
                 ctrl.health = ctrl.maxHealth;
                 ctrl.transformations.energy = ctrl.transformations.maxEnergy;
-            
-                // Re-activate whatever form they were in — no Ditto
                 const currentFormKey = ctrl.transformations.activeForm?.key ?? "GRENINJA";
                 ctrl.transformations.forceActivate(currentFormKey);
-            
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 ctrl.changeState(PlayerStates.IDLE);
                 break;
@@ -727,6 +736,7 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_ENTERED_CHECKPOINT: {
                 const nodeId = event.data.get("other");
+                console.log("Entered Checkpoint");
                 if (this.checkpointOneArea && nodeId === this.checkpointOneArea.id) {
                     this.respawnPosition = this.checkpoint_sqr1.clone();
                 } else if (this.checkpointTwoArea && nodeId === this.checkpointTwoArea.id) {
@@ -735,46 +745,28 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
+                if (this.damageFlashTimer > 0) break;
                 const ctrl = this.player._ai as PlayerController;
-                console.log("HIT DAMAGE TILED");
-                // Only damage if cooldown has expired
-                if (ctrl.damageCooldown <= 0) {
-                    ctrl.health -= 1;
-                    ctrl.damageCooldown = ctrl.DAMAGE_COOLDOWN_TIME;
-                }
+                ctrl.health -= 1;
+                this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                this.applyDamageKnockback(ctrl); 
                 break;
             }
 
             case MBEvents.PLAYER_HIT_ENTITY: {
-            
                 const otherID = event.data.get("other");
-
                 const entity = this.entityMap.get(otherID);
                 if (entity) {
                     entity.onPlayerContact();
-            
-                    // If it's an enemy, apply contact damage directly here
-                    if (entity instanceof Enemy && !(entity as Enemy).isFainted) {
+                    if (entity instanceof Enemy && !entity.isFainted) {
                         const ctrl = this.player._ai as PlayerController;
-                        if (ctrl.damageCooldown <= 0) {
-                            ctrl.health -= (entity as Enemy).contactDamage;
-                            ctrl.damageCooldown = ctrl.DAMAGE_COOLDOWN_TIME;
-                            const knockDir = this.player.position.clone()
-                                .sub(entity.position).normalize();
-                            ctrl.velocity = new Vec2(knockDir.x * 200, -150);
+                        if (this.damageFlashTimer <= 0) {
+                            ctrl.health -= entity.contactDamage;
+                            this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                            this.applyDamageKnockback(ctrl, entity.position); // knock away from enemy
                         }
                     }
                     break;
-                }
-
-                const pokemon = this.pokemonMap.get(otherID);
-                if (pokemon && !pokemon.isFainted) {
-                    const ctrl = this.player._ai as PlayerController;
-                    ctrl.health -= pokemon.contactDamage;
-
-                    // Knock player away from the pokemon
-                    const knockDir = this.player.position.clone().sub(pokemon.position).normalize();
-                    ctrl.velocity = new Vec2(knockDir.x * 200, -150);
                 }
                 break;
             }
@@ -947,11 +939,7 @@ export default abstract class MBLevel extends Scene {
             }
         }
 
-        if (this.damageWalls) {
-            console.log("damage walls found!");
-        } else {
-            console.log("damage walls NOT found — check layer name");
-        }
+        
 
         if (this.damageWallLayerKey !== undefined) {
             this.damageWalls = this.getTilemap(this.damageWallLayerKey) as OrthogonalTilemap;
@@ -1250,6 +1238,16 @@ export default abstract class MBLevel extends Scene {
         });
 
         
+    }
+    private applyDamageKnockback(ctrl: PlayerController, sourcePosition?: Vec2): void {
+        ctrl.velocity.x *= 0.1;
+        ctrl.velocity.y = -80;
+        
+        if (sourcePosition) {
+            const knockDir = this.player.position.clone().sub(sourcePosition).normalize();
+            ctrl.velocity.x = knockDir.x * 120;
+            ctrl.velocity.y = -80;
+        }
     }
 
     protected initializeViewport(): void {
