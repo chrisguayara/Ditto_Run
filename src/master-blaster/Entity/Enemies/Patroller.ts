@@ -1,6 +1,6 @@
 // src/mb/Entity/Enemies/Patroller.ts
-import Enemy from "../Entity/Enemy";
-import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
+import Enemy from "../Enemy";
+import MBAnimatedSprite from "../../Nodes/MBAnimatedSprite";
 
 export default class Patroller extends Enemy {
     private patrolLeft: number;

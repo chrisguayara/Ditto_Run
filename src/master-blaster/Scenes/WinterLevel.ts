@@ -151,9 +151,9 @@ export default class WinterLevel extends MBLevel {
 
     protected initializeEntities(): void {
         console.log("PROBABLY NOT");
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(72 * 16, 33 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(7  * 16, 27 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(79 * 16, 45 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(15*16, 13*16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(79 * 16, 14*16));
 
         const patrollerrr = this.spawnPatroller(new Vec2(12 * 16, 75 * 16), 80, 60, 2, 1);
         if (patrollerrr){
