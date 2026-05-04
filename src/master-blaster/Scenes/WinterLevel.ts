@@ -13,6 +13,7 @@ import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
 import ForestLevel from "./ForestLevel";
 import CastleLevel from "./CastleLevel";
+import GameState from "./GameState";
 /**
  * The first level for MB - should be the one with the grass and the clouds.
  */
@@ -142,6 +143,8 @@ export default class WinterLevel extends MBLevel {
         super.startScene();
         // Set the next level to be Level2
         this.nextLevel = CastleLevel;
+
+        GameState.getInstance().unlockLevel("STRONGHOLD");
         (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
         (this.player._ai as PlayerController).transformations.unlockForm("CHARIZARD");
 

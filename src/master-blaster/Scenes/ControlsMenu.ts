@@ -9,6 +9,7 @@ import Color from "../../Wolfie2D/Utils/Color";
 import Input from "../../Wolfie2D/Input/Input";
 import { MBControls } from "../MBControls";
 import MainMenu from "./MainMenu";
+import { MenuAssets } from "./MenuAssets";
 
 const CX = 150;
 const CY = 100;

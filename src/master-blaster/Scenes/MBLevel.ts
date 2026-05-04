@@ -33,6 +33,7 @@ import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import Game from "../../Wolfie2D/Loop/Game";
 import { Transformations } from "../Player/Transformation";
 import Enemy from "../Entity/Enemy";
+import GameState from "./GameState";
 
 import { DittoForms } from "../UI/DittoForms";
 import AudioManager from "../../Wolfie2D/Sound/AudioManager";
@@ -746,27 +747,30 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
                 if (this.damageFlashTimer > 0) break;
-                const ctrl = this.player._ai as PlayerController;
-                ctrl.health -= 1;
+                if (!GameState.getInstance().cheatsInfiniteHealth) {
+                    const ctrl = this.player._ai as PlayerController;
+                    ctrl.health -= 1;
+                }
                 this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
-                this.applyDamageKnockback(ctrl); 
+                this.applyDamageKnockback(this.player._ai as PlayerController);
                 break;
             }
 
             case MBEvents.PLAYER_HIT_ENTITY: {
                 const otherID = event.data.get("other");
-                const entity = this.entityMap.get(otherID);
+                const entity  = this.entityMap.get(otherID);
                 if (entity) {
                     entity.onPlayerContact();
                     if (entity instanceof Enemy && !entity.isFainted) {
                         const ctrl = this.player._ai as PlayerController;
                         if (this.damageFlashTimer <= 0) {
-                            ctrl.health -= entity.contactDamage;
+                            if (!GameState.getInstance().cheatsInfiniteHealth) {
+                                ctrl.health -= entity.contactDamage;
+                            }
                             this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
-                            this.applyDamageKnockback(ctrl, entity.position); // knock away from enemy
+                            this.applyDamageKnockback(ctrl, entity.position);
                         }
                     }
-                    break;
                 }
                 break;
             }

@@ -1,6 +1,7 @@
 import Game from "./Wolfie2D/Loop/Game";
 import MainMenu from "./master-blaster/Scenes/MainMenu";
 import { MBControls } from "./master-blaster/MBControls";
+import TitleCard from "./master-blaster/Scenes/TitleCard";
 
 // The main function is your entrypoint into Wolfie2D. Specify your first scene and any options here.
 (function main(){
@@ -79,5 +80,5 @@ import { MBControls } from "./master-blaster/MBControls";
     };
 
     // Start our game
-    game.start(MainMenu, {});
+    game.start(TitleCard, {});
 })();
