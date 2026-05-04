@@ -55,7 +55,7 @@ const LEVELS: Array<{ label: string; scene: new (...args: any[]) => Scene }> = [
 export default class LevelSelectMenu extends Scene {
 
     public loadScene(): void {
-        this.load.audio(MainMenu.MUSIC_KEY, MainMenu.MUSIC_PATH);
+        // this.load.audio(MainMenu.MUSIC_KEY, MainMenu.MUSIC_PATH);
         this.load.spritesheet(MainMenu.START_SCREEN_KEY, MainMenu.START_SCREEN_PATH);
         this.load.audio(MainMenu.SELECT_AUDIO_KEY, MainMenu.SELECT_AUDIO_PATH);
     }
@@ -104,8 +104,14 @@ export default class LevelSelectMenu extends Scene {
         LEVELS.forEach(({ label, scene }, i) => {
             this.makeButton(label, CX, startY + i * BTN_SPACING, COL_BTN_TEXT, () => {
                 this.select();
+
+                // Stop FIRST
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: MainMenu.MUSIC_KEY });
-                this.sceneManager.changeToScene(scene);
+
+                // Then delay scene switch by 1 tick
+                setTimeout(() => {
+                    this.sceneManager.changeToScene(scene);
+                }, 0);
             });
         });
 
@@ -117,11 +123,7 @@ export default class LevelSelectMenu extends Scene {
         });
 
         // ── Audio ─────────────────────────────────────────────────
-        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
-            key: MainMenu.MUSIC_KEY,
-            loop: true,
-            holdReference: false,
-        });
+        
     }
 
     public updateScene(_deltaT: number): void {
@@ -134,7 +136,7 @@ export default class LevelSelectMenu extends Scene {
 
     public unloadScene(): void {
         this.load.keepAudio(MainMenu.SELECT_AUDIO_KEY);
-        this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: MainMenu.MUSIC_KEY });
+        
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

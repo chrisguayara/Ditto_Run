@@ -121,7 +121,7 @@ export default class MainMenu extends Scene {
         this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
             key: MainMenu.MUSIC_KEY,
             loop: true,
-            holdReference: false,
+            holdReference: true,
         });
 
         // Brief guard so an Escape-key from a previous scene doesn't fire immediately
@@ -196,4 +196,7 @@ export default class MainMenu extends Scene {
         btn.onClick  = onClick;
         return btn;
     }
+
+    
+
 }
