@@ -66,7 +66,7 @@ export default class PlayerController extends StateMachineAI {
     public readonly GRAPPLE_COOLDOWN_TIME: number = 3.0;
     public readonly BLITZ_COOLDOWN_TIME:   number = 3.0;
     public readonly MAX_SPEED: number = 300;
-    public readonly MIN_SPEED: number = 100;
+    public readonly MIN_SPEED: number = 130;
     public readonly BASE_JUMP_FORCE: number = -200;
     public readonly BASE_GRAVITY: number = 500;
     private _sludgeTimer: number = 0;

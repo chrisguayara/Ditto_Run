@@ -12,6 +12,7 @@ import { MBControls } from "../MBControls";
 import MainMenu from "./MainMenu";
 import WinterLevel from "./WinterLevel";
 import CastleLevel from "./CastleLevel";
+import ForestLevel from "./ForestLevel";
 
 // ─── Layers ───────────────────────────────────────────────────────────────────
 
@@ -45,6 +46,7 @@ const CY = 400;
 const LEVELS: Array<{ label: string; scene: new (...args: any[]) => Scene }> = [
     { label: "WINTER",  scene: WinterLevel  },
     { label: "STRONGHOLD",  scene: CastleLevel  },
+    {label: "FOREST", scene: ForestLevel }
     // { label: "FOREST",  scene: ForestLevel  },  Format
 ];
 

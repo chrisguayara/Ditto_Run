@@ -736,6 +736,7 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
                 const ctrl = this.player._ai as PlayerController;
+                console.log("HIT DAMAGE TILED");
                 // Only damage if cooldown has expired
                 if (ctrl.damageCooldown <= 0) {
                     ctrl.health -= 1;
@@ -944,6 +945,12 @@ export default abstract class MBLevel extends Scene {
                 this.phantomWalls.addPhysics();
                 this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
             }
+        }
+
+        if (this.damageWalls) {
+            console.log("damage walls found!");
+        } else {
+            console.log("damage walls NOT found — check layer name");
         }
 
         if (this.damageWallLayerKey !== undefined) {

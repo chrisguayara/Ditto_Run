@@ -17,6 +17,13 @@ export default class Fall extends PlayerState {
     public update(deltaT: number): void {
         super.update(deltaT);
 
+        const turndir = this.parent.inputDir;
+        
+
+        if (turndir.x !== 0) {
+            this.owner.invertX = turndir.x < 0;
+        }
+
         // ── Fast fall ───────────────────────────────────────────
         if (Input.isJustPressed(MBControls.DOWN)) {
             this.parent.velocity.y = 140;
