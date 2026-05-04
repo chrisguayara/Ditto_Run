@@ -277,7 +277,7 @@ export default abstract class MBLevel extends Scene {
         this.load.spritesheet(SpriteKeys.PATROLLER_KEY,   SpriteKeys.PATROLLER_PATH);
         this.load.spritesheet(SpriteKeys.SHOOTER_KEY,     SpriteKeys.SHOOTER_PATH);
         this.load.spritesheet(SpriteKeys.PROJECTILE_KEY,  SpriteKeys.PROJECTILE_PATH);
-        this.load.spritesheet(SpriteKeys.SHIELD_CANDY_KEY, SpriteKeys.SHIELD_CANDY_PATH);
+        // this.load.spritesheet(SpriteKeys.SHIELD_CANDY_KEY, SpriteKeys.SHIELD_CANDY_PATH);
     }
 
     public startScene(): void {
@@ -1507,7 +1507,7 @@ export default abstract class MBLevel extends Scene {
                     detectionRange,
                     config
                 ),
-            SpriteKeys.SHOOTER_KEY,   // ← was this.shooterSpriteKey (now centralised)
+            SpriteKeys.SHOOTER_KEY,  
             position
         ) as Shooter;
     }

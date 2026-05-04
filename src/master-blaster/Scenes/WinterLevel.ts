@@ -10,10 +10,8 @@ import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
 import CastleLevel from "./CastleLevel";
 import GameState from "./GameState";
-import { SNOWBALL } from "../Entity/Enemies/ProjectileConfig";
-import ShieldCandy from "../Entity/Items/Shield";
-import { SpriteKeys } from "./SpriteKeys";
 
+// ── Checkpoints ───────────────────────────────────────────────────────────────
 export const CHECKPOINTS = {
     SPAWN:          new Vec2(13 * 16, 75 * 16),
     CHECKPOINT_ONE: new Vec2(73 * 16, 10 * 16),
@@ -22,15 +20,16 @@ export const CHECKPOINTS = {
 
 export default class WinterLevel extends MBLevel {
 
-    public static readonly PLAYER_SPAWN      = CHECKPOINTS.SPAWN;
-    public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
+    public static readonly PLAYER_SPAWN       = CHECKPOINTS.SPAWN;
+    public static readonly PLAYER_SPRITE_KEY  = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
 
-    public static readonly TILEMAP_KEY   = "Wintermap";
-    public static readonly TILEMAP_PATH  = "game_assets/tilemaps/wintermap.json";
-    public static readonly TILEMAP_SCALE = new Vec2(1, 1);
-    public static readonly WALLS_LAYER_KEY  = "Ground";
-    public static readonly DAMAGE_LAYER_KEY = "Damage";
+    public static readonly TILEMAP_KEY            = "Wintermap";
+    public static readonly TILEMAP_PATH           = "game_assets/tilemaps/wintermap.json";
+    public static readonly TILEMAP_SCALE          = new Vec2(1, 1);
+    public static readonly DESTRUCTIBLE_LAYER_KEY = undefined;
+    public static readonly WALLS_LAYER_KEY        = "Ground";
+    public static readonly DAMAGE_LAYER_KEY       = "Damage";
 
     public static readonly LEVEL_MUSIC_KEY  = "LEVEL_MUSIC";
     public static readonly LEVEL_MUSIC_PATH = "game_assets/music/jeanparker_synced-146-master.wav";
@@ -53,6 +52,9 @@ export default class WinterLevel extends MBLevel {
     public static readonly ROTOM_SPRITE_KEY  = "Rotom";
     public static readonly ROTOM_SPRITE_PATH = "game_assets/spritesheets/rotom.json";
 
+    // Used by level select to check access
+    public static readonly LEVEL_LABEL = "WINTER";
+
     public static readonly LEVEL_END = new AABB(new Vec2(224, 232), new Vec2(24, 16));
 
     public constructor(
@@ -63,9 +65,9 @@ export default class WinterLevel extends MBLevel {
     ) {
         super(viewport, sceneManager, renderingManager, options);
 
-        this.tilemapKey      = WinterLevel.TILEMAP_KEY;
-        this.tilemapScale    = WinterLevel.TILEMAP_SCALE;
-        this.wallsLayerKey   = WinterLevel.WALLS_LAYER_KEY;
+        this.tilemapKey          = WinterLevel.TILEMAP_KEY;
+        this.tilemapScale        = WinterLevel.TILEMAP_SCALE;
+        this.wallsLayerKey       = WinterLevel.WALLS_LAYER_KEY;
         this.phantomWallLayerKey = "phasewalls";
         this.damageWallLayerKey  = "damage";
 
@@ -87,27 +89,26 @@ export default class WinterLevel extends MBLevel {
     }
 
     public loadScene(): void {
-        // ── Shared entity sprites (patroller, shooter, projectile, shield) ────
-        this.loadSharedSprites();           // ← one call, defined in MBLevel
+        // Shared enemy/item sprites — defined once in MBLevel via SpriteKeys
+        this.loadSharedSprites();
 
-        // ── Level-specific assets ─────────────────────────────────────────────
         this.load.tilemap(this.tilemapKey, WinterLevel.TILEMAP_PATH);
         this.loadPauseMenuAssets();
 
-        this.load.spritesheet(this.playerSpriteKey, WinterLevel.PLAYER_SPRITE_PATH);
-        this.load.spritesheet(SludgeWeapon.SLUDGE_KEY, SludgeWeapon.SLUDGE_PATH);
-        this.load.spritesheet(WinterLevel.ROTOM_SPRITE_KEY,         WinterLevel.ROTOM_SPRITE_PATH);
-        this.load.spritesheet(WinterLevel.CRYO_GRENINJA_SPRITE_KEY, WinterLevel.CRYO_GRENINJA_SPRITE_PATH);
-        this.load.spritesheet(RareCandy.SPRITE_KEY,  RareCandy.SPRITE_PATH);
-        this.load.spritesheet(Snorlax.SPRITE_KEY,    Snorlax.SPRITE_PATH);
-        this.load.spritesheet(this.hintSpriteKey,    this.hintSpritePath);
-        this.load.spritesheet(this.transformUIkey,   this.transformUIpath);
+        this.load.spritesheet(this.playerSpriteKey,                  WinterLevel.PLAYER_SPRITE_PATH);
+        this.load.spritesheet(SludgeWeapon.SLUDGE_KEY,               SludgeWeapon.SLUDGE_PATH);
+        this.load.spritesheet(WinterLevel.ROTOM_SPRITE_KEY,          WinterLevel.ROTOM_SPRITE_PATH);
+        this.load.spritesheet(WinterLevel.CRYO_GRENINJA_SPRITE_KEY,  WinterLevel.CRYO_GRENINJA_SPRITE_PATH);
+        this.load.spritesheet(RareCandy.SPRITE_KEY,                  RareCandy.SPRITE_PATH);
+        this.load.spritesheet(Snorlax.SPRITE_KEY,                    Snorlax.SPRITE_PATH);
+        this.load.spritesheet(this.hintSpriteKey,                    this.hintSpritePath);
+        this.load.spritesheet(this.transformUIkey,                   this.transformUIpath);
 
-        this.load.audio(this.levelMusicKey,           WinterLevel.LEVEL_MUSIC_PATH);
-        this.load.audio(this.jumpAudioKey,            WinterLevel.JUMP_AUDIO_PATH);
-        this.load.audio(this.tileDestroyedAudioKey,   WinterLevel.TILE_DESTROYED_PATH);
-        this.load.audio(this.levelEndAudioKey,        WinterLevel.LEVEL_END_AUDIO_PATH);
-        this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY, WinterLevel.TRANSFORM_AUDIO_PATH);
+        this.load.audio(this.levelMusicKey,               WinterLevel.LEVEL_MUSIC_PATH);
+        this.load.audio(this.jumpAudioKey,                WinterLevel.JUMP_AUDIO_PATH);
+        this.load.audio(this.tileDestroyedAudioKey,       WinterLevel.TILE_DESTROYED_PATH);
+        this.load.audio(this.levelEndAudioKey,            WinterLevel.LEVEL_END_AUDIO_PATH);
+        this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY,  WinterLevel.TRANSFORM_AUDIO_PATH);
     }
 
     public unloadScene(): void {
@@ -120,18 +121,17 @@ export default class WinterLevel extends MBLevel {
     }
 
     public startScene(): void {
-        // NOTE: shooterSpriteKey / projectileSpriteKey / patrollerSpriteKey are
-        // no longer needed — MBLevel.spawnShooter/spawnPatroller use SpriteKeys directly.
         super.startScene();
 
+        // WinterLevel leads into CastleLevel
         this.nextLevel = CastleLevel;
 
+        // Beating winter unlocks the castle
         GameState.getInstance().unlockLevel("STRONGHOLD");
 
-        const ctrl = this.player._ai as PlayerController;
-        ctrl.transformations.unlockForm("GRENINJA");
-        ctrl.transformations.unlockForm("CHARIZARD");
-        ctrl.transformations.activate();
+        (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
+        (this.player._ai as PlayerController).transformations.unlockForm("CHARIZARD");
+        (this.player._ai as PlayerController).transformations.activate();
 
         this.updateTransformRing("GRENINJA");
 
@@ -142,20 +142,27 @@ export default class WinterLevel extends MBLevel {
 
     protected initializePKMN(): void {
         // Rotom disabled — uncomment to re-enable
+        // let rotom = this.add.animatedSprite(WinterLevel.ROTOM_SPRITE_KEY, "PRIMARY");
+        // rotom.position.set(WinterLevel.PLAYER_SPAWN.x + 20, WinterLevel.PLAYER_SPAWN.y - 20);
+        // rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
+        // rotom.addAI(RotomController, { playerRef: this.player, speed: 90 });
+        // rotom.animation.play("IDLE");
     }
 
     protected initializeEntities(): void {
-        // ── Items — always use factory lambdas: (sprite) => new Foo(sprite) ──
+        console.log("PROBABLY NOT");
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(72 * 16, 33 * 16));
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(7  * 16, 27 * 16));
 
-        // ── Enemies ───────────────────────────────────────────────────────────
-        this.spawnPatroller(new Vec2(25 * 16, 75 * 16), 80, 60, 2, 1);
-        this.spawnShooter(new Vec2(40 * 16, 75 * 16), SNOWBALL);
+        const patrollerrr = this.spawnPatroller(new Vec2(12 * 16, 75 * 16), 80, 60, 2, 1);
+        if (patrollerrr){
+            console.log("COULD SEE IT");
+        }
+        console.log("PROBABLY NOT");
 
-        // ── Objects (collidable=true so player lands on top) ─────────────────
-        // this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(16*16, 75*16), true);
+        // Snorlax trampoline — collidable=true so player lands on top
+        // this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(16 * 16, 75 * 16), true);
     }
 
     protected initializeViewport(): void {
