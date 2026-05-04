@@ -34,9 +34,15 @@ import Game from "../../Wolfie2D/Loop/Game";
 import { Transformations } from "../Player/Transformation";
 import Enemy from "../Entity/Enemy";
 import GameState from "./GameState";
-
+import Patrol from "../Pokemon/PokemonStates/Patrol";
+import Shooter from "../Entity/Enemies/Shooter";
+import Projectile from "../Entity/Enemies/Projectile";
+import { ProjectileConfig } from "../Entity/Enemies/ProjectileConfig";
+import { SpriteKeys } from "./SpriteKeys";
 import { DittoForms } from "../UI/DittoForms";
 import AudioManager from "../../Wolfie2D/Sound/AudioManager";
+import Patroller from "../Entity/Enemies/Patroller";
+import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 /**
  * A const object for the layer names
  */
@@ -166,6 +172,10 @@ export default abstract class MBLevel extends Scene {
     private idleTimer: number = 0;
     private escOverlayShowing: boolean = false;
 
+    protected shooterSpriteKey!:    string;
+    protected projectileSpriteKey!: string;
+    protected patrollerSpriteKey!:  string;
+
     // Entity Logic ---------------------------
     
 
@@ -262,6 +272,12 @@ export default abstract class MBLevel extends Scene {
         this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
         this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
         
+    }
+    protected loadSharedSprites(): void {
+        this.load.spritesheet(SpriteKeys.PATROLLER_KEY,   SpriteKeys.PATROLLER_PATH);
+        this.load.spritesheet(SpriteKeys.SHOOTER_KEY,     SpriteKeys.SHOOTER_PATH);
+        this.load.spritesheet(SpriteKeys.PROJECTILE_KEY,  SpriteKeys.PROJECTILE_PATH);
+        this.load.spritesheet(SpriteKeys.SHIELD_CANDY_KEY, SpriteKeys.SHIELD_CANDY_PATH);
     }
 
     public startScene(): void {
@@ -747,18 +763,19 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
                 if (this.damageFlashTimer > 0) break;
-                if (!GameState.getInstance().cheatsInfiniteHealth) {
-                    const ctrl = this.player._ai as PlayerController;
-                    ctrl.health -= 1;
+                const ctrl = this.player._ai as PlayerController;
+                if (!ctrl.tryAbsorbDamage()) {
+                    if (!GameState.getInstance().cheatsInfiniteHealth) ctrl.health -= 1;
+                    this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                    this.applyDamageKnockback(ctrl);
                 }
-                this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
-                this.applyDamageKnockback(this.player._ai as PlayerController);
                 break;
             }
 
             case MBEvents.PLAYER_HIT_ENTITY: {
                 const otherID = event.data.get("other");
                 const entity  = this.entityMap.get(otherID);
+                console.log("HES GONE!");
                 if (entity) {
                     entity.onPlayerContact();
                     if (entity instanceof Enemy && !entity.isFainted) {
@@ -801,12 +818,69 @@ export default abstract class MBLevel extends Scene {
                 
                 break;
             }
+            case MBEvents.PLAYER_SPEED_BOOST: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applySpeedBoost(event.data.get("multiplier"), event.data.get("duration"));
+                break;
+            }
+            case MBEvents.PLAYER_SLOWED: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applySpeedPenalty(event.data.get("multiplier"), event.data.get("duration"));
+                break;
+            }
+            case MBEvents.PLAYER_BUBBLE: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applyShield(event.data.get("hits"));
+                break;
+            }
+            case MBEvents.PROJECTILE_HIT_PLAYER: {
+                if (this.damageFlashTimer > 0) break;
+                const ctrl = this.player._ai as PlayerController;
+                if (!ctrl.tryAbsorbDamage()) {
+                    if (!GameState.getInstance().cheatsInfiniteHealth) {
+                        ctrl.health -= event.data.get("damage");
+                    }
+                    this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                    this.applyDamageKnockback(ctrl);
+                    if (event.data.get("slowOnHit")) {
+                        ctrl.applySpeedPenalty(event.data.get("slowMultiplier"), event.data.get("slowDuration"));
+                    }
+                }
+                break;
+            }
             case MBEvents.FORM_SELECTED: {
                 this.updateUI();
                 break;
             }
             case MBEvents.SHOW_CONTROLS: {
 
+                break;
+            }
+
+            case MBEvents.PROJECTILE_HIT_PLAYER: {
+                if (this.damageFlashTimer > 0) break;
+                if (!GameState.getInstance().cheatsInfiniteHealth) {
+                    const ctrl = this.player._ai as PlayerController;
+                    ctrl.health -= event.data.get("damage");
+                }
+                this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                this.applyDamageKnockback(this.player._ai as PlayerController);
+
+                if (event.data.get("slowOnHit")) {
+                    this.emitter.fireEvent(MBEvents.PLAYER_SLOWED, {
+                        duration: event.data.get("slowDuration"),
+                        multiplier: event.data.get("slowMultiplier"),
+                    });
+                }
+                break;
+            }
+
+            case MBEvents.PLAYER_SLOWED: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applySpeedPenalty(
+                    event.data.get("multiplier"),
+                    event.data.get("duration")
+                );
                 break;
             }
             default: {
@@ -1017,6 +1091,10 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.POKEMON_HIT);
         this.receiver.subscribe(MBEvents.FORM_SELECTED);
         this.receiver.subscribe(MBEvents.SHOW_CONTROLS);
+        this.receiver.subscribe(MBEvents.PROJECTILE_HIT_PLAYER);
+        this.receiver.subscribe(MBEvents.PLAYER_SLOWED);
+        this.receiver.subscribe(MBEvents.PLAYER_SPEED_BOOST);
+        this.receiver.subscribe(MBEvents.PLAYER_BUBBLE);
 
 
     }
@@ -1323,28 +1401,115 @@ export default abstract class MBLevel extends Scene {
     public getTransformAudioKey(): string {
         return this.transformAudioKey;
     }
+    public getEntityMap(): Map<number, Entity> {
+        return this.entityMap;
+    }
 
     
 
+    // protected spawnEntity(
+    //     EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+    //     spriteKey: string,
+    //     position: Vec2,
+    //     collidable: boolean = false  // true = solid, false = trigger only
+    // ): Entity {
+    //     const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
+    //     sprite.position.copy(position);
+    //     sprite.animation.play("IDLE", true);
+    //     sprite.addPhysics(new AABB(sprite.position.clone(), new Vec2(8, 8)), undefined, collidable, !collidable);
+    //     sprite.setGroup(MBPhysicsGroups.ENTITY);
+    //     sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+
+    //     const entity = new EntityClass(sprite);
+        
+    //     this.entityMap.set(sprite.id, entity);
+    //     this.entities.push(entity);
+
+    //     return entity;
+    // }
+
     protected spawnEntity(
-        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+        factory: (sprite: MBAnimatedSprite) => Entity,
         spriteKey: string,
         position: Vec2,
-        collidable: boolean = false  // true = solid, false = trigger only
+        collidable: boolean = false
     ): Entity {
         const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
         sprite.position.copy(position);
         sprite.animation.play("IDLE", true);
-        sprite.addPhysics(new AABB(sprite.position.clone(), new Vec2(8, 8)), undefined, collidable, !collidable);
+
+        sprite.addPhysics(
+            new AABB(sprite.position.clone(), new Vec2(8, 8)),
+            undefined,
+            collidable,
+            !collidable
+        );
+
         sprite.setGroup(MBPhysicsGroups.ENTITY);
         sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
 
-        const entity = new EntityClass(sprite);
         
+        const entity = factory(sprite);
+
         this.entityMap.set(sprite.id, entity);
         this.entities.push(entity);
 
         return entity;
+    }
+    protected spawnPatroller(
+        position: Vec2,
+        patrolRadius: number = 80,
+        speed: number = 60,
+        maxHealth: number = 2,
+        contactDamage: number = 1
+    ): Entity {
+        return this.spawnEntity(
+            (sprite) =>
+                new Patroller(
+                    sprite,
+                    position.x - patrolRadius,
+                    position.x + patrolRadius,
+                    speed,
+                    maxHealth,
+                    contactDamage
+                ),
+            SpriteKeys.PATROLLER_KEY,  // ← was this.patrollerSpriteKey (now centralised)
+            position
+        );
+    }
+
+    /** Spawns a shooter enemy. Load shooterSpriteKey + projectileSpriteKey in subclass loadScene(). */
+    protected spawnShooter(
+        position: Vec2,
+        config: ProjectileConfig = SNOWBALL,
+        poolSize: number = 4,
+        fireInterval: number = 2.5,
+        maxHealth: number = 2,
+        detectionRange: number = 200
+    ): Shooter {
+        const pool: Projectile[] = [];
+    
+        for (let i = 0; i < poolSize; i++) {
+            // Uses the unified PROJECTILE_KEY; animation is chosen per-shot by Shooter
+            const pSprite = this.add.animatedSprite(SpriteKeys.PROJECTILE_KEY, MBLayers.PRIMARY);
+            pSprite.visible = false;
+            pool.push(new Projectile(pSprite));
+        }
+    
+        return this.spawnEntity(
+            (sprite) =>
+                new Shooter(
+                    sprite,
+                    pool,
+                    this.player as MBAnimatedSprite,
+                    fireInterval,
+                    maxHealth,
+                    detectionRange,
+                    config
+                ),
+            SpriteKeys.SHOOTER_KEY,   // ← was this.shooterSpriteKey (now centralised)
+            position
+        ) as Shooter;
     }
 
     

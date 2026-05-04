@@ -88,8 +88,16 @@ export default class PlayerController extends StateMachineAI {
     protected weapon!: PlayerWeapon;
     protected _transformations!: TransformationManager;
     public scene! : MBLevel;
+    private _speedPenaltyMultiplier: number = 1.0;
+    private _speedPenaltyTimer: number = 0;
 
     public readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
+
+    private _speedBoostMultiplier:  number = 1.0;
+    private _speedBoostTimer:       number = 0;
+    private _shieldHits:            number = 0;
+
+    
 
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
         this.owner = owner;
@@ -180,6 +188,29 @@ export default class PlayerController extends StateMachineAI {
             this.weapon.startSystem(500, 1, this.owner.position);
         }
 
+        if (this._speedPenaltyTimer > 0) {
+            this._speedPenaltyTimer -= deltaT;
+            if (this._speedPenaltyTimer <= 0) {
+                this._speedPenaltyTimer = 0;
+                this._speedPenaltyMultiplier = 1.0;
+            }
+        }
+
+        if (this._speedBoostTimer > 0) {
+        this._speedBoostTimer -= deltaT;
+        if (this._speedBoostTimer <= 0) {
+            this._speedBoostTimer = 0;
+            this._speedBoostMultiplier = 1.0;
+        }
+        }
+        if (this._speedPenaltyTimer > 0) {
+            this._speedPenaltyTimer -= deltaT;
+            if (this._speedPenaltyTimer <= 0) {
+                this._speedPenaltyTimer = 0;
+                this._speedPenaltyMultiplier = 1.0;
+            }
+        }
+
         // Sludge uses arrow keys, blocked in Rowlet form
         // if (this._sludgeTimer > 0) {
         //     this._sludgeTimer -= deltaT;
@@ -225,8 +256,33 @@ export default class PlayerController extends StateMachineAI {
     // ── Transformation passthrough ────────────────────────────────
     public get transformations(): TransformationManager { return this._transformations; }
 
+    public applySpeedBoost(multiplier: number, duration: number): void {
+        this._speedBoostMultiplier = multiplier;
+        this._speedBoostTimer = duration;
+        this._speedPenaltyMultiplier = 1.0;
+        this._speedPenaltyTimer = 0;
+    }
+
+    public applySpeedPenalty(multiplier: number, duration: number): void {
+        if (this._speedBoostTimer > 0) return;
+        this._speedPenaltyMultiplier = multiplier;
+        this._speedPenaltyTimer = duration;
+    }
+
+    public applyShield(hits: number): void {
+        this._shieldHits += hits;
+    }
+
+    public tryAbsorbDamage(): boolean {
+        if (this._shieldHits > 0) {
+            this._shieldHits--;
+            return true;
+        }
+        return false;
+    }
+
     public get effectiveSpeed(): number {
-        return this._speed * this._transformations.speedMultiplier;
+        return this._speed * this._transformations.speedMultiplier * this._speedPenaltyMultiplier;
     }
     public get effectiveGravity(): number {
         return this.BASE_GRAVITY * this._transformations.gravityMultiplier;

@@ -4,7 +4,8 @@ import { PlayerAnimations, PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import { MBEvents } from "../../MBEvents";
 import { MBControls } from "../../MBControls";
-
+import Enemy from "../../Entity/Enemy";
+import MBLevel from "../../Scenes/MBLevel";
 /*
  * ROCKET_JUMP (true):  Launch OPPOSITE the click direction — like a rocket jump.
  *                      Great for vertical/diagonal escape and momentum chaining.
@@ -114,6 +115,37 @@ export default class BlitzState extends PlayerState {
             this.finished(
                 this.parent.velocity.y < 0 ? PlayerStates.JUMP : PlayerStates.FALL
             );
+        }
+
+        const scene = this.owner.getScene() as MBLevel;
+
+        // Hit entities (enemies) in blitz path
+        scene.getEntityMap().forEach((entity, id) => {
+            if (!(entity instanceof Enemy) || entity.isFainted) return;
+            const dist = Math.hypot(
+                this.owner.position.x - entity.position.x,
+                this.owner.position.y - entity.position.y
+            );
+            if (dist < 20) {
+                entity.onHit(2); // blitz does 2 damage
+            }
+        });
+
+        // Break destructible tiles under the blitz path
+        const destructable = scene.getDestructable();
+        if (destructable) {
+            const pos = this.owner.position;
+            const tileSize = destructable.getTileSize();
+            const col = Math.floor(pos.x / tileSize.x);
+            const row = Math.floor(pos.y / tileSize.y);
+            // Check a small radius of tiles
+            for (let dc = -1; dc <= 1; dc++) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    if (destructable.isTileCollidable(col + dc, row + dr)) {
+                        destructable.setTileAtRowCol(new Vec2(col + dc, row + dr), 0);
+                    }
+                }
+            }
         }
     }
 

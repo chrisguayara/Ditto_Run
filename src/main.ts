@@ -2,6 +2,8 @@ import Game from "./Wolfie2D/Loop/Game";
 import MainMenu from "./master-blaster/Scenes/MainMenu";
 import { MBControls } from "./master-blaster/MBControls";
 import TitleCard from "./master-blaster/Scenes/TitleCard";
+import CastleLevel from "./master-blaster/Scenes/CastleLevel";
+import WinterLevel from "./master-blaster/Scenes/WinterLevel";
 
 // The main function is your entrypoint into Wolfie2D. Specify your first scene and any options here.
 (function main(){

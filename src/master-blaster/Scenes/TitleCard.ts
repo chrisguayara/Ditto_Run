@@ -30,7 +30,7 @@ export default class TitleCard extends Scene {
         this.addLayer("BACKGROUND");
         this.addUILayer("MAIN");
 
-        this.viewport.setSize(1200, 800);
+        this.viewport.setSize(320, 240);
         this.viewport.setBounds(0, 0, 1200, 800);
         this.viewport.setFocus(new Vec2(600, 400));
 
