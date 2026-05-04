@@ -13,7 +13,7 @@ import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
 
 export const CHECKPOINTS = {
-    SPAWN:          new Vec2(170 * 16, 22 * 16),
+    SPAWN:          new Vec2(5 * 16, 32 * 16),
     CHECKPOINT_ONE: new Vec2(73  * 16, 10 * 16),
     CHECKPOINT_TWO: new Vec2(64  * 16, 42 * 16),
 } as const;
@@ -146,11 +146,11 @@ export default class CastleLevel extends MBLevel {
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(7  * 16, 27 * 16));
 
         this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(182 * 16, 34.5 * 16), true);
-
+        
         this.spawnPatroller(new Vec2(175 * 16, 22 * 16), 80, 60, 2, 1);
         this.spawnPatroller(new Vec2(185 * 16, 22 * 16), 60, 50, 2, 1);
-        this.spawnShooter(new Vec2(178 * 16, 22 * 16), SNOWBALL);
-        this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);
+        // this.spawnShooter(new Vec2(17 * 16, 32 * 16), SNOWBALL);
+        // this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);
     }
 
     protected initializeViewport(): void {
