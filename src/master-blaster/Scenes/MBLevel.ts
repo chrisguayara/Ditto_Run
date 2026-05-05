@@ -35,7 +35,7 @@ import { Transformations } from "../Player/Transformation";
 import Enemy from "../Entity/Enemy";
 import GameState from "./GameState";
 import Patrol from "../Pokemon/PokemonStates/Patrol";
-import Shooter from "../Entity/Enemies/Shooter";
+
 import Projectile from "../Entity/Enemies/Projectile";
 import { ProjectileConfig } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
@@ -43,6 +43,7 @@ import { DittoForms } from "../UI/DittoForms";
 import AudioManager from "../../Wolfie2D/Sound/AudioManager";
 import Patroller from "../Entity/Enemies/Patroller";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
+import Shooter from "../Entity/Enemies/Shooter";
 /**
  * A const object for the layer names
  */
