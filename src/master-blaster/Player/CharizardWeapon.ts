@@ -30,7 +30,7 @@ export interface CharizardAttackData {
 // Example:  new Set([14, 15, 16])
 //
 export const CHARIZARD_BREAKABLE_TILE_IDS: ReadonlySet<number> = new Set([
-    // TODO: populate with your fire-breakable tile IDs
+    // TODO: populate with fire-breakable tile IDs
 ]);
 
 // ─── Tuning ───────────────────────────────────────────────────────────────────
@@ -42,10 +42,10 @@ const RAY_STEP = 4;
  * How far below the player's feet (px) to look for ground.
  * Covers standing on ground AND being a couple of tiles above it mid-air.
  */
-const GROUND_RAY_LENGTH = 48;
+const GROUND_RAY_LENGTH = 24;
 
 /** How far in the click direction (px) to look for a wall. */
-const WALL_RAY_LENGTH   = 52;
+const WALL_RAY_LENGTH   = 26;
 
 /**
  * The click direction's Y component must be ≥ this for it to count as
@@ -72,10 +72,103 @@ const ENTITY_RAY_LENGTH = WALL_RAY_LENGTH + 16;
 /** Small rebound impulse applied to the player when hitting an entity. */
 const ENTITY_REBOUND_SPEED = 60;
 
-// ─── Main class ───────────────────────────────────────────────────────────────
+/**
+ * 0 = pure surface normal (old behaviour)
+ * 1 = pure impact-to-player angle
+ */
+const ANGLE_WEIGHT  = 1;
 
+/** Minimum launch angle above horizontal (degrees). Prevents flat launches. */
+const MIN_LAUNCH_ANGLE_DEG = 10;
 export default class CharizardWeapon {
 
+    static probeNearestSurface(
+        playerPos:      Vec2,
+        walls:          OrthogonalTilemap,
+        destructable:   OrthogonalTilemap | undefined,
+        explosionOrigin?: Vec2,   // ← new: where the explosion actually happened
+    ): { impulse: Vec2; distance: number; hit: boolean } {
+
+        const PROBE_DIRS = [
+            new Vec2( 0,  1),
+            new Vec2( 0, -1),
+            new Vec2( 1,  0),
+            new Vec2(-1,  0),
+            new Vec2( 1,  1).normalize(),
+            new Vec2(-1,  1).normalize(),
+            new Vec2( 1, -1).normalize(),
+            new Vec2(-1, -1).normalize(),
+        ];
+
+        const MAX_PROBE = 64;
+        const MAX_FORCE = 560;
+        const MIN_FORCE = 120;
+        const UP_BIAS   = 0;
+
+        let closestDist   = Infinity;
+        let closestNormal = new Vec2(0, -1);
+
+        for (const dir of PROBE_DIRS) {
+            for (let d = RAY_STEP; d <= MAX_PROBE; d += RAY_STEP) {
+                const p = new Vec2(playerPos.x + dir.x * d, playerPos.y + dir.y * d);
+                if (CharizardWeapon.isSolid(p, walls, destructable)) {
+                    if (d < closestDist) {
+                        closestDist   = d;
+                        closestNormal = new Vec2(-dir.x, -dir.y);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (closestDist === Infinity) {
+            return { impulse: new Vec2(0, -MIN_FORCE), distance: MAX_PROBE, hit: false };
+        }
+
+        // ── Impact-to-player direction ────────────────────────────────────────────
+        // If an explosion origin was supplied, compute the vector FROM it TO player.
+        // Otherwise fall back to the surface normal (old behaviour).
+        let impactDirX: number;
+        let impactDirY: number;
+
+        if (explosionOrigin) {
+            const dx  = playerPos.x - explosionOrigin.x;
+            const dy  = playerPos.y - explosionOrigin.y;
+            const len = Math.hypot(dx, dy);
+            impactDirX = len > 0.001 ? dx / len : closestNormal.x;
+            impactDirY = len > 0.001 ? dy / len : closestNormal.y;
+        } else {
+            impactDirX = closestNormal.x;
+            impactDirY = closestNormal.y;
+        }
+
+        // ── Blend surface normal + impact direction ───────────────────────────────
+        // lerp(surfaceNormal, impactToPlayerDir, ANGLE_WEIGHT)
+        const blendX = closestNormal.x * (1 - ANGLE_WEIGHT) + impactDirX * ANGLE_WEIGHT;
+        const blendY = closestNormal.y * (1 - ANGLE_WEIGHT) + impactDirY * ANGLE_WEIGHT;
+        const blendLen = Math.hypot(blendX, blendY);
+        let nx = blendLen > 0 ? blendX / blendLen : 0;
+        let ny = blendLen > 0 ? blendY / blendLen : -1;
+
+        // ── Enforce minimum upward angle ──────────────────────────────────────────
+        // Prevent purely horizontal or downward launches.
+        // const minSinUp = Math.sin((MIN_LAUNCH_ANGLE_DEG * Math.PI) / 180); // positive = up in world-space
+        // if (ny > -minSinUp) {
+        //     // launch is too flat — tilt upward while preserving horizontal sign
+        //     ny = -minSinUp;
+        //     nx = Math.sqrt(Math.max(0, 1 - ny * ny)) * Math.sign(nx || impactDirX || 1);
+        // }
+
+        // ── Scale by proximity ────────────────────────────────────────────────────
+        const t     = 1 - Math.min(closestDist / MAX_PROBE, 1);
+        const force = MIN_FORCE + (MAX_FORCE - MIN_FORCE) * t;
+
+        return {
+            impulse:  new Vec2(nx * force, ny * force + UP_BIAS),
+            distance: closestDist,
+            hit:      true,
+        };
+    }
     /**
      * Call this inside BlitzState.onEnter.
      *
@@ -276,7 +369,7 @@ export default class CharizardWeapon {
      * Returns true if world-position `p` sits on a collidable tile.
      * Mirrors the approach in GreninjaTongueGrapple.hitsTile.
      */
-    private static isSolid(
+    public static isSolid(
         p:            Vec2,
         walls:        OrthogonalTilemap,
         destructable?: OrthogonalTilemap,

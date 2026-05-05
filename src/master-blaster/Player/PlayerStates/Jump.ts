@@ -63,11 +63,15 @@ export default class Jump extends PlayerState {
             }
         }
     
-        if (this.owner.onCeiling || this.parent.velocity.y >= 0) {
+        if (this.owner.onCeiling) {
+            this.parent.velocity.y = 0;   // absorb all upward momentum on contact
             this.finished(PlayerStates.FALL);
             return;
         }
-    
+        if (this.parent.velocity.y >= 0) {
+            this.finished(PlayerStates.FALL);
+            return;
+        }
         const dir = this.parent.inputDir;
         const isGreninja = this.parent.transformations.activeForm?.key === "GRENINJA";
     

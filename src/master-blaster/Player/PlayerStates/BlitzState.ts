@@ -1,89 +1,49 @@
-import Input from "../../../Wolfie2D/Input/Input";
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
+import Input from "../../../Wolfie2D/Input/Input";
 import { PlayerAnimations, PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
-import { MBEvents } from "../../MBEvents";
-import { MBControls } from "../../MBControls";
-
-/*
- * ROCKET_JUMP (true):  Launch OPPOSITE the click direction — like a rocket jump.
- *                      Great for vertical/diagonal escape and momentum chaining.
- *
- * FLARE_BLITZ (false): Launch TOWARD the click direction — charge dash.
- *                      Great for horizontal rushes and aggressive movement.
- *
- */
+import CharizardWeapon from "../CharizardWeapon";
+import MBLevel from "../../Scenes/MBLevel";
 export default class BlitzState extends PlayerState {
 
-    // togglable either rocket jump or flare blitz
-    private static readonly ROCKET_JUMP_MODE: boolean = true;
-
     // ── Tuning ────────────────────────────────────────────────────
-    private static readonly DURATION:          number = 0.70;   // seconds blitz owns physics
-    private static readonly LAUNCH_SPEED:      number = 300;    // base launch magnitude
-    private static readonly MOMENTUM_CARRY:    number = 0.70;    // how much existing velocity blends in
-    private static readonly HORIZONTAL_BIAS:   number = 1.3;    // multiply x component — makes it feel fast
-    private static readonly VERTICAL_BIAS:     number = 0.85;   // slightly reduce y — keeps it readable
-    private static readonly GRAVITY_MULT:      number = 0.4;    // reduced gravity during blitz arc
+    /** How long Blitz owns the physics before handing back to Jump/Fall */
+    private static readonly DURATION:      number = 0.3;
+    /** Gravity fraction during blitz arc — lower = floatier */
+    private static readonly GRAVITY_MULT:  number = 0.7;
+    /** How much pre-existing velocity carries into the launch */
+    private static readonly MOMENTUM_CARRY: number = 0.2;
 
-    // ── Runtime state ─────────────────────────────────────────────
+    // ── Runtime ───────────────────────────────────────────────────
     private timer:     number = 0;
-    private launched:  boolean = false;
-    private launchDir: Vec2 = Vec2.ZERO;
-
+    private launchDir: Vec2   = Vec2.ZERO;
 
     public onEnter(_options: Record<string, any>): void {
-        this.timer    = BlitzState.DURATION;
-        this.launched = false;
+        this.timer = BlitzState.DURATION;
+        
+        const scene       = this.owner.getScene() as MBLevel;
+        const playerPos   = this.owner.position;
+        const explosionOrigin = Input.getGlobalMousePosition(); 
 
-        const mousePos = Input.getGlobalMousePosition();
-        const origin   = this.owner.position;
+        // Probe all nearby solid surfaces
 
-        // Direction from player to mouse
-        const dx  = mousePos.x - origin.x;
-        const dy  = mousePos.y - origin.y;
-        const len = Math.hypot(dx, dy);
-        if (len < 1) {
-            // No meaningful direction — abort, fall through
-            this.finished(PlayerStates.FALL);
+        const result = CharizardWeapon.probeNearestSurface(
+            this.owner.position,
+            scene.getWalls(),
+            scene.getDestructable(),
+             explosionOrigin,
+        );
+        if (!result.hit) {
+            this.finished(this.parent.velocity.y < 0 ? PlayerStates.JUMP : PlayerStates.FALL);
             return;
         }
+        // Blend existing momentum with launch impulse
+        const prev = this.parent.velocity;
+        this.parent.velocity.x = result.impulse.x + prev.x * BlitzState.MOMENTUM_CARRY;
+        this.parent.velocity.y = result.impulse.y + prev.y * BlitzState.MOMENTUM_CARRY;
 
-        // Unit vector toward mouse
-        const towardX = dx / len;
-        const towardY = dy / len;
-
-        let launchX: number;
-        let launchY: number;
-
-        if (BlitzState.ROCKET_JUMP_MODE) {
-            launchX = -towardX * BlitzState.LAUNCH_SPEED * BlitzState.HORIZONTAL_BIAS;
-            launchY = -towardY * BlitzState.LAUNCH_SPEED * BlitzState.VERTICAL_BIAS;
-        } else {
-            launchX = towardX * BlitzState.LAUNCH_SPEED * BlitzState.HORIZONTAL_BIAS;
-            launchY = towardY * BlitzState.LAUNCH_SPEED * BlitzState.VERTICAL_BIAS;
-        }
-
-        // Blend with existing momentum — carry forward speed from grapple/run
-        const prevVx = this.parent.velocity.x;
-        const prevVy = this.parent.velocity.y;
-
-        // If previous velocity aligns with launch direction, amplify it
-        // If it opposes, blend less aggressively
-        const dotX = prevVx * launchX > 0 ? BlitzState.MOMENTUM_CARRY : BlitzState.MOMENTUM_CARRY * 0.3;
-        const dotY = prevVy * launchY > 0 ? BlitzState.MOMENTUM_CARRY : BlitzState.MOMENTUM_CARRY * 0.3;
-
-        this.parent.velocity.x = launchX + prevVx * dotX;
-        this.parent.velocity.y = launchY + prevVy * dotY;
-
-        // Store for reference
-        this.launchDir = new Vec2(launchX, launchY);
-        this.launched  = true;
-
-        // Face the horizontal launch direction
-        if (launchX !== 0) {
-            this.owner.invertX = launchX < 0;
-        }
+        this.launchDir = new Vec2(this.parent.velocity.x, this.parent.velocity.y);
+        if (this.launchDir.x !== 0) this.owner.invertX = this.launchDir.x < 0;
 
         this.owner.animation.play(PlayerAnimations.CHARIZARD_BLITZ, false);
     }
@@ -93,23 +53,20 @@ export default class BlitzState extends PlayerState {
 
         this.timer -= deltaT;
 
-        // Reduced gravity during blitz for a floatier arc
-        this.parent.velocity.y += this.parent.effectiveGravity * BlitzState.GRAVITY_MULT * deltaT;
+        this.parent.velocity.y +=
+            this.parent.effectiveGravity * BlitzState.GRAVITY_MULT * deltaT;
 
         this.owner.move(this.parent.velocity.scaled(deltaT));
 
-        // Keep facing launch direction during blitz
         if (this.launchDir.x !== 0) {
             this.owner.invertX = this.launchDir.x < 0;
         }
 
-        // Land early
         if (this.owner.onGround) {
             this.finished(PlayerStates.IDLE);
             return;
         }
 
-        // Duration expired — hand off to JUMP or FALL based on vertical velocity
         if (this.timer <= 0) {
             this.finished(
                 this.parent.velocity.y < 0 ? PlayerStates.JUMP : PlayerStates.FALL
@@ -118,7 +75,6 @@ export default class BlitzState extends PlayerState {
     }
 
     public onExit(): Record<string, any> {
-        // Velocity is preserved — JUMP/FALL/IDLE will carry the momentum forward
         return {};
     }
 }

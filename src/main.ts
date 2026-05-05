@@ -28,7 +28,7 @@ import { MBControls } from "./master-blaster/MBControls";
         showDebug: false                       // Whether to show debug messages. You can change this to true if you want
     }
    document.addEventListener("keydown", (e) => {
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Escape"].includes(e.key)) {
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Escape","space"].includes(e.key)) {
         e.preventDefault();
     }
 }, { passive: false });
