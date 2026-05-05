@@ -160,6 +160,7 @@ export default class PlayerController extends StateMachineAI {
     }
     public update(deltaT: number): void {
         
+        
         if (this.grappleCooldown > 0) this.grappleCooldown -= deltaT;
         if (this.blitzCooldown   > 0) this.blitzCooldown   -= deltaT;
         
@@ -183,26 +184,20 @@ export default class PlayerController extends StateMachineAI {
         // Phantump weapon rotation (mouse-aimed, unchanged)
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
         const isCharizard = this._transformations.activeForm?.key === "CHARIZARD";
-        if (!isCharizard && Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
-            this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-            this.weapon.startSystem(500, 1, this.owner.position);
-        }
-
-        if (this._speedPenaltyTimer > 0) {
-            this._speedPenaltyTimer -= deltaT;
-            if (this._speedPenaltyTimer <= 0) {
-                this._speedPenaltyTimer = 0;
-                this._speedPenaltyMultiplier = 1.0;
-            }
-        }
+        // if (!isCharizard && Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
+        //     this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
+        //     this.weapon.startSystem(500, 1, this.owner.position);
+        // }
 
         if (this._speedBoostTimer > 0) {
-        this._speedBoostTimer -= deltaT;
-        if (this._speedBoostTimer <= 0) {
-            this._speedBoostTimer = 0;
-            this._speedBoostMultiplier = 1.0;
+            this._speedBoostTimer -= deltaT;
+            if (this._speedBoostTimer <= 0) {
+                this._speedBoostTimer = 0;
+                this._speedBoostMultiplier = 1.0;
+            }
         }
-        }
+    
+        // Speed penalty timer — only one block, not two
         if (this._speedPenaltyTimer > 0) {
             this._speedPenaltyTimer -= deltaT;
             if (this._speedPenaltyTimer <= 0) {
@@ -211,46 +206,8 @@ export default class PlayerController extends StateMachineAI {
             }
         }
 
-        // Sludge uses arrow keys, blocked in Rowlet form
-        // if (this._sludgeTimer > 0) {
-        //     this._sludgeTimer -= deltaT;
-        // }
-        // if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
-        //     this._transformations.cycleNext();
-        //     const selected = this._transformations.selectedForm;
-        //     if (selected) {
-        //         this.emitter.fireEvent(MBEvents.FORM_SELECTED, { displayName: selected.displayName });
-        //     }
-        // }
-        // const activeForm = this._transformations.activeForm?.key ?? null;
         
-        // Phantump floating controls
-        // if (activeForm === "PHANTUMP") {
-        //     const floatSpeed = 100; // pixels per second
-        //     if (Input.isPressed(MBControls.JUMP)) {
-        //         this.velocity.y = -floatSpeed;
-        //     } else if (Input.isPressed(MBControls.DOWN)) {
-        //         this.velocity.y = floatSpeed;
-        //     } else {
-        //         // No input = stay in place
-        //         this.velocity.y = 0;
-        //     }
-        // }
-        
-        // if (activeForm !== "ROWLET" && this._sludgeTimer <= 0) {
-        //     const dx = (Input.isPressed(MBControls.ATTACK_RIGHT) ? 1 : 0)
-        //             - (Input.isPressed(MBControls.ATTACK_LEFT)  ? 1 : 0);
-        //     const dy = (Input.isPressed(MBControls.ATTACK_DOWN)  ? 1 : 0)
-        //             - (Input.isPressed(MBControls.ATTACK_UP)    ? 1 : 0);
-
-        //     if (dx !== 0 || dy !== 0) {
-        //         const dir = new Vec2(dx, dy).normalize();
-        //         (this.owner.getScene() as MBLevel).fireSludge(
-        //             this.owner.position.clone(), dir
-        //         );
-        //         this._sludgeTimer = this.SLUDGE_COOLDOWN;
-        //     }
-        // }
+       
     }
 
     // ── Transformation passthrough ────────────────────────────────
@@ -282,7 +239,10 @@ export default class PlayerController extends StateMachineAI {
     }
 
     public get effectiveSpeed(): number {
-        return this._speed * this._transformations.speedMultiplier * this._speedPenaltyMultiplier;
+        return this._speed
+            * this._transformations.speedMultiplier
+            * this._speedBoostMultiplier
+            * this._speedPenaltyMultiplier;
     }
     public get effectiveGravity(): number {
         return this.BASE_GRAVITY * this._transformations.gravityMultiplier;

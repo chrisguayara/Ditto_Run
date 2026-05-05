@@ -6,7 +6,25 @@
     "activeFile": "",
     "expandedProjectPaths": [
     ],
+    "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "#Snowtileset": {
+            "scaleInDock": 2.9085
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json": {
+            "scale": 0.5219,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 740.5633263077218,
+                "y": 252.92201571182216
+            }
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#hints": {
+            "scaleInDock": 1
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#wintermap": {
+            "scaleInDock": 1
+        }
     },
     "last.imagePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps",
     "map.height": 40,

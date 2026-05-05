@@ -155,7 +155,7 @@ export default class WinterLevel extends MBLevel {
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(15*16, 13*16));
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(79 * 16, 14*16));
 
-        this.spawnPatroller(new Vec2(12 * 16, 75 * 16), 80, 60, 2, 1);
+        this.spawnPatroller(new Vec2(45 * 16, 18 * 16), 80, 60, 2, 1);
         
 
         // Snorlax trampoline — collidable=true so player lands on top

@@ -149,6 +149,7 @@ export default class CastleLevel extends MBLevel {
         
         this.spawnPatroller(new Vec2(125 * 16, 19 * 16), 80, 60, 2, 1);
         this.spawnPatroller(new Vec2(153 * 16, 45 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(75 * 16, 45 * 16), 45, 50, 2, 1);
         // this.spawnShooter(new Vec2(17 * 16, 32 * 16), SNOWBALL);
         // this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);
     }

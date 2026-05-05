@@ -11,8 +11,8 @@ export default class RareCandy extends Item {
         this.emitter.fireEvent(MBEvents.PLAYER_HEAL, { amount: 1 });
         // Speed boost
         this.emitter.fireEvent(MBEvents.PLAYER_SPEED_BOOST, {
-            multiplier: 1.6,
-            duration: 8.0,
+            multiplier: 2.2,
+            duration: 1.3
         });
     }
 }

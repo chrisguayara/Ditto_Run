@@ -1106,10 +1106,10 @@ export default abstract class MBLevel extends Scene {
         this.UI_escapeSprite = this.add.animatedSprite(MBLevel.ESCAPE_OVERLAY_KEY, MBLayers.UI);
         this.UI_escapeSprite.position.set(44, 180);
         this.UI_escapeSprite.animation.play("IDLE", true);
-        this.UI_escapeSprite.alpha = 0;  // hidden by default
+        this.UI_escapeSprite.alpha = 0;  
         this.UI_escapeSprite.tweens.add("fadeIn", {
             startDelay: 0,
-            duration: 600,
+            duration: 300,
             effects: [{ property: TweenableProperties.alpha, start: 0, end: 1, ease: EaseFunctionType.IN_OUT_QUAD }]
         });
         this.UI_escapeSprite.tweens.add("fadeOut", {
