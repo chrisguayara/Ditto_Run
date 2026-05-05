@@ -22,7 +22,7 @@ export default class Fall extends PlayerState {
 
         if (turndir.x !== 0) {
             this.owner.invertX = turndir.x < 0;
-        }
+        }   
 
         // ── Fast fall ───────────────────────────────────────────
         if (Input.isJustPressed(MBControls.DOWN)) {
@@ -48,21 +48,38 @@ export default class Fall extends PlayerState {
             }
         }
 
-        if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
+       if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
+            // Attack
             if (Input.isMouseJustPressed()) {
                 this.finished(PlayerStates.BLITZ);
+                return;
+            }
+            // Glide — available immediately in fall (player is already descending)
+            if (Input.isPressed(MBControls.JUMP)) {
+                this.finished(PlayerStates.GLIDE);
                 return;
             }
         }
 
         if (this.owner.onGround) {
+            // fall damage is just annoying and punishes grapples/blitz as charizard
+            // this.parent.health -= Math.floor(this.parent.velocity.y / 300);
             this.finished(PlayerStates.IDLE);
             return;
         }
+        
+        
 
         const dir = this.parent.inputDir;
-        this.parent.velocity.x += dir.x * this.parent.speed / 3.5
-                                 - 0.3 * this.parent.velocity.x;
+        const maxX = this.parent.effectiveSpeed * 1.3;
+
+        this.parent.velocity.x += dir.x * 220 * deltaT;
+
+        
+        if (Math.abs(this.parent.velocity.x) > maxX) {
+            this.parent.velocity.x *= 1 - (1.5 * deltaT);
+        }
+
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
         this.owner.move(this.parent.velocity.scaled(deltaT));
 
