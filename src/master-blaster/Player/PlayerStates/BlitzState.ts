@@ -23,16 +23,16 @@ export default class BlitzState extends PlayerState {
     // ── Runtime ───────────────────────────────────────────────────
     private timer:     number = 0;
     private launchDir: Vec2   = Vec2.ZERO;
-    private static readonly DURATION:        number = 0.70;
+    
     private static readonly LAUNCH_SPEED:    number = 300;
-    private static readonly MOMENTUM_CARRY:  number = 0.70;
+
     private static readonly HORIZONTAL_BIAS: number = 1.3;
     private static readonly VERTICAL_BIAS:   number = 0.85;
-    private static readonly GRAVITY_MULT:    number = 0.4;
 
-    private timer:       number = 0;
+
+
     private launched:    boolean = false;
-    private launchDir:   Vec2 = Vec2.ZERO;
+
     private launchAngle: number = 0;
 
     public onEnter(_options: Record<string, any>): void {
