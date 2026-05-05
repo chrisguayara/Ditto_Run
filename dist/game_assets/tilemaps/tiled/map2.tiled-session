@@ -11,6 +11,23 @@
         "#Snowtileset": {
             "scaleInDock": 2.9085
         },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json": {
+            "scale": 0.9954,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 1357.745629897529,
+                "y": 666.0638939119953
+            }
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json#Snowtileset": {
+            "scaleInDock": 1
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json#hazards": {
+            "scaleInDock": 1
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json#hints": {
+            "scaleInDock": 1
+        },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json": {
             "scale": 0.5219,
             "selectedLayer": 4,

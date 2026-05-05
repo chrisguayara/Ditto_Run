@@ -27,6 +27,11 @@ export default class Jump extends PlayerState {
 
     public update(deltaT: number): void {
         super.update(deltaT);
+        const movedir = this.parent.inputDir;
+
+        if (movedir.x !== 0) {
+            this.owner.invertX = movedir.x < 0;
+        }
     
         if (Input.isJustPressed(MBControls.DOWN)) {
             this.parent.velocity.y = 140;
@@ -52,7 +57,7 @@ export default class Jump extends PlayerState {
         }
     
         if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
-            if (Input.isMouseJustPressed()) {
+            if (Input.isMouseJustPressed() && this.parent.blitzCooldown <= 0) { 
                 this.finished(PlayerStates.BLITZ);
                 return;
             }

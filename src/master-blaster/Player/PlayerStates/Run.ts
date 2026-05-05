@@ -18,6 +18,7 @@ export default class Walk extends PlayerState {
         // Don't reset velocity — let momentum carry in from grapple/fall.
         // We'll blend toward run speed in update().
         this.holdTimer = 0;
+        this.parent.doubleJumpAvailable = true;
     }
 
     update(deltaT: number): void {

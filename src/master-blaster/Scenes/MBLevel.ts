@@ -94,7 +94,7 @@ export default abstract class MBLevel extends Scene {
     private healthLabel!: Label;
     private healthBar!: Label;
     private healthBarBg!: Label;
-    private energyLabel!: Label;
+    protected energyLabel!: Label;
     private energyBar!: Label;
     private energyBarBg!: Label;
     protected UI_transformationSprite!: AnimatedSprite;
@@ -374,6 +374,17 @@ export default abstract class MBLevel extends Scene {
         // Update all entities
         for (const entity of this.entities) {
             (entity as any).update?.(deltaT);
+        }
+        if (this.player && this.player._ai) {
+            const ctrl = this.player._ai as PlayerController;
+            const form = ctrl.transformations.activeForm?.key ?? null;
+            if (form === "GRENINJA" || form === "CHARIZARD") {
+                this.updateCooldownBar(ctrl.cooldownProgress);
+                this.energyLabel.text = form === "GRENINJA" ? "GRAPPLE:" : "BLITZ:";
+            } else {
+                this.energyLabel.text = "ENERGY:";
+                this.handleEnergyChange(ctrl.transformations.energy, ctrl.transformations.maxEnergy);
+            }
         }
 
         
@@ -749,7 +760,14 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.ENERGY_CHANGE: {
-                this.handleEnergyChange(event.data.get("cur"), event.data.get("max"));
+                const ctrl = this.player._ai as PlayerController;
+                const form = ctrl.transformations.activeForm?.key ?? null;
+                if (form === "GRENINJA" || form === "CHARIZARD") {
+                    this.updateCooldownBar(ctrl.cooldownProgress);
+                } else {
+                    // Show actual energy when not in an ability form
+                    this.handleEnergyChange(ctrl.transformations.energy, ctrl.transformations.maxEnergy);
+                }
                 break;
             }
             case MBEvents.PLAYER_ENTERED_CHECKPOINT: {
@@ -776,12 +794,13 @@ export default abstract class MBLevel extends Scene {
             case MBEvents.PLAYER_HIT_ENTITY: {
                 const otherID = event.data.get("other");
                 const entity  = this.entityMap.get(otherID);
-                console.log("HES GONE!");
                 if (entity) {
                     entity.onPlayerContact();
                     if (entity instanceof Enemy && !entity.isFainted) {
                         const ctrl = this.player._ai as PlayerController;
-                        if (this.damageFlashTimer <= 0) {
+                        // Skip damage if player is currently blitzing
+                        const isBlitzing = (ctrl as any).currentState?.constructor?.name === "BlitzState";
+                        if (this.damageFlashTimer <= 0 && !isBlitzing) {
                             if (!GameState.getInstance().cheatsInfiniteHealth) {
                                 ctrl.health -= entity.contactDamage;
                             }
@@ -974,7 +993,17 @@ export default abstract class MBLevel extends Scene {
 
     
 
-    
+    private updateCooldownBar(progress: number): void {
+        // progress is 0–1, treat it like energy where 1 = full bar
+        const fullWidth = this.energyBarBg.size.x;
+        this.energyBar.size.set(fullWidth * progress, this.energyBarBg.size.y);
+        this.energyBar.position.set(
+            this.energyBarBg.position.x - (fullWidth * (1 - progress)) / 2 / this.getViewScale(),
+            this.energyBarBg.position.y
+        );
+        // Color: red when cooling down, blue when ready
+        this.energyBar.backgroundColor = progress < 1 ? Color.RED : Color.BLUE;
+    }
 
     /* Initialization methods for everything in the scene */
 
@@ -1141,7 +1170,8 @@ export default abstract class MBLevel extends Scene {
         this.energyLabel.textColor = Color.WHITE;
         this.energyLabel.fontSize = 12;
         this.energyLabel.font = "Courier";
-    
+        
+        
         this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
             position: new Vec2(90, 8),
             text: ""

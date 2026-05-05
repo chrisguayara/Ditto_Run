@@ -11,7 +11,7 @@ export default class Idle extends PlayerState {
 
         if (!this.parent.isTransforming) {
             this.owner.animation.play(this.parent.getAnimationKey("IDLE"));
-        }
+        }this.parent.doubleJumpAvailable = true;
     }
 
     public update(deltaT: number): void {

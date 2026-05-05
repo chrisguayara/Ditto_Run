@@ -15,6 +15,7 @@ import WinterLevel from "./WinterLevel";
 import CastleLevel from "./CastleLevel";
 import ForestLevel from "./ForestLevel";
 import GameState from "./GameState";
+import MountainLevel from "./MountainLevel";
 
 const Layers = {
     BACKGROUND: "BACKGROUND",
@@ -42,7 +43,9 @@ const CY = 400;
 const ALL_LEVELS: Array<{ label: string; unlockKey: string; scene: new (...args: any[]) => Scene }> = [
     { label: "WINTER",     unlockKey: "WINTER",     scene: WinterLevel  },
     { label: "STRONGHOLD", unlockKey: "STRONGHOLD", scene: CastleLevel  },
+    { label: "MOUNTAIN", unlockKey: "MOUNTAIN", scene: MountainLevel},
     { label: "FOREST",     unlockKey: "FOREST",     scene: ForestLevel  },
+    
 ];
 
 export default class LevelSelectMenu extends Scene {
