@@ -11,7 +11,6 @@ import Snorlax from "../Entity/Objects/Snorlax";
 import GameState from "./GameState";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
-import MountainLevel from "./MountainLevel";
 
 export const CHECKPOINTS = {
     SPAWN:          new Vec2(5 * 16, 32 * 16),
@@ -19,7 +18,7 @@ export const CHECKPOINTS = {
     CHECKPOINT_TWO: new Vec2(64  * 16, 42 * 16),
 } as const;
 
-export default class CastleLevel extends MBLevel {
+export default class MountainLevel extends MBLevel {
 
     public static readonly PLAYER_SPAWN      = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
@@ -62,21 +61,21 @@ export default class CastleLevel extends MBLevel {
     ) {
         super(viewport, sceneManager, renderingManager, options);
 
-        this.tilemapKey      = CastleLevel.TILEMAP_KEY;
-        this.tilemapScale    = CastleLevel.TILEMAP_SCALE;
-        this.wallsLayerKey   = CastleLevel.WALLS_LAYER_KEY;
+        this.tilemapKey      = MountainLevel.TILEMAP_KEY;
+        this.tilemapScale    = MountainLevel.TILEMAP_SCALE;
+        this.wallsLayerKey   = MountainLevel.WALLS_LAYER_KEY;
         this.phantomWallLayerKey = "phasewalls";
-        this.damageWallLayerKey  = CastleLevel.DAMAGE_LAYER_KEY;
+        this.damageWallLayerKey  = MountainLevel.DAMAGE_LAYER_KEY;
 
-        this.playerSpriteKey = CastleLevel.PLAYER_SPRITE_KEY;
-        this.playerSpawn     = CastleLevel.PLAYER_SPAWN;
+        this.playerSpriteKey = MountainLevel.PLAYER_SPRITE_KEY;
+        this.playerSpawn     = MountainLevel.PLAYER_SPAWN;
         this.respawnPosition = this.playerSpawn.clone();
 
-        this.levelMusicKey         = CastleLevel.LEVEL_MUSIC_KEY;
-        this.jumpAudioKey          = CastleLevel.JUMP_AUDIO_KEY;
-        this.transformAudioKey     = CastleLevel.TRANSFORM_AUDIO_KEY;
-        this.tileDestroyedAudioKey = CastleLevel.TILE_DESTROYED_KEY;
-        this.levelEndAudioKey      = CastleLevel.LEVEL_END_KEY;
+        this.levelMusicKey         = MountainLevel.LEVEL_MUSIC_KEY;
+        this.jumpAudioKey          = MountainLevel.JUMP_AUDIO_KEY;
+        this.transformAudioKey     = MountainLevel.TRANSFORM_AUDIO_KEY;
+        this.tileDestroyedAudioKey = MountainLevel.TILE_DESTROYED_KEY;
+        this.levelEndAudioKey      = MountainLevel.LEVEL_END_KEY;
 
         this.levelEndPosition = new Vec2(159 * 16, 36 * 16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
@@ -89,22 +88,22 @@ export default class CastleLevel extends MBLevel {
         // Shared entity sprites (patroller, shooter, projectile, shield)
         this.loadSharedSprites();
 
-        this.load.tilemap(this.tilemapKey, CastleLevel.TILEMAP_PATH);
+        this.load.tilemap(this.tilemapKey, MountainLevel.TILEMAP_PATH);
         this.loadPauseMenuAssets();
 
-        this.load.spritesheet(this.playerSpriteKey, CastleLevel.PLAYER_SPRITE_PATH);
+        this.load.spritesheet(this.playerSpriteKey, MountainLevel.PLAYER_SPRITE_PATH);
         this.load.spritesheet(SludgeWeapon.SLUDGE_KEY, SludgeWeapon.SLUDGE_PATH);
-        this.load.spritesheet(CastleLevel.CRYO_GRENINJA_SPRITE_KEY, CastleLevel.CRYO_GRENINJA_SPRITE_PATH);
+        this.load.spritesheet(MountainLevel.CRYO_GRENINJA_SPRITE_KEY, MountainLevel.CRYO_GRENINJA_SPRITE_PATH);
         this.load.spritesheet(RareCandy.SPRITE_KEY,  RareCandy.SPRITE_PATH);
         this.load.spritesheet(Snorlax.SPRITE_KEY,    Snorlax.SPRITE_PATH);
         this.load.spritesheet(this.hintSpriteKey,    this.hintSpritePath);
         this.load.spritesheet(this.transformUIkey,   this.transformUIpath);
 
-        this.load.audio(this.levelMusicKey,           CastleLevel.LEVEL_MUSIC_PATH);
-        this.load.audio(this.jumpAudioKey,            CastleLevel.JUMP_AUDIO_PATH);
-        this.load.audio(this.tileDestroyedAudioKey,   CastleLevel.TILE_DESTROYED_PATH);
-        this.load.audio(this.levelEndAudioKey,        CastleLevel.LEVEL_END_AUDIO_PATH);
-        this.load.audio(CastleLevel.TRANSFORM_AUDIO_KEY, CastleLevel.TRANSFORM_AUDIO_PATH);
+        this.load.audio(this.levelMusicKey,           MountainLevel.LEVEL_MUSIC_PATH);
+        this.load.audio(this.jumpAudioKey,            MountainLevel.JUMP_AUDIO_PATH);
+        this.load.audio(this.tileDestroyedAudioKey,   MountainLevel.TILE_DESTROYED_PATH);
+        this.load.audio(this.levelEndAudioKey,        MountainLevel.LEVEL_END_AUDIO_PATH);
+        this.load.audio(MountainLevel.TRANSFORM_AUDIO_KEY, MountainLevel.TRANSFORM_AUDIO_PATH);
     }
 
     public unloadScene(): void {

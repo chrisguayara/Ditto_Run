@@ -23,7 +23,7 @@ export default class WallSlide extends PlayerState {
         if (this.parent.velocity.y < 0) this.parent.velocity.y = 0;
 
         this.owner.animation.playIfNotAlready(
-            this.parent.getAnimationKey("JUMP"), true
+            this.parent.getAnimationKey("WALL"), true
         );
     }
 
@@ -72,10 +72,7 @@ export default class WallSlide extends PlayerState {
         // Wall jump — kick hard in opposite direction + upward
         
 
-        if (Input.isMouseJustPressed()) {
-            this.finished(PlayerStates.GRAPPLE);
-            return;
-        }
+        
 
         // Slide down — gravity scaled, capped
         this.parent.velocity.y += this.parent.effectiveGravity

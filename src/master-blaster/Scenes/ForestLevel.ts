@@ -123,7 +123,7 @@ export default class ForestLevel extends MBLevel {
         this.load.spritesheet(ForestLevel.ROTOM_SPRITE_KEY, ForestLevel.ROTOM_SPRITE_PATH);
 
         // Audio and music
-        this.load.audio(this.levelMusicKey, ForestLevel.LEVEL_MUSIC_PATH);
+        
         this.load.audio(this.jumpAudioKey, ForestLevel.JUMP_AUDIO_PATH);
         this.load.audio(this.tileDestroyedAudioKey, ForestLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey, ForestLevel.LEVEL_END_AUDIO_PATH);

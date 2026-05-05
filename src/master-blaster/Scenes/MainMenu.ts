@@ -9,12 +9,11 @@ import Scene from "../../Wolfie2D/Scene/Scene";
 import Color from "../../Wolfie2D/Utils/Color";
 import Input from "../../Wolfie2D/Input/Input";
 import { MBControls } from "../MBControls";
-import AnimatedSprite from "../../Wolfie2D/Nodes/Sprites/AnimatedSprite";
 import LevelSelectMenu from "./LevelSelectMenu";
 import ControlsMenu from "./ControlsMenu";
-import CastleLevel from "./CastleLevel";
-
-// ─── Layers ───────────────────────────────────────────────────────────────────
+import CheatsMenu from "./CheatsMenu";
+import { MenuAssets } from "./MenuAssets";
+import WinterLevel from "./WinterLevel";
 
 export const MenuLayers = {
     BACKGROUND: "BACKGROUND",
@@ -22,165 +21,127 @@ export const MenuLayers = {
     MAIN:       "MAIN",
 } as const;
 
-// ─── Style constants ──────────────────────────────────────────────────────────
-
-/** Dark navy — same tone used in level transitions */
 const COL_PANEL_BG   = new Color( 22,  20,  40, 0.88);
 const COL_BTN_BG     = new Color( 38,  36,  60, 1.0 );
 const COL_BTN_BORDER = new Color(140, 138, 180, 1.0 );
 const COL_BTN_TEXT   = new Color(230, 228, 255, 1.0 );
-const COL_TITLE      = new Color(255, 230, 100, 1.0 );  // warm yellow
+const COL_TITLE      = new Color(255, 230, 100, 1.0 );
 
 const FONT          = "monospace";
 const BTN_FONT_SIZE = 16;
-const BTN_PAD_X     = 60;  // horizontal padding inside button
-const BTN_PAD_Y     = 8;   // vertical padding inside button
-const BTN_SPACING   = 100  // gap between button centres
-
-// Screen centre in UI-space (matches existing viewport/focus setup)
+const BTN_PAD_X     = 60;
+const BTN_PAD_Y     = 8;
+const BTN_SPACING   = 100;
 const CX = 600;
 const CY = 400;
-const CX_HIT = 600;   // world/canvas x where clicks actually register
-const CY_HIT = 400;
-// ─────────────────────────────────────────────────────────────────────────────
 
 export default class MainMenu extends Scene {
 
-    // ── Asset keys ────────────────────────────────────────────────
-    public static readonly START_SCREEN_KEY  = "StartScreen";
-    public static readonly START_SCREEN_PATH = "game_assets/spritesheets/STARTSCREEN.json";
+    public static readonly MUSIC_KEY         = MenuAssets.MUSIC_KEY;
+    public static readonly SELECT_AUDIO_KEY  = MenuAssets.SELECT_AUDIO_KEY;
+    public static readonly START_SCREEN_KEY  = MenuAssets.START_SCREEN_KEY;
+    public static readonly START_SCREEN_PATH = MenuAssets.START_SCREEN_PATH;
 
-    public static readonly MUSIC_KEY  = "MAIN_MENU_MUSIC";
-    public static readonly MUSIC_PATH = "game_assets/music/jeanparker_insideout105master.wav";
-
-    public static readonly SELECT_AUDIO_KEY  = "SELECT_AUDIO_KEY";
-    public static readonly SELECT_AUDIO_PATH = "game_assets/sounds/pickup.mp3";
-
-    // ── State ─────────────────────────────────────────────────────
     private canStart: boolean = false;
 
-    // ─────────────────────────────────────────────────────────────────────────
-
     public loadScene(): void {
-        this.load.audio(MainMenu.MUSIC_KEY, MainMenu.MUSIC_PATH);
-        this.load.spritesheet(MainMenu.START_SCREEN_KEY, MainMenu.START_SCREEN_PATH);
-        this.load.audio(MainMenu.SELECT_AUDIO_KEY, MainMenu.SELECT_AUDIO_PATH);
+        // Always load these — if they were kept alive the engine skips re-fetching,
+        // if they weren't (e.g. returning from a level) this reloads them properly.
+        this.load.audio(MenuAssets.MUSIC_KEY, MenuAssets.MUSIC_PATH);
+        this.load.spritesheet(MenuAssets.START_SCREEN_KEY, MenuAssets.START_SCREEN_PATH);
+        this.load.audio(MenuAssets.SELECT_AUDIO_KEY, MenuAssets.SELECT_AUDIO_PATH);
     }
 
     public startScene(): void {
-        // ── Layers ────────────────────────────────────────────────
         this.addLayer(MenuLayers.BACKGROUND);
         this.addUILayer(MenuLayers.PANEL);
         this.addUILayer(MenuLayers.MAIN);
 
-        // ── Viewport ──────────────────────────────────────────────
         this.viewport.setSize(1200, 800);
         this.viewport.setBounds(0, 0, 1200, 800);
         this.viewport.setFocus(new Vec2(CX, CY));
 
-        // ── Animated backdrop ─────────────────────────────────────
-        const bg = this.add.animatedSprite(MainMenu.START_SCREEN_KEY, MenuLayers.BACKGROUND);
+        // Background sprite
+        const bg = this.add.animatedSprite(MenuAssets.START_SCREEN_KEY, MenuLayers.BACKGROUND);
         bg.position.set(CX, CY);
         bg.animation.playIfNotAlready("DEFAULT", true);
 
-        // ── Semi-transparent panel behind buttons ─────────────────
-        const BUTTONS = [
-            "START",
-            "LEVELS",
-            // "HELP",    commented out until implemented
-            "CONTROLS",
-            "FEEDBACK",
-        ];
+        // Dark overlay panel
         const panelH = 800;
         const panelW = 1200;
         const panel = <Rect>this.add.graphic(GraphicType.RECT, MenuLayers.PANEL, {
-            position: new Vec2(CX_HIT, CY_HIT + 8),
+            position: new Vec2(CX, CY),
             size:     new Vec2(panelW, panelH),
         });
         panel.color = COL_PANEL_BG;
 
-        // ── Title label ───────────────────────────────────────────
+        // Title
         const titleLabel = <Label>this.add.uiElement(UIElementType.LABEL, MenuLayers.MAIN, {
-            position: new Vec2(CX, CY - panelH / 2 + 4),
-            text: "MENU",
+            position: new Vec2(CX, 120),
+            text: "SPLITSTEAM",
         });
-        titleLabel.textColor   = COL_TITLE;
-        titleLabel.font        = FONT;
-        titleLabel.fontSize    = 14;
+        titleLabel.textColor       = COL_TITLE;
+        titleLabel.font            = FONT;
+        titleLabel.fontSize        = 28;
         titleLabel.backgroundColor = new Color(0, 0, 0, 0);
 
-        // ── Buttons ───────────────────────────────────────────────
-        const startY = CY - ((BUTTONS.length - 1) * BTN_SPACING) / 2;
-
+        // Buttons — START always goes to WinterLevel, LEVELS opens level select
+        const BUTTONS = ["START", "LEVELS", "CONTROLS", "CHEATS"];
         BUTTONS.forEach((label, i) => {
-            const y = (CY_HIT - ((BUTTONS.length - 1) * BTN_SPACING) / 2 + 8) + i * BTN_SPACING;
-            this.makeButton(label, CX_HIT, y, () => this.onButtonClick(label));
+            const y = (CY - ((BUTTONS.length - 1) * BTN_SPACING) / 2) + i * BTN_SPACING;
+            this.makeButton(label, CX, y, () => this.onButtonClick(label));
         });
 
-        // ── Audio ─────────────────────────────────────────────────
+        // (Re)start music — safe to fire even if already playing in most engines;
+        // if yours deduplicates by key this is harmless, otherwise stop first.
+        this.emitter.fireEvent(GameEventType.STOP_SOUND,  { key: MenuAssets.MUSIC_KEY });
         this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
-            key: MainMenu.MUSIC_KEY,
+            key: MenuAssets.MUSIC_KEY,
             loop: true,
-            holdReference: false,
+            holdReference: true,
         });
 
-        // Brief guard so an Escape-key from a previous scene doesn't fire immediately
         setTimeout(() => { this.canStart = true; }, 300);
     }
 
     public updateScene(_deltaT: number): void {
         if (!this.canStart) return;
-
         if (Input.isJustPressed(MBControls.CONFIRM)) {
             this.select();
-            this.navigateTo(LevelSelectMenu);  // Enter goes straight to level select
+            this.launchLevel();
         }
     }
 
     public unloadScene(): void {
-        this.load.keepAudio(MainMenu.SELECT_AUDIO_KEY);
-        this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: MainMenu.MUSIC_KEY });
+        this.load.keepAudio(MenuAssets.MUSIC_KEY);
+        this.load.keepAudio(MenuAssets.SELECT_AUDIO_KEY);
+        this.load.keepSpritesheet(MenuAssets.START_SCREEN_KEY);
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Private helpers
-    // ─────────────────────────────────────────────────────────────────────────
 
     private onButtonClick(label: string): void {
         this.select();
         switch (label) {
-            case "START":
-                this.navigateTo(LevelSelectMenu);
-                break;
-            case "LEVELS":
-                this.navigateTo(LevelSelectMenu);
-                break;
-            // case "HELP":
-            //     break;
-            case "CONTROLS":
-                this.navigateTo(ControlsMenu);
-                break;
-            case "FEEDBACK":
-                window.open("https://forms.gle/8RLwPVrickHJFTWPA", "Feedback form");
-                break;
+            case "START":    this.launchLevel();              break;
+            case "LEVELS":   this.navigateTo(LevelSelectMenu); break;
+            case "CONTROLS": this.navigateTo(ControlsMenu);   break;
+            case "CHEATS":   this.navigateTo(CheatsMenu);     break;
         }
     }
 
-    /** Play the select sound */
-    private select(): void {
-        this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: MainMenu.SELECT_AUDIO_KEY });
+    // START always goes to WinterLevel (first level)
+    private launchLevel(): void {
+        this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: MenuAssets.MUSIC_KEY });
+        this.sceneManager.changeToScene(WinterLevel);
     }
 
-    /** Change to a scene, keeping the select sound resource alive */
+    private select(): void {
+        this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: MenuAssets.SELECT_AUDIO_KEY });
+    }
+
     private navigateTo(SceneClass: new (...args: any[]) => Scene): void {
         this.sceneManager.changeToScene(SceneClass);
     }
 
-    /**
-     * Creates a styled dark-panel button.
-     * Follows the same pattern as the existing transparent button but with
-     * a visible background and border so it reads clearly over the backdrop.
-     */
     private makeButton(text: string, x: number, y: number, onClick: () => void): Button {
         const btn = <Button>this.add.uiElement(UIElementType.BUTTON, MenuLayers.MAIN, {
             position: new Vec2(x, y),

@@ -33,9 +33,17 @@ import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import Game from "../../Wolfie2D/Loop/Game";
 import { Transformations } from "../Player/Transformation";
 import Enemy from "../Entity/Enemy";
+import GameState from "./GameState";
+import Patrol from "../Pokemon/PokemonStates/Patrol";
 
+import Projectile from "../Entity/Enemies/Projectile";
+import { ProjectileConfig } from "../Entity/Enemies/ProjectileConfig";
+import { SpriteKeys } from "./SpriteKeys";
 import { DittoForms } from "../UI/DittoForms";
 import AudioManager from "../../Wolfie2D/Sound/AudioManager";
+import Patroller from "../Entity/Enemies/Patroller";
+import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
+import Shooter from "../Entity/Enemies/Shooter";
 /**
  * A const object for the layer names
  */
@@ -51,6 +59,9 @@ export type MBLayer = typeof MBLayers[keyof typeof MBLayers];
 export default abstract class MBLevel extends Scene {
     /** Override the factory manager */
     public add: MBFactoryManager;
+    private damageFlashTimer: number = 0;
+    private readonly DAMAGE_FLASH_DURATION = 1.5; // seconds of iframes
+    private readonly DAMAGE_FLASH_RATE = 0.1; 
 
     // ── Pause menu assets ─────────────────────────────────────────
     public static readonly PAUSE_BG_KEY = "PAUSE_MENU_BG";
@@ -83,7 +94,7 @@ export default abstract class MBLevel extends Scene {
     private healthLabel!: Label;
     private healthBar!: Label;
     private healthBarBg!: Label;
-    private energyLabel!: Label;
+    protected energyLabel!: Label;
     private energyBar!: Label;
     private energyBarBg!: Label;
     protected UI_transformationSprite!: AnimatedSprite;
@@ -161,6 +172,10 @@ export default abstract class MBLevel extends Scene {
     protected idleTimeThreshold: number = 5; // seconds
     private idleTimer: number = 0;
     private escOverlayShowing: boolean = false;
+
+    protected shooterSpriteKey!:    string;
+    protected projectileSpriteKey!: string;
+    protected patrollerSpriteKey!:  string;
 
     // Entity Logic ---------------------------
     
@@ -259,6 +274,12 @@ export default abstract class MBLevel extends Scene {
         this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
         
     }
+    protected loadSharedSprites(): void {
+        this.load.spritesheet(SpriteKeys.PATROLLER_KEY,   SpriteKeys.PATROLLER_PATH);
+        this.load.spritesheet(SpriteKeys.SHOOTER_KEY,     SpriteKeys.SHOOTER_PATH);
+        this.load.spritesheet(SpriteKeys.PROJECTILE_KEY,  SpriteKeys.PROJECTILE_PATH);
+        // this.load.spritesheet(SpriteKeys.SHIELD_CANDY_KEY, SpriteKeys.SHIELD_CANDY_PATH);
+    }
 
     public startScene(): void {
         this.initLayers();
@@ -336,6 +357,15 @@ export default abstract class MBLevel extends Scene {
         while (this.receiver.hasNextEvent()) {
             this.handleEvent(this.receiver.getNextEvent());
         }
+        // In updateScene, replace the flash block:
+        if (this.damageFlashTimer > 0) {
+            this.damageFlashTimer = Math.max(0, this.damageFlashTimer - deltaT);
+            const flashPhase = Math.floor(this.damageFlashTimer / this.DAMAGE_FLASH_RATE);
+            this.player.alpha = (flashPhase % 2 === 0) ? 1 : 0;
+            if (this.damageFlashTimer === 0) {
+                this.player.alpha = 1;
+            }
+        }
         // Tick all live sludge projectiles
         for (const s of this.sludgePool) {
             if (s.isAlive) s.update(deltaT);
@@ -344,6 +374,17 @@ export default abstract class MBLevel extends Scene {
         // Update all entities
         for (const entity of this.entities) {
             (entity as any).update?.(deltaT);
+        }
+        if (this.player && this.player._ai) {
+            const ctrl = this.player._ai as PlayerController;
+            const form = ctrl.transformations.activeForm?.key ?? null;
+            if (form === "GRENINJA" || form === "CHARIZARD") {
+                this.updateCooldownBar(ctrl.cooldownProgress);
+                this.energyLabel.text = form === "GRENINJA" ? "GRAPPLE:" : "BLITZ:";
+            } else {
+                this.energyLabel.text = "ENERGY:";
+                this.handleEnergyChange(ctrl.transformations.energy, ctrl.transformations.maxEnergy);
+            }
         }
 
         
@@ -660,6 +701,7 @@ export default abstract class MBLevel extends Scene {
         switch (event.type) {
             case MBEvents.PLAYER_ENTERED_LEVEL_END: {
                 this.handleEnteredLevelEnd();
+                console.log("Entered Level End");
                 break;
             }
             case MBEvents.LEVEL_START: {
@@ -690,21 +732,17 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_DEAD: {
                 const ctrl = this.player._ai as PlayerController;
+                this.damageFlashTimer = 0;      // ← replaces damageCooldown = 0
+                this.player.alpha = 1;
                 this.player.position.copy(this.respawnPosition);
                 this.player.scaleX = 1;
                 this.player.scaleY = 1;
-                this.player.alpha = 1;
                 this.player.rotation = 0;
-            
-                ctrl.damageCooldown = 0; // critical — must clear or player is immune after respawn
                 ctrl.velocity = Vec2.ZERO;
                 ctrl.health = ctrl.maxHealth;
                 ctrl.transformations.energy = ctrl.transformations.maxEnergy;
-            
-                // Re-activate whatever form they were in — no Ditto
                 const currentFormKey = ctrl.transformations.activeForm?.key ?? "GRENINJA";
                 ctrl.transformations.forceActivate(currentFormKey);
-            
                 this.player.setGroup(MBPhysicsGroups.PLAYER);
                 ctrl.changeState(PlayerStates.IDLE);
                 break;
@@ -722,11 +760,19 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.ENERGY_CHANGE: {
-                this.handleEnergyChange(event.data.get("cur"), event.data.get("max"));
+                const ctrl = this.player._ai as PlayerController;
+                const form = ctrl.transformations.activeForm?.key ?? null;
+                if (form === "GRENINJA" || form === "CHARIZARD") {
+                    this.updateCooldownBar(ctrl.cooldownProgress);
+                } else {
+                    // Show actual energy when not in an ability form
+                    this.handleEnergyChange(ctrl.transformations.energy, ctrl.transformations.maxEnergy);
+                }
                 break;
             }
             case MBEvents.PLAYER_ENTERED_CHECKPOINT: {
                 const nodeId = event.data.get("other");
+                console.log("Entered Checkpoint");
                 if (this.checkpointOneArea && nodeId === this.checkpointOneArea.id) {
                     this.respawnPosition = this.checkpoint_sqr1.clone();
                 } else if (this.checkpointTwoArea && nodeId === this.checkpointTwoArea.id) {
@@ -735,45 +781,33 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
+                if (this.damageFlashTimer > 0) break;
                 const ctrl = this.player._ai as PlayerController;
-                // Only damage if cooldown has expired
-                if (ctrl.damageCooldown <= 0) {
-                    ctrl.health -= 1;
-                    ctrl.damageCooldown = ctrl.DAMAGE_COOLDOWN_TIME;
+                if (!ctrl.tryAbsorbDamage()) {
+                    if (!GameState.getInstance().cheatsInfiniteHealth) ctrl.health -= 1;
+                    this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                    this.applyDamageKnockback(ctrl);
                 }
                 break;
             }
 
             case MBEvents.PLAYER_HIT_ENTITY: {
-            
                 const otherID = event.data.get("other");
-
-                const entity = this.entityMap.get(otherID);
+                const entity  = this.entityMap.get(otherID);
                 if (entity) {
                     entity.onPlayerContact();
-            
-                    // If it's an enemy, apply contact damage directly here
-                    if (entity instanceof Enemy && !(entity as Enemy).isFainted) {
+                    if (entity instanceof Enemy && !entity.isFainted) {
                         const ctrl = this.player._ai as PlayerController;
-                        if (ctrl.damageCooldown <= 0) {
-                            ctrl.health -= (entity as Enemy).contactDamage;
-                            ctrl.damageCooldown = ctrl.DAMAGE_COOLDOWN_TIME;
-                            const knockDir = this.player.position.clone()
-                                .sub(entity.position).normalize();
-                            ctrl.velocity = new Vec2(knockDir.x * 200, -150);
+                        // Skip damage if player is currently blitzing
+                        const isBlitzing = (ctrl as any).currentState?.constructor?.name === "BlitzState";
+                        if (this.damageFlashTimer <= 0 && !isBlitzing) {
+                            if (!GameState.getInstance().cheatsInfiniteHealth) {
+                                ctrl.health -= entity.contactDamage;
+                            }
+                            this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                            this.applyDamageKnockback(ctrl, entity.position);
                         }
                     }
-                    break;
-                }
-
-                const pokemon = this.pokemonMap.get(otherID);
-                if (pokemon && !pokemon.isFainted) {
-                    const ctrl = this.player._ai as PlayerController;
-                    ctrl.health -= pokemon.contactDamage;
-
-                    // Knock player away from the pokemon
-                    const knockDir = this.player.position.clone().sub(pokemon.position).normalize();
-                    ctrl.velocity = new Vec2(knockDir.x * 200, -150);
                 }
                 break;
             }
@@ -804,12 +838,69 @@ export default abstract class MBLevel extends Scene {
                 
                 break;
             }
+            case MBEvents.PLAYER_SPEED_BOOST: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applySpeedBoost(event.data.get("multiplier"), event.data.get("duration"));
+                break;
+            }
+            case MBEvents.PLAYER_SLOWED: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applySpeedPenalty(event.data.get("multiplier"), event.data.get("duration"));
+                break;
+            }
+            case MBEvents.PLAYER_BUBBLE: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applyShield(event.data.get("hits"));
+                break;
+            }
+            case MBEvents.PROJECTILE_HIT_PLAYER: {
+                if (this.damageFlashTimer > 0) break;
+                const ctrl = this.player._ai as PlayerController;
+                if (!ctrl.tryAbsorbDamage()) {
+                    if (!GameState.getInstance().cheatsInfiniteHealth) {
+                        ctrl.health -= event.data.get("damage");
+                    }
+                    this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                    this.applyDamageKnockback(ctrl);
+                    if (event.data.get("slowOnHit")) {
+                        ctrl.applySpeedPenalty(event.data.get("slowMultiplier"), event.data.get("slowDuration"));
+                    }
+                }
+                break;
+            }
             case MBEvents.FORM_SELECTED: {
                 this.updateUI();
                 break;
             }
             case MBEvents.SHOW_CONTROLS: {
 
+                break;
+            }
+
+            case MBEvents.PROJECTILE_HIT_PLAYER: {
+                if (this.damageFlashTimer > 0) break;
+                if (!GameState.getInstance().cheatsInfiniteHealth) {
+                    const ctrl = this.player._ai as PlayerController;
+                    ctrl.health -= event.data.get("damage");
+                }
+                this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
+                this.applyDamageKnockback(this.player._ai as PlayerController);
+
+                if (event.data.get("slowOnHit")) {
+                    this.emitter.fireEvent(MBEvents.PLAYER_SLOWED, {
+                        duration: event.data.get("slowDuration"),
+                        multiplier: event.data.get("slowMultiplier"),
+                    });
+                }
+                break;
+            }
+
+            case MBEvents.PLAYER_SLOWED: {
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.applySpeedPenalty(
+                    event.data.get("multiplier"),
+                    event.data.get("duration")
+                );
                 break;
             }
             default: {
@@ -902,7 +993,17 @@ export default abstract class MBLevel extends Scene {
 
     
 
-    
+    private updateCooldownBar(progress: number): void {
+        // progress is 0–1, treat it like energy where 1 = full bar
+        const fullWidth = this.energyBarBg.size.x;
+        this.energyBar.size.set(fullWidth * progress, this.energyBarBg.size.y);
+        this.energyBar.position.set(
+            this.energyBarBg.position.x - (fullWidth * (1 - progress)) / 2 / this.getViewScale(),
+            this.energyBarBg.position.y
+        );
+        // Color: red when cooling down, blue when ready
+        this.energyBar.backgroundColor = progress < 1 ? Color.RED : Color.BLUE;
+    }
 
     /* Initialization methods for everything in the scene */
 
@@ -945,6 +1046,8 @@ export default abstract class MBLevel extends Scene {
                 this.phantomWalls.setGroup(MBPhysicsGroups.PHANTOM_WALL);
             }
         }
+
+        
 
         if (this.damageWallLayerKey !== undefined) {
             this.damageWalls = this.getTilemap(this.damageWallLayerKey) as OrthogonalTilemap;
@@ -1018,6 +1121,10 @@ export default abstract class MBLevel extends Scene {
         this.receiver.subscribe(MBEvents.POKEMON_HIT);
         this.receiver.subscribe(MBEvents.FORM_SELECTED);
         this.receiver.subscribe(MBEvents.SHOW_CONTROLS);
+        this.receiver.subscribe(MBEvents.PROJECTILE_HIT_PLAYER);
+        this.receiver.subscribe(MBEvents.PLAYER_SLOWED);
+        this.receiver.subscribe(MBEvents.PLAYER_SPEED_BOOST);
+        this.receiver.subscribe(MBEvents.PLAYER_BUBBLE);
 
 
     }
@@ -1028,10 +1135,10 @@ export default abstract class MBLevel extends Scene {
         this.UI_escapeSprite = this.add.animatedSprite(MBLevel.ESCAPE_OVERLAY_KEY, MBLayers.UI);
         this.UI_escapeSprite.position.set(44, 180);
         this.UI_escapeSprite.animation.play("IDLE", true);
-        this.UI_escapeSprite.alpha = 0;  // hidden by default
+        this.UI_escapeSprite.alpha = 0;  
         this.UI_escapeSprite.tweens.add("fadeIn", {
             startDelay: 0,
-            duration: 600,
+            duration: 300,
             effects: [{ property: TweenableProperties.alpha, start: 0, end: 1, ease: EaseFunctionType.IN_OUT_QUAD }]
         });
         this.UI_escapeSprite.tweens.add("fadeOut", {
@@ -1063,7 +1170,8 @@ export default abstract class MBLevel extends Scene {
         this.energyLabel.textColor = Color.WHITE;
         this.energyLabel.fontSize = 12;
         this.energyLabel.font = "Courier";
-    
+        
+        
         this.energyBar = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.UI, {
             position: new Vec2(90, 8),
             text: ""
@@ -1244,6 +1352,16 @@ export default abstract class MBLevel extends Scene {
 
         
     }
+    private applyDamageKnockback(ctrl: PlayerController, sourcePosition?: Vec2): void {
+        ctrl.velocity.x *= 0.1;
+        ctrl.velocity.y = -80;
+        
+        if (sourcePosition) {
+            const knockDir = this.player.position.clone().sub(sourcePosition).normalize();
+            ctrl.velocity.x = knockDir.x * 120;
+            ctrl.velocity.y = -80;
+        }
+    }
 
     protected initializeViewport(): void {
         if (this.player === undefined) {
@@ -1314,28 +1432,115 @@ export default abstract class MBLevel extends Scene {
     public getTransformAudioKey(): string {
         return this.transformAudioKey;
     }
+    public getEntityMap(): Map<number, Entity> {
+        return this.entityMap;
+    }
 
     
 
+    // protected spawnEntity(
+    //     EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+    //     spriteKey: string,
+    //     position: Vec2,
+    //     collidable: boolean = false  // true = solid, false = trigger only
+    // ): Entity {
+    //     const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
+    //     sprite.position.copy(position);
+    //     sprite.animation.play("IDLE", true);
+    //     sprite.addPhysics(new AABB(sprite.position.clone(), new Vec2(8, 8)), undefined, collidable, !collidable);
+    //     sprite.setGroup(MBPhysicsGroups.ENTITY);
+    //     sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
+
+    //     const entity = new EntityClass(sprite);
+        
+    //     this.entityMap.set(sprite.id, entity);
+    //     this.entities.push(entity);
+
+    //     return entity;
+    // }
+
     protected spawnEntity(
-        EntityClass: new (sprite: MBAnimatedSprite) => Entity,
+        factory: (sprite: MBAnimatedSprite) => Entity,
         spriteKey: string,
         position: Vec2,
-        collidable: boolean = false  // true = solid, false = trigger only
+        collidable: boolean = false
     ): Entity {
         const sprite = this.add.animatedSprite(spriteKey, MBLayers.PRIMARY);
         sprite.position.copy(position);
         sprite.animation.play("IDLE", true);
-        sprite.addPhysics(new AABB(sprite.position.clone(), new Vec2(8, 8)), undefined, collidable, !collidable);
+
+        sprite.addPhysics(
+            new AABB(sprite.position.clone(), new Vec2(8, 8)),
+            undefined,
+            collidable,
+            !collidable
+        );
+
         sprite.setGroup(MBPhysicsGroups.ENTITY);
         sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
 
-        const entity = new EntityClass(sprite);
         
+        const entity = factory(sprite);
+
         this.entityMap.set(sprite.id, entity);
         this.entities.push(entity);
 
         return entity;
+    }
+    protected spawnPatroller(
+        position: Vec2,
+        patrolRadius: number = 80,
+        speed: number = 60,
+        maxHealth: number = 2,
+        contactDamage: number = 1
+    ): Entity {
+        return this.spawnEntity(
+            (sprite) =>
+                new Patroller(
+                    sprite,
+                    position.x - patrolRadius,
+                    position.x + patrolRadius,
+                    speed,
+                    maxHealth,
+                    contactDamage
+                ),
+            SpriteKeys.PATROLLER_KEY,  // ← was this.patrollerSpriteKey (now centralised)
+            position
+        );
+    }
+
+    /** Spawns a shooter enemy. Load shooterSpriteKey + projectileSpriteKey in subclass loadScene(). */
+    protected spawnShooter(
+        position: Vec2,
+        config: ProjectileConfig = SNOWBALL,
+        poolSize: number = 4,
+        fireInterval: number = 2.5,
+        maxHealth: number = 2,
+        detectionRange: number = 200
+    ): Shooter {
+        const pool: Projectile[] = [];
+    
+        for (let i = 0; i < poolSize; i++) {
+            // Uses the unified PROJECTILE_KEY; animation is chosen per-shot by Shooter
+            const pSprite = this.add.animatedSprite(SpriteKeys.PROJECTILE_KEY, MBLayers.PRIMARY);
+            pSprite.visible = false;
+            pool.push(new Projectile(pSprite));
+        }
+    
+        return this.spawnEntity(
+            (sprite) =>
+                new Shooter(
+                    sprite,
+                    pool,
+                    this.player as MBAnimatedSprite,
+                    fireInterval,
+                    maxHealth,
+                    detectionRange,
+                    config
+                ),
+            SpriteKeys.SHOOTER_KEY,  
+            position
+        ) as Shooter;
     }
 
     

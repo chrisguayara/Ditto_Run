@@ -18,6 +18,7 @@ export default class Walk extends PlayerState {
         // Don't reset velocity — let momentum carry in from grapple/fall.
         // We'll blend toward run speed in update().
         this.holdTimer = 0;
+        this.parent.doubleJumpAvailable = true;
     }
 
     update(deltaT: number): void {
@@ -65,8 +66,7 @@ export default class Walk extends PlayerState {
 
             // Ramp from MIN_SPEED to top speed over GRENINJA_ACCEL_TIME
             const t = this.holdTimer / GRENINJA_ACCEL_TIME;
-            const targetSpeed = this.parent.MIN_SPEED
-                + (GRENINJA_TOP_SPEED - this.parent.MIN_SPEED) * t;
+            const targetSpeed = this.parent.effectiveSpeed;
 
             // Blend current velocity toward target — preserves carry-over from grapple
             const targetVx = dir.x * targetSpeed;

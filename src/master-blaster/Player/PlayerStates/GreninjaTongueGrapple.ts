@@ -86,6 +86,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
                 this.anchor = this.tipPos.clone();
                 this.parent.grappleAnchor = this.anchor;
                 this.phase = GrapplePhase.ATTACHED;
+                this.parent.grappleCooldown = this.parent.GRAPPLE_COOLDOWN_TIME;
                 hit = true;
                 break;
             }
@@ -93,6 +94,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
             if (this.castDist >= GreninjaTongueGrapple.MAX_RANGE) {
                 this.phase = GrapplePhase.MISSED;
                 this.missTimer = GreninjaTongueGrapple.MISS_PAUSE;
+                this.parent.grappleCooldown = this.parent.GRAPPLE_COOLDOWN_TIME * 0.4;
                 hit = true; // stop the loop
                 break;
             }

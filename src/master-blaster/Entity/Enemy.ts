@@ -1,5 +1,4 @@
-// src/mb/Entity/Enemy.ts
-import Entity from "../Entity/Entity";
+import Entity from "./Entity";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
 

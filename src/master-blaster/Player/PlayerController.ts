@@ -39,7 +39,8 @@ export const PlayerAnimations = {
     GRENINJA_WALL_SLIDE: "GRENINJA_WALL_SLIDE",
     GRENINJA_GRAPPLE:    "GRENINJA_GRAPPLE",
     CHARIZARD_IDLE: "CHARIZARD_IDLE",
-    CHARIZARD_BLITZ : "CHARIZARD_BLITZ"
+    CHARIZARD_BLITZ : "CHARIZARD_BLITZ",
+    GRENINJA_WALL : "GRENINJA_WALL"
 } as const
 
 export const PlayerTweens = {
@@ -66,9 +67,10 @@ export default class PlayerController extends StateMachineAI {
     public readonly GRAPPLE_COOLDOWN_TIME: number = 3.0;
     public readonly BLITZ_COOLDOWN_TIME:   number = 3.0;
     public readonly MAX_SPEED: number = 300;
-    public readonly MIN_SPEED: number = 100;
+    public readonly MIN_SPEED: number = 130;
     public readonly BASE_JUMP_FORCE: number = -200;
     public readonly BASE_GRAVITY: number = 500;
+    public doubleJumpAvailable: boolean = false;
     private _sludgeTimer: number = 0;
     private _transforming: boolean = false;
     private _transformTimer: number = 0;
@@ -88,9 +90,16 @@ export default class PlayerController extends StateMachineAI {
     protected weapon!: PlayerWeapon;
     protected _transformations!: TransformationManager;
     public scene! : MBLevel;
+    private _speedPenaltyMultiplier: number = 1.0;
+    private _speedPenaltyTimer: number = 0;
 
-    public damageCooldown: number = 0; // ms
     public readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
+
+    private _speedBoostMultiplier:  number = 1.0;
+    private _speedBoostTimer:       number = 0;
+    private _shieldHits:            number = 0;
+
+    
 
     public initializeAI(owner: MBAnimatedSprite, options: Record<string, any>): void {
         this.owner = owner;
@@ -102,7 +111,6 @@ export default class PlayerController extends StateMachineAI {
         this.velocity = Vec2.ZERO;
         this.health = 3;
         this.maxHealth = 3;
-        this.damageCooldown = 0; // ensure clean state
     
         // Always start as Greninja, Charizard available via toggle
         this._transformations.unlockForm("GRENINJA");
@@ -156,9 +164,7 @@ export default class PlayerController extends StateMachineAI {
         
         if (this.grappleCooldown > 0) this.grappleCooldown -= deltaT;
         if (this.blitzCooldown   > 0) this.blitzCooldown   -= deltaT;
-        if (this.damageCooldown > 0) {
-            this.damageCooldown -= deltaT;
-        }
+        
         if (this.isPaused) return;
         super.update(deltaT);
         this._transformations.update(deltaT);
@@ -170,6 +176,9 @@ export default class PlayerController extends StateMachineAI {
             this._transforming = true;                              // ← restore
             this._transformTimer = this.TRANSFORM_ANIM_DURATION;
         }
+        if ((this.owner as any).onGround) {
+            this.doubleJumpAvailable = true;
+        }
         if (this._transforming) {
             this._transformTimer -= deltaT;
             if (this._transformTimer <= 0) {
@@ -179,58 +188,65 @@ export default class PlayerController extends StateMachineAI {
         // Phantump weapon rotation (mouse-aimed, unchanged)
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
         const isCharizard = this._transformations.activeForm?.key === "CHARIZARD";
-        if (!isCharizard && Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
-            this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-            this.weapon.startSystem(500, 1, this.owner.position);
+        // if (!isCharizard && Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
+        //     this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
+        //     this.weapon.startSystem(500, 1, this.owner.position);
+        // }
+
+        if (this._speedBoostTimer > 0) {
+            this._speedBoostTimer -= deltaT;
+            if (this._speedBoostTimer <= 0) {
+                this._speedBoostTimer = 0;
+                this._speedBoostMultiplier = 1.0;
+            }
+        }
+    
+        // Speed penalty timer — only one block, not two
+        if (this._speedPenaltyTimer > 0) {
+            this._speedPenaltyTimer -= deltaT;
+            if (this._speedPenaltyTimer <= 0) {
+                this._speedPenaltyTimer = 0;
+                this._speedPenaltyMultiplier = 1.0;
+            }
         }
 
-        // Sludge uses arrow keys, blocked in Rowlet form
-        // if (this._sludgeTimer > 0) {
-        //     this._sludgeTimer -= deltaT;
-        // }
-        // if (Input.isJustPressed(MBControls.CYCLE_FORM)) {
-        //     this._transformations.cycleNext();
-        //     const selected = this._transformations.selectedForm;
-        //     if (selected) {
-        //         this.emitter.fireEvent(MBEvents.FORM_SELECTED, { displayName: selected.displayName });
-        //     }
-        // }
-        // const activeForm = this._transformations.activeForm?.key ?? null;
         
-        // Phantump floating controls
-        // if (activeForm === "PHANTUMP") {
-        //     const floatSpeed = 100; // pixels per second
-        //     if (Input.isPressed(MBControls.JUMP)) {
-        //         this.velocity.y = -floatSpeed;
-        //     } else if (Input.isPressed(MBControls.DOWN)) {
-        //         this.velocity.y = floatSpeed;
-        //     } else {
-        //         // No input = stay in place
-        //         this.velocity.y = 0;
-        //     }
-        // }
-        
-        // if (activeForm !== "ROWLET" && this._sludgeTimer <= 0) {
-        //     const dx = (Input.isPressed(MBControls.ATTACK_RIGHT) ? 1 : 0)
-        //             - (Input.isPressed(MBControls.ATTACK_LEFT)  ? 1 : 0);
-        //     const dy = (Input.isPressed(MBControls.ATTACK_DOWN)  ? 1 : 0)
-        //             - (Input.isPressed(MBControls.ATTACK_UP)    ? 1 : 0);
-
-        //     if (dx !== 0 || dy !== 0) {
-        //         const dir = new Vec2(dx, dy).normalize();
-        //         (this.owner.getScene() as MBLevel).fireSludge(
-        //             this.owner.position.clone(), dir
-        //         );
-        //         this._sludgeTimer = this.SLUDGE_COOLDOWN;
-        //     }
-        // }
+       
     }
 
     // ── Transformation passthrough ────────────────────────────────
     public get transformations(): TransformationManager { return this._transformations; }
 
+    public applySpeedBoost(multiplier: number, duration: number): void {
+        this._speedBoostMultiplier = multiplier;
+        this._speedBoostTimer = duration;
+        this._speedPenaltyMultiplier = 1.0;
+        this._speedPenaltyTimer = 0;
+    }
+
+    public applySpeedPenalty(multiplier: number, duration: number): void {
+        if (this._speedBoostTimer > 0) return;
+        this._speedPenaltyMultiplier = multiplier;
+        this._speedPenaltyTimer = duration;
+    }
+
+    public applyShield(hits: number): void {
+        this._shieldHits += hits;
+    }
+
+    public tryAbsorbDamage(): boolean {
+        if (this._shieldHits > 0) {
+            this._shieldHits--;
+            return true;
+        }
+        return false;
+    }
+
     public get effectiveSpeed(): number {
-        return this._speed * this._transformations.speedMultiplier;
+        return this._speed
+            * this._transformations.speedMultiplier
+            * this._speedBoostMultiplier
+            * this._speedPenaltyMultiplier;
     }
     public get effectiveGravity(): number {
         return this.BASE_GRAVITY * this._transformations.gravityMultiplier;
@@ -259,8 +275,22 @@ export default class PlayerController extends StateMachineAI {
         this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
         if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
     }
+    public get cooldownProgress(): number {
+        const form = this._transformations.activeForm?.key ?? null;
+        if (form === "GRENINJA") {
+            return this.grappleCooldown <= 0 ? 1 : 1 - (this.grappleCooldown / this.GRAPPLE_COOLDOWN_TIME);
+        }
+        if (form === "CHARIZARD") {
+            return this.blitzCooldown <= 0 ? 1 : 1 - (this.blitzCooldown / this.BLITZ_COOLDOWN_TIME);
+        }
+        return 1;
+    }
+    
+    public get cooldownReady(): boolean {
+        return this.cooldownProgress >= 1;
+    }
 
-    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ"): string {
+    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL"): string {
         const form = this._transformations.activeForm?.key ?? null;
 
         // if (form === "ROWLET") {
@@ -284,6 +314,7 @@ export default class PlayerController extends StateMachineAI {
                 case "JUMP": return PlayerAnimations.GRENINJA_JUMP;
                 case "FALL": return PlayerAnimations.GRENINJA_FALL; 
                 case "GRAPPLE" : return PlayerAnimations.GRENINJA_GRAPPLE;
+                case "WALL" : return PlayerAnimations.GRENINJA_IDLE;
             }
         }
         return PlayerAnimations[base];
