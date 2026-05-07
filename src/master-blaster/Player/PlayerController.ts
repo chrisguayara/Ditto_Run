@@ -94,6 +94,7 @@ export default class PlayerController extends StateMachineAI {
     public scene! : MBLevel;
     private _speedPenaltyMultiplier: number = 1.0;
     private _speedPenaltyTimer: number = 0;
+    public preserveVelocityOnNextState: boolean = false;
 
     public readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
 

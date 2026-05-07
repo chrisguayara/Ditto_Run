@@ -6,6 +6,7 @@ import PlayerState from "./PlayerState";
 import { MBControls } from "../../MBControls";
 import Enemy from "../../Entity/Enemy";
 import MBLevel from "../../Scenes/MBLevel";
+import Fall from "./Fall";
 
 export default class FireSlam extends PlayerState {
 
@@ -80,9 +81,7 @@ export default class FireSlam extends PlayerState {
             }
         });
 
-        // Landing — only on solid non-destructable ground
-        // onGround is now true only when hitting real walls since
-        // destructables are pre-cleared before the move
+        if (Input.isJustPressed(MBControls.TRANSFORM)) {this.finished(PlayerStates.FALL);}
         if (this.owner.onGround) {
             this.hasLanded = true;
 
