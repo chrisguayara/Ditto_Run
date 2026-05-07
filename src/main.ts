@@ -16,6 +16,7 @@ import WinterLevel from "./master-blaster/Scenes/WinterLevel";
             {name: MBControls.MOVE_LEFT,    keys: ["a"]},
             {name: MBControls.MOVE_RIGHT,   keys: ["d"]},
             {name: MBControls.JUMP,         keys: ["w", "space"]},
+            {name: MBControls.CROUCH,         keys: ["shift"]},
             {name: MBControls.DOWN,         keys: ["s"]},
             {name: MBControls.ATTACK,       keys: ["x"]},
             {name: MBControls.TRANSFORM,    keys: ["e"]},

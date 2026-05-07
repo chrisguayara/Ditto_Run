@@ -20,8 +20,6 @@ export default class Idle extends PlayerState {
         if (!this.parent.isTransforming) {
         this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("IDLE"));
     }
-
-        //  let off horizontal momentum when idle
         const dir = this.parent.inputDir;
         if (dir.x === 0) {
             this.parent.velocity.x *= 1 - (8 * deltaT); // quick friction
@@ -32,6 +30,14 @@ export default class Idle extends PlayerState {
             this.finished(PlayerStates.BLITZ);
             return;
         }
+        // if (this.parent.transformations.activeForm?.key === "GRENINJA") {
+        //     const crouchPressed = Input.isJustPressed(MBControls.CROUCH)
+        //                     || Input.isJustPressed(MBControls.DOWN);
+        //     if (crouchPressed) {
+        //         this.finished(PlayerStates.CROUCH_SLIDE);
+        //         return;
+        //     }
+        // }
         if (!dir.isZero() && dir.y === 0) {
             this.finished(PlayerStates.RUN);
         } else if (Input.isJustPressed(MBControls.JUMP)) {
