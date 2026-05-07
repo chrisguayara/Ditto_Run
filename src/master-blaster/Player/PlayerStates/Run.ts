@@ -37,9 +37,11 @@ export default class Walk extends PlayerState {
 
         // ── State transitions ──
         if (Input.isMouseJustPressed()
-            && this.parent.transformations.activeForm?.key === "CHARIZARD") {
-            this.finished(PlayerStates.BLITZ);
-            return;
+            && this.parent.transformations.activeForm?.key === "CHARIZARD" && this.parent.blitzCooldown <= 0) {
+                this.parent.blitzCooldown = this.parent.BLITZ_COOLDOWN_TIME;
+                this.finished(PlayerStates.BLITZ);
+                return;
+
         }
         if (dir.isZero()) {
             this.finished(PlayerStates.IDLE);

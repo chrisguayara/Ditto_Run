@@ -22,10 +22,16 @@ export default class Fall extends PlayerState {
 
         if (turndir.x !== 0) {
             this.owner.invertX = turndir.x < 0;
-        }   
+        }
 
         // ── Fast fall ───────────────────────────────────────────
         if (Input.isJustPressed(MBControls.DOWN)) {
+            if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
+                // FireSlam — Charizard drills straight down through destructable blocks
+                this.finished(PlayerStates.SLAM);
+                return;
+            }
+            // Base fast fall for other forms
             this.parent.velocity.y = 140;
         }
 
@@ -48,38 +54,28 @@ export default class Fall extends PlayerState {
             }
         }
 
-       if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
-            // Attack
-            if (Input.isMouseJustPressed()) {
+        if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
+            if (Input.isMouseJustPressed() && this.parent.blitzCooldown <= 0) {
+                this.parent.blitzCooldown = this.parent.BLITZ_COOLDOWN_TIME;
                 this.finished(PlayerStates.BLITZ);
                 return;
             }
-            // Glide — available immediately in fall (player is already descending)
-            if (Input.isPressed(MBControls.JUMP)) {
-                this.finished(PlayerStates.GLIDE);
+            if (Input.isJustPressed(MBControls.JUMP) && this.parent.doubleJumpAvailable) {
+                this.parent.doubleJumpAvailable = false;
+                this.parent.velocity.y = this.parent.effectiveJumpForce * 0.9;
+                this.finished(PlayerStates.JUMP);
                 return;
             }
         }
 
         if (this.owner.onGround) {
-            // fall damage is just annoying and punishes grapples/blitz as charizard
-            // this.parent.health -= Math.floor(this.parent.velocity.y / 300);
             this.finished(PlayerStates.IDLE);
             return;
         }
-        
-        
 
         const dir = this.parent.inputDir;
-        const maxX = this.parent.effectiveSpeed * 1.3;
-
-        this.parent.velocity.x += dir.x * 220 * deltaT;
-
-        
-        if (Math.abs(this.parent.velocity.x) > maxX) {
-            this.parent.velocity.x *= 1 - (1.5 * deltaT);
-        }
-
+        this.parent.velocity.x += dir.x * this.parent.speed / 3.5
+                                 - 0.3 * this.parent.velocity.x;
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
         this.owner.move(this.parent.velocity.scaled(deltaT));
 

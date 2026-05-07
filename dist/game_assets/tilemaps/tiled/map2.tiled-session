@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
@@ -15,8 +15,8 @@
             "scale": 0.9954,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 1357.745629897529,
-                "y": 666.0638939119953
+                "x": 1599.8593530239102,
+                "y": 399.8392605987543
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json#Snowtileset": {
@@ -28,12 +28,23 @@
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json#hints": {
             "scaleInDock": 1
         },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json": {
+            "scale": 1.2442,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 800.1125221025559,
+                "y": 319.88426298022824
+            }
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json#Snowtileset": {
+            "scaleInDock": 2.9085
+        },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json": {
             "scale": 0.5219,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 740.5633263077218,
-                "y": 252.92201571182216
+                "x": 799.9616784824678,
+                "y": 628.472887526346
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#hints": {
@@ -50,10 +61,16 @@
     "map.tileWidth": 16,
     "map.width": 100,
     "openFiles": [
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json"
     ],
     "project": "map2.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/castle.json",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {
