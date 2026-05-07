@@ -29,11 +29,11 @@
             "scaleInDock": 1
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json": {
-            "scale": 1.2442,
+            "scale": 1.1861,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 800.1125221025559,
-                "y": 319.88426298022824
+                "x": 895.7929348284295,
+                "y": 410.58932636371304
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json#Snowtileset": {
