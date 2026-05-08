@@ -13,7 +13,7 @@ import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
 
 export const CHECKPOINTS = {
-    SPAWN:          new Vec2(5 * 16, 32 * 16),
+    SPAWN:          new Vec2(7 * 16, 7 * 16),
     CHECKPOINT_ONE: new Vec2(73  * 16, 10 * 16),
     CHECKPOINT_TWO: new Vec2(64  * 16, 42 * 16),
 } as const;
@@ -24,8 +24,8 @@ export default class MountainLevel extends MBLevel {
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
 
-    public static readonly TILEMAP_KEY   = "Castlemap";
-    public static readonly TILEMAP_PATH  = "game_assets/tilemaps/castle.json";
+    public static readonly TILEMAP_KEY   = "Mountainmap";
+    public static readonly TILEMAP_PATH  = "game_assets/tilemaps/mountain.json";
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly WALLS_LAYER_KEY  = "Ground";
     public static readonly DAMAGE_LAYER_KEY = "damage";
@@ -66,6 +66,7 @@ export default class MountainLevel extends MBLevel {
         this.wallsLayerKey   = MountainLevel.WALLS_LAYER_KEY;
         this.phantomWallLayerKey = "phasewalls";
         this.damageWallLayerKey  = MountainLevel.DAMAGE_LAYER_KEY;
+        this.destructibleLayerKey = "destructable";
 
         this.playerSpriteKey = MountainLevel.PLAYER_SPRITE_KEY;
         this.playerSpawn     = MountainLevel.PLAYER_SPAWN;
@@ -118,7 +119,7 @@ export default class MountainLevel extends MBLevel {
     public startScene(): void {
         super.startScene();
 
-        this.nextLevel = MountainLevel;   // TODO: point at the actual next level
+        this.nextLevel = MountainLevel;   
 
         GameState.getInstance().unlockLevel("FOREST");
 

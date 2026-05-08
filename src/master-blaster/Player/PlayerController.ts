@@ -21,6 +21,7 @@ import MBLevel from "../Scenes/MBLevel";
 import Scene from "../../Wolfie2D/Scene/Scene";
 import BlitzState from "./PlayerStates/BlitzState";
 import GlideState from "./PlayerStates/GlideState";
+import FireSlam from "./PlayerStates/FlameSlam";
 import CrouchSlide from "./PlayerStates/CrouchSlide";
 
 
@@ -63,7 +64,8 @@ export const PlayerStates = {
     GLIDE: "GLIDE",
     GRAPPLE:    "GRAPPLE",   
     BLITZ: "BLITZ",
-    CROUCH_SLIDE: "CROUCH_SLIDE",
+    CROUCH_SLIDE: "CROUCH_SLIDE",,
+    SLAM: "SLAM"
 } as const
 
 export default class PlayerController extends StateMachineAI {
@@ -97,6 +99,7 @@ export default class PlayerController extends StateMachineAI {
     public scene! : MBLevel;
     private _speedPenaltyMultiplier: number = 1.0;
     private _speedPenaltyTimer: number = 0;
+    public preserveVelocityOnNextState: boolean = false;
 
     public readonly DAMAGE_COOLDOWN_TIME = 500; // half a second
 
@@ -132,6 +135,7 @@ export default class PlayerController extends StateMachineAI {
         this.addState(PlayerStates.BLITZ, new BlitzState(this, this.owner));
         this.addState(PlayerStates.GLIDE, new GlideState(this, this.owner));
         this.addState(PlayerStates.CROUCH_SLIDE, new CrouchSlide(this, this.owner));
+        this.addState(PlayerStates.SLAM, new FireSlam(this, this.owner));
         this.initialize(PlayerStates.IDLE);
         this.scene = this.owner.getScene();
     }

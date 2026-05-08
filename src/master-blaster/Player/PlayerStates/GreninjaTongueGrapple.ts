@@ -147,10 +147,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
             this.parent.velocity.y *= scale;
         }
     
-        // ── Ceiling tunnel prevention via tilemap probe ──
-        // If we're moving upward, check a point slightly above the player's head.
-        // If that point is already inside a tile, kill upward velocity and exit
-        // before the engine ever gets a chance to tunnel through it.
+        
         if (this.parent.velocity.y < 0) {
             const collider = this.owner.collisionShape as AABB;
             // Probe at head + a small margin so we catch it before contact
@@ -211,7 +208,9 @@ export default class GreninjaTongueGrapple extends PlayerState {
             this.exit();
             return;
         }
+        if (Input.isJustPressed(MBControls.TRANSFORM)) {this.exit();}
         if (this.owner.onGround) { this.exit(); return; }
+
     }
 
     private updateMissed(deltaT: number): void {
@@ -297,8 +296,10 @@ export default class GreninjaTongueGrapple extends PlayerState {
     }
 
     private exit(): void {
-        this.finished(this.owner.onGround ? PlayerStates.IDLE : PlayerStates.FALL);
-        
+        this.parent.preserveVelocityOnNextState = true;
+        this.finished(
+            this.owner.onGround ? PlayerStates.RUN : PlayerStates.FALL
+        );
     }
 
     private hitsTile(pos: Vec2): boolean {

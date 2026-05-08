@@ -91,6 +91,8 @@ export default class GlideState extends PlayerState {
 
         this.owner.move(this.parent.velocity.scaled(deltaT));
 
+        if (Input.isJustPressed(MBControls.TRANSFORM)) {this.finished(PlayerStates.FALL);}
+
         this.owner.animation.playIfNotAlready(
             this.parent.getAnimationKey("IDLE"), true
         );

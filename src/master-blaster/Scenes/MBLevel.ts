@@ -1347,7 +1347,7 @@ export default abstract class MBLevel extends Scene {
 
         this.player.addAI(PlayerController, {
             weaponSystem: this.playerWeaponSystem,
-            tilemap: this.destructibleLayerKey ?? this.wallsLayerKey
+            tilemap: this.wallsLayerKey 
         });
 
         

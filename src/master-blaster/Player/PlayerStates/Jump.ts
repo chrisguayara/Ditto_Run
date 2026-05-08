@@ -57,26 +57,27 @@ export default class Jump extends PlayerState {
         }
     
         if (this.parent.transformations.activeForm?.key === "CHARIZARD") {
-            if (Input.isMouseJustPressed() && this.parent.blitzCooldown <= 0) { 
+            if (Input.isMouseJustPressed() && this.parent.blitzCooldown <= 0) {
+                this.parent.blitzCooldown = this.parent.BLITZ_COOLDOWN_TIME;
                 this.finished(PlayerStates.BLITZ);
                 return;
             }
-            if (Input.isPressed(MBControls.JUMP)
-                && this.parent.velocity.y > GlideState.GLIDE_ENTRY_VY) {
+            // FireSlam from jump
+            if (Input.isJustPressed(MBControls.DOWN)) {
+                this.finished(PlayerStates.SLAM);
+                return;
+            }
+            if (Input.isPressed(MBControls.JUMP) && this.parent.velocity.y > GlideState.GLIDE_ENTRY_VY) {
                 this.finished(PlayerStates.GLIDE);
                 return;
             }
         }
     
-        if (this.owner.onCeiling) {
-            this.parent.velocity.y = 0;   // absorb all upward momentum on contact
+        if (this.owner.onCeiling || this.parent.velocity.y >= 0) {
             this.finished(PlayerStates.FALL);
             return;
         }
-        if (this.parent.velocity.y >= 0) {
-            this.finished(PlayerStates.FALL);
-            return;
-        }
+    
         const dir = this.parent.inputDir;
         const isGreninja = this.parent.transformations.activeForm?.key === "GRENINJA";
     
