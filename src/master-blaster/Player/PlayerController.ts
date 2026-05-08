@@ -42,7 +42,9 @@ export const PlayerAnimations = {
     GRENINJA_GRAPPLE:    "GRENINJA_GRAPPLE",
     CHARIZARD_IDLE: "CHARIZARD_IDLE",
     CHARIZARD_BLITZ : "CHARIZARD_BLITZ",
-    GRENINJA_WALL : "GRENINJA_WALL"
+    GRENINJA_WALL : "GRENINJA_WALL",
+    GRENINJA_CROUCH: "GRENINJA_IDLE",   // placeholder
+    GRENINJA_SLIDE:  "GRENINJA_WALK",   // placeholder
 } as const
 
 export const PlayerTweens = {
@@ -294,7 +296,7 @@ export default class PlayerController extends StateMachineAI {
         return this.cooldownProgress >= 1;
     }
 
-    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL"): string {
+    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL"| "CROUCH" | "SLIDE"): string {
         const form = this._transformations.activeForm?.key ?? null;
 
         // if (form === "ROWLET") {
@@ -319,6 +321,8 @@ export default class PlayerController extends StateMachineAI {
                 case "FALL": return PlayerAnimations.GRENINJA_FALL; 
                 case "GRAPPLE" : return PlayerAnimations.GRENINJA_GRAPPLE;
                 case "WALL" : return PlayerAnimations.GRENINJA_IDLE;
+                case "CROUCH": return PlayerAnimations.GRENINJA_CROUCH;
+                case "SLIDE":  return PlayerAnimations.GRENINJA_SLIDE;
             }
         }
         return PlayerAnimations[base];
