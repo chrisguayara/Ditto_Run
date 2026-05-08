@@ -19,6 +19,8 @@ export default class SpriteShaderType extends QuadShaderType {
 	}
 
 	render(gl: WebGLRenderingContext, options: Record<string, any>): void {
+    console.log("active texture unit:", gl.getParameter(gl.ACTIVE_TEXTURE) - gl.TEXTURE0);
+    console.log("texture bound to unit 0:", gl.getParameter(gl.TEXTURE_BINDING_2D));
 		const program = this.resourceManager.getShaderProgram(this.programKey);
 		const buffer = this.resourceManager.getBuffer(this.bufferObjectKey);
 		const texture = this.resourceManager.getTexture(options.imageKey);

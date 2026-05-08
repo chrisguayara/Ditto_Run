@@ -27,7 +27,7 @@ import WinterLevel from "./master-blaster/Scenes/WinterLevel";
             {name: MBControls.PAUSE, keys: ["escape"]},
             {name: MBControls.CONFIRM,  keys: ["enter"]},
         ],
-        useWebGL: false,                        // Tell the game we want to use webgl
+        useWebGL: false,                        // Tell the game we want to use webgl, change this to true when testing crt
         showDebug: false                       // Whether to show debug messages. You can change this to true if you want
     }
    document.addEventListener("keydown", (e) => {

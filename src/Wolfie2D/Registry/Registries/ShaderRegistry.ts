@@ -1,5 +1,6 @@
 import Map from "../../DataTypes/Map";
 import ShaderType from "../../Rendering/WebGLRendering/ShaderType";
+import CRTShaderType from "../../Rendering/WebGLRendering/ShaderTypes/CRTShaderType";
 import LabelShaderType from "../../Rendering/WebGLRendering/ShaderTypes/LabelShaderType";
 import PointShaderType from "../../Rendering/WebGLRendering/ShaderTypes/PointShaderType";
 import RectShaderType from "../../Rendering/WebGLRendering/ShaderTypes/RectShaderType";
@@ -13,10 +14,11 @@ import Registry from "./Registry";
 export default class ShaderRegistry extends Registry<ShaderType> {
 
 	// Shader names
-	public static POINT_SHADER = "point";
-	public static RECT_SHADER = "rect";
+	public static POINT_SHADER  = "point";
+	public static RECT_SHADER   = "rect";
 	public static SPRITE_SHADER = "sprite";
-	public static LABEL_SHADER = "label";
+	public static LABEL_SHADER  = "label";
+	public static CRT_SHADER    = "crt";
 
 	private registryItems: Array<ShaderRegistryItem> = new Array();
 
@@ -38,6 +40,9 @@ export default class ShaderRegistry extends Registry<ShaderType> {
 	
 		// Queue a load for the label shader
 		this.registerAndPreloadItem(ShaderRegistry.LABEL_SHADER, LabelShaderType, "builtin/shaders/label.vshader", "builtin/shaders/label.fshader");
+
+		// Queue a load for the CRT post-process shader
+		this.registerAndPreloadItem(ShaderRegistry.CRT_SHADER, CRTShaderType, "builtin/shaders/crt.vshader", "builtin/shaders/crt.fshader");
 
 		// Queue a load for any preloaded items
 		for(let item of this.registryItems){
