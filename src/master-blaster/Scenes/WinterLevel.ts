@@ -1,6 +1,6 @@
 import AABB from "../../Wolfie2D/DataTypes/Shapes/AABB";
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
-import MBLevel from "./MBLevel";
+import MBLevel, { MBLayers } from "./MBLevel";
 import RenderingManager from "../../Wolfie2D/Rendering/RenderingManager";
 import SceneManager from "../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
@@ -109,6 +109,8 @@ export default class WinterLevel extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey,       WinterLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,            WinterLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY,  WinterLevel.TRANSFORM_AUDIO_PATH);
+        this.load.spritesheet("winter_bg", "game_assets/tilemaps/backgrounds/snowmap_background.json");
+
     }
 
     public unloadScene(): void {
@@ -121,8 +123,9 @@ export default class WinterLevel extends MBLevel {
     }
 
     public startScene(): void {
+        // this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.3, 0), -1);
         super.startScene();
-
+        
         // WinterLevel leads into CastleLevel
         this.nextLevel = CastleLevel;
 
@@ -138,6 +141,11 @@ export default class WinterLevel extends MBLevel {
         this.initializePKMN();
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
+
+        
+        // const bg = this.add.animatedSprite("winter_bg", MBLayers.BACKGROUND);
+        // bg.position.set(640, 640);
+        // bg.animation.play("IDLE", true);
     }
 
     protected initializePKMN(): void {
