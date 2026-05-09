@@ -32,6 +32,13 @@ export default class Idle extends PlayerState {
             this.finished(PlayerStates.BLITZ);
             return;
         }
+        if (this.parent.transformations.activeForm?.key === "GRENINJA") {
+            const crouchPressed = Input.isJustPressed(MBControls.DOWN);
+            if (crouchPressed) {
+                this.finished(PlayerStates.CROUCHSLIDE);
+                return;
+            }
+        }
         if (!dir.isZero() && dir.y === 0) {
             this.finished(PlayerStates.RUN);
         } else if (Input.isJustPressed(MBControls.JUMP)) {

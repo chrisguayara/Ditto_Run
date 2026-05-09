@@ -30,6 +30,13 @@ export default class Walk extends PlayerState {
         if (dir.x !== 0) {
             this.owner.invertX = dir.x < 0;
         }
+        if (isGreninja) {
+            const crouchPressed = Input.isPressed(MBControls.DOWN)
+            if (crouchPressed) {
+                this.finished(PlayerStates.CROUCHSLIDE);
+                return;
+            }
+        }
 
         if (!this.parent.isTransforming) {
             this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("WALK"));

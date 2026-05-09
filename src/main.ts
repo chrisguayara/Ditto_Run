@@ -26,6 +26,7 @@ import WinterLevel from "./master-blaster/Scenes/WinterLevel";
             {name: MBControls.ATTACK_DOWN,  keys: ["arrowdown"]},
             {name: MBControls.PAUSE, keys: ["escape"]},
             {name: MBControls.CONFIRM,  keys: ["enter"]},
+            {name: MBControls.CROUCH,  keys: ["shift"]},
         ],
         useWebGL: false,                        // Tell the game we want to use webgl
         showDebug: false                       // Whether to show debug messages. You can change this to true if you want

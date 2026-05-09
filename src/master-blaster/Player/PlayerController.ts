@@ -22,6 +22,7 @@ import Scene from "../../Wolfie2D/Scene/Scene";
 import BlitzState from "./PlayerStates/BlitzState";
 import GlideState from "./PlayerStates/GlideState";
 import FireSlam from "./PlayerStates/FlameSlam";
+import CrouchSlide from "./PlayerStates/CrouchSlide";
 
 export const PlayerAnimations = {
     IDLE: "IDLE",
@@ -41,7 +42,9 @@ export const PlayerAnimations = {
     GRENINJA_GRAPPLE:    "GRENINJA_GRAPPLE",
     CHARIZARD_IDLE: "CHARIZARD_IDLE",
     CHARIZARD_BLITZ : "CHARIZARD_BLITZ",
-    GRENINJA_WALL : "GRENINJA_WALL"
+    GRENINJA_WALL : "GRENINJA_WALL",
+    GRENINJA_SLIDE : "GRENINJA_SLIDE",
+    GRENINJA_CROUCH : "GRENINJA_CROUCH",
 } as const
 
 export const PlayerTweens = {
@@ -60,7 +63,8 @@ export const PlayerStates = {
     GLIDE: "GLIDE",
     GRAPPLE:    "GRAPPLE",   
     BLITZ: "BLITZ",
-    SLAM: "SLAM"
+    SLAM: "SLAM",
+    CROUCHSLIDE: "CROUCHSLIDE",
 } as const
 
 export default class PlayerController extends StateMachineAI {
@@ -130,6 +134,7 @@ export default class PlayerController extends StateMachineAI {
         this.addState(PlayerStates.BLITZ, new BlitzState(this, this.owner));
         this.addState(PlayerStates.GLIDE, new GlideState(this, this.owner));
         this.addState(PlayerStates.SLAM, new FireSlam(this, this.owner));
+        this.addState(PlayerStates.CROUCHSLIDE, new CrouchSlide(this, this.owner));
         this.initialize(PlayerStates.IDLE);
         this.scene = this.owner.getScene();
     }
@@ -294,14 +299,10 @@ export default class PlayerController extends StateMachineAI {
         return this.cooldownProgress >= 1;
     }
 
-    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL"): string {
+    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL" | "CROUCH" | "SLIDE"): string {
         const form = this._transformations.activeForm?.key ?? null;
 
-        // if (form === "ROWLET") {
-        //     return (base === "JUMP" || base === "FALL") 
-        //         ? PlayerAnimations.ROWLET_FLY 
-        //         : PlayerAnimations.ROWLET_IDLE;
-        // }
+       
         if (form === "CHARIZARD") {
             switch(base){
                 case "IDLE" : return PlayerAnimations.CHARIZARD_IDLE;
@@ -319,6 +320,10 @@ export default class PlayerController extends StateMachineAI {
                 case "FALL": return PlayerAnimations.GRENINJA_FALL; 
                 case "GRAPPLE" : return PlayerAnimations.GRENINJA_GRAPPLE;
                 case "WALL" : return PlayerAnimations.GRENINJA_IDLE;
+                case "CROUCH" : return PlayerAnimations.GRENINJA_IDLE;
+                case "SLIDE" : return PlayerAnimations.GRENINJA_IDLE;
+                default:
+                    return PlayerAnimations.GRENINJA_IDLE;
             }
         }
         return PlayerAnimations[base];
