@@ -1,0 +1,21 @@
+{
+    "name": "castlemap_background",
+    "spriteSheetImage": "castlemap_background.png",
+    "spriteWidth": 900,
+    "spriteHeight": 320,
+    "columns": 1,
+    "rows": 1,
+    "durationType": "time",
+    "animations": [
+        {
+        "name": "IDLE",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 100
+          }
+        ]
+      }
+    ]
+}

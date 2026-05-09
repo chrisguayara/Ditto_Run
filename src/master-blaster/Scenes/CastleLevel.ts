@@ -12,6 +12,7 @@ import GameState from "./GameState";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
 import MountainLevel from "./MountainLevel";
+import { MBLayers } from "./MBLevel";
 
 export const CHECKPOINTS = {
     SPAWN:          new Vec2(5 * 16, 32 * 16),
@@ -105,6 +106,7 @@ export default class CastleLevel extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey,   CastleLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,        CastleLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(CastleLevel.TRANSFORM_AUDIO_KEY, CastleLevel.TRANSFORM_AUDIO_PATH);
+        this.load.spritesheet("castlemap_background", "game_assets/tilemaps/backgrounds/castlemap_background.json");
     }
 
     public unloadScene(): void {
@@ -117,6 +119,7 @@ export default class CastleLevel extends MBLevel {
     }
 
     public startScene(): void {
+        this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.1, 0), -1);
         super.startScene();
 
         this.nextLevel = MountainLevel;   // TODO: point at the actual next level
@@ -133,6 +136,12 @@ export default class CastleLevel extends MBLevel {
         this.initializePKMN();
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
+
+        const bg = this.add.animatedSprite("castlemap_background", MBLayers.BACKGROUND);
+        bg.position.set(450, 100); 
+        
+        bg.animation.play("IDLE", true);
+    
     }
 
     protected initializePKMN(): void {

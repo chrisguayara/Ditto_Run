@@ -51,7 +51,8 @@ export const MBLayers = {
     PRIMARY: "PRIMARY",
     UI: "UI",
     PAUSE_BG: "PAUSE_BG", 
-    PAUSE: "PAUSE"
+    PAUSE: "PAUSE",
+    BACKGROUND: "BACKGROUND",
 } as const;
 
 export type MBLayer = typeof MBLayers[keyof typeof MBLayers];
@@ -1019,6 +1020,7 @@ export default abstract class MBLevel extends Scene {
         
         
         this.addLayer(MBLayers.PRIMARY);
+        
          
         
     }

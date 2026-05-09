@@ -10,6 +10,7 @@ import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
 import CastleLevel from "./CastleLevel";
 import GameState from "./GameState";
+import { MBLayers } from "./MBLevel";
 
 // ── Checkpoints ───────────────────────────────────────────────────────────────
 export const CHECKPOINTS = {
@@ -109,6 +110,8 @@ export default class WinterLevel extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey,       WinterLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,            WinterLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY,  WinterLevel.TRANSFORM_AUDIO_PATH);
+        this.load.spritesheet("snowmap_background", "game_assets/tilemaps/backgrounds/snowmap_background.json");
+
     }
 
     public unloadScene(): void {
@@ -121,6 +124,7 @@ export default class WinterLevel extends MBLevel {
     }
 
     public startScene(): void {
+        this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.3, 0), -1);
         super.startScene();
 
         // WinterLevel leads into CastleLevel
@@ -138,6 +142,11 @@ export default class WinterLevel extends MBLevel {
         this.initializePKMN();
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
+
+        const bg = this.add.animatedSprite("snowmap_background", MBLayers.BACKGROUND);
+        bg.position.set(350, 100); // adjust to match your spritesheet frame size
+        
+        bg.animation.play("IDLE", true);
     }
 
     protected initializePKMN(): void {
