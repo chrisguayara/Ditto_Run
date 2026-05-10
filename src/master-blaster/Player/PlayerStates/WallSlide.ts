@@ -31,7 +31,7 @@ export default class WallSlide extends PlayerState {
         super.update(deltaT);
         
 
-        this.owner.invertX = this.wallSide > 0;
+        this.owner.invertX = this.wallSide < 0;
 
         if (this.owner.onGround) {
             console.log("JUST FALLING OFF");
@@ -62,6 +62,7 @@ export default class WallSlide extends PlayerState {
             // Strong horizontal kick away from wall, good vertical
             this.parent.velocity.x = -this.wallSide * 220;
             this.parent.velocity.y = -340;
+            this.owner.animation.play(this.parent.getAnimationKey("WALL_JUMP"));
             this.finished(PlayerStates.JUMP);
             return;
         }

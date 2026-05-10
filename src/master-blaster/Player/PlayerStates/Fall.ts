@@ -63,6 +63,7 @@ export default class Fall extends PlayerState {
             }
             if (Input.isJustPressed(MBControls.JUMP) && this.parent.doubleJumpAvailable) {
                 this.parent.doubleJumpAvailable = false;
+                this.owner.animation.play(this.parent.getAnimationKey("BLITZ"));
                 this.parent.velocity.y = this.parent.effectiveJumpForce * 0.9;
                 this.finished(PlayerStates.JUMP);
                 return;

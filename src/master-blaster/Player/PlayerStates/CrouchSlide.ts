@@ -3,12 +3,14 @@ import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
 import { PlayerAnimations, PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
+import AABB from "../../../Wolfie2D/DataTypes/Shapes/AABB";
 
 // ── Tuning ────────────────────────────────────────────────────────────────────
 /** px/s, above this on entry the player slides instead of crouching */
 const SLIDE_THRESHOLD    =30;
+const SLIDE_BOOST         = 1.3; 
 /** Friction multiplier per frame during slide */
-const SLIDE_FRICTION     = 1;
+const SLIDE_FRICTION     = 0.995;
 /** px/s, slide ends when horizontal speed drops below this */
 const SLIDE_END_SPEED    = 20;
 /** Safety cap on slide duration (seconds) */
@@ -20,7 +22,7 @@ const CROUCH_JUMP_FORCE  = -320;
 /** Jump force during a slide cancel, fastest exit */
 const SLIDE_JUMP_FORCE   = -300;
 /** Extra horizontal boost on slide-jump, in the slide direction */
-const SLIDE_JUMP_VX_BOOST = 100;
+const SLIDE_JUMP_VX_BOOST = 140;
 /** Downward velocity threshold before we transition to FALL */
 const FALL_VY_THRESHOLD  = 80;
 
@@ -33,14 +35,19 @@ export default class CrouchSlide extends PlayerState {
 
     // ── Hitbox ────────────────────────────────────────────────────
 
-    private shrinkHitbox(): void {
-        this.origHeight = this.owner.size.y;
-        this.owner.size.y = this.origHeight / 2;
+   private shrinkHitbox(): void {
+        const collider = this.owner.collisionShape as AABB;
+        this.origHeight = collider.halfSize.y;
+        collider.halfSize.y = this.origHeight / 2;
+        // Shift position down so feet stay on the ground
+        this.owner.position.y += this.origHeight / 2;
     }
 
     private restoreHitbox(): void {
         if (this.origHeight === 0) return;
-        this.owner.size.y = this.origHeight;
+        const collider = this.owner.collisionShape as AABB;
+        collider.halfSize.y = this.origHeight;
+        this.owner.position.y -= this.origHeight / 2;
         this.origHeight = 0;
     }
 
@@ -54,10 +61,12 @@ export default class CrouchSlide extends PlayerState {
         this.slideTimer = 0;
         this.slideDir   = Math.sign(this.parent.velocity.x) || 1;
 
-        if (!this.isSliding) {
-            // Pure crouch, kill most horizontal momentum immediately
-            this.parent.velocity.x *= 0.25;
-        }
+           if (this.isSliding) {
+                // Boost entry speed so sliding feels like committing to a move
+                this.parent.velocity.x *= SLIDE_BOOST;
+            } else {
+                this.parent.velocity.x *= 0.25;
+            }
 
         this.playAnim();
     }

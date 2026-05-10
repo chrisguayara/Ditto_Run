@@ -36,7 +36,8 @@ export default class GreninjaTongueGrapple extends PlayerState {
 
     public onEnter(): void {
         const origin = this.owner.position;
-        const mouse = Input.getGlobalMousePosition();
+        const mouse = Input.getGlobalMousePosition();  
+        this.owner.animation.play(this.parent.getAnimationKey("GRAPPLE"));
 
         const dx = mouse.x - origin.x;
         const dy = mouse.y - origin.y;
@@ -57,7 +58,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
             case GrapplePhase.ATTACHED: this.updateAttached(deltaT); break;
             case GrapplePhase.MISSED: this.updateMissed(deltaT); break;
         }
-
+        this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("GRAPPLE"));
         this.parent.grappleTip = this.tipPos.clone();
         this.updateTongueLines();
     }
@@ -248,20 +249,28 @@ export default class GreninjaTongueGrapple extends PlayerState {
     }
 
     private updateTongueLines(): void {
-        const start = this.owner.position;
-        const end   = this.tipPos;
-        const N     = this.tongueLines.length;
+        const start = new Vec2(
+            this.owner.position.x + (this.owner.invertX ? -6 : 6),
+            this.owner.position.y - 4
+        );
+        const end = this.tipPos;
+        const N = this.tongueLines.length;
         if (N === 0) return;
 
-        const dx       = end.x - start.x;
-        const dy       = end.y - start.y;
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
         const totalLen = Math.hypot(dx, dy);
 
-        // Unit vectors: along tongue direction (u) and perpendicular (p)
         const ux = totalLen > 0 ? dx / totalLen : 0;
         const uy = totalLen > 0 ? dy / totalLen : 0;
-        const perpX = -uy;   // rotate 90°
-        const perpY =  ux;
+
+        // Blend perpendicular with velocity direction to make tongue trail
+        const vel = this.parent.velocity;
+        const velLen = Math.hypot(vel.x, vel.y);
+        const velInfluence = Math.min(velLen / 300, 1.0); // caps at speed 300
+
+        const perpX = (-uy) + (-vel.x / (velLen || 1)) * velInfluence * 0.5;
+        const perpY = ( ux) + (-vel.y / (velLen || 1)) * velInfluence * 0.5;
 
         const waveAmp = Math.min(
             totalLen * GreninjaTongueGrapple.WAVE_SCALE,

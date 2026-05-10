@@ -44,7 +44,7 @@ export const PlayerAnimations = {
     GRENINJA_DEATH: "greninja_death",
     GRENINJA_WALK: "greninja_walk",
     GRENINJA_SLIDE: "greninja_sliding",
-    GRENINJA_CROUCH: "greninja_idle",
+    GRENINJA_CROUCH: "greninja_sliding",
 
     // Charizard / Blaziken
     CHARIZARD_IDLE: "blaziken_idle",
@@ -309,7 +309,7 @@ export default class PlayerController extends StateMachineAI {
         return this.cooldownProgress >= 1;
     }
 
-   public getAnimationKey(base: "IDLE" | "WALK"|"WALKING"|"RUN" | "JUMP" |"JUMPING"| "FALL" | "GRAPPLE" | "BLITZ" | "WALL" | "CROUCH" | "SLIDE"| "BASH"| "DAMAGE" | "DEATH"): string {
+   public getAnimationKey(base: "IDLE" | "WALK"|"WALKING"|"RUN" | "JUMP" |"JUMPING"|"WALL_JUMP"| "FALL" | "GRAPPLE" | "BLITZ" | "WALL" | "CROUCH" | "SLIDE"| "BASH"| "DAMAGE" | "DEATH"): string {
         const form = this.transformations.activeForm?.key ?? "GRENINJA";
 
         if (form === "CHARIZARD") {
@@ -335,6 +335,7 @@ export default class PlayerController extends StateMachineAI {
             case "WALKING": return PlayerAnimations.GRENINJA_WALK; 
             case "RUN": return PlayerAnimations.GRENINJA_RUN;
             case "JUMP": return PlayerAnimations.GRENINJA_JUMP;
+            case "WALL_JUMP": return PlayerAnimations.GRENINJA_WALL_JUMP;
             case "FALL": return PlayerAnimations.GRENINJA_FALL;
             case "GRAPPLE": return PlayerAnimations.GRENINJA_GRAPPLE;
             case "WALL": return PlayerAnimations.GRENINJA_WALL_SLIDE;

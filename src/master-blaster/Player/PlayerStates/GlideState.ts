@@ -42,9 +42,8 @@ export default class GlideState extends PlayerState {
     public onEnter(_options: Record<string, any>): void {
         // Uses CHARIZARD_IDLE during glide — swap for a dedicated animation
         // key here once the art is ready.
-        this.owner.animation.playIfNotAlready(
-            this.parent.getAnimationKey("IDLE"), true
-        );
+                this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("BASH"));
+
     }
 
     public update(deltaT: number): void {

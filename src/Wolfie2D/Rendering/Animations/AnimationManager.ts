@@ -98,42 +98,44 @@ export default class AnimationManager {
      * Retrieves the current animation index and advances the animation frame
      * @returns The index of the animation frame
      */
-    getIndexAndAdvanceAnimation(): number {
-        // If we aren't playing, we won't be advancing the animation
-        if(!(this.animationState === AnimationState.PLAYING)){
-            return this.getIndex();
-        }
+    private _lastFrameTime: number = 0;
 
-        if(this.animations.has(this.currentAnimation)){
-            let currentAnimation = this.animations.get(this.currentAnimation);
-            let index = currentAnimation.frames[this.currentFrame].index;
+getIndexAndAdvanceAnimation(): number {
+    if (!(this.animationState === AnimationState.PLAYING)) {
+        return this.getIndex();
+    }
 
-            // Advance the animation
-            this.frameProgress += 7;  // convert seconds to ms
-            if (this.frameProgress >= currentAnimation.frames[this.currentFrame].duration) {
-                // We have been on this frame for its whole duration, go to the next one
-                this.frameProgress = 0;
-                this.currentFrame += 1;
+    // Self-measured delta in ms no external deltaT needed
+    const now = performance.now();
+    const deltaMs = this._lastFrameTime === 0 ? 16.67 : (now - this._lastFrameTime);
+    this._lastFrameTime = now;
 
-                if(this.currentFrame >= currentAnimation.frames.length){
-                    // We have reached the end of this animation
-                    if(this.loop){
-                        this.currentFrame = 0;
-                        this.frameProgress = 0;
-                    } else {
-                        this.endCurrentAnimation();
-                    }
+    if (this.animations.has(this.currentAnimation)) {
+        let currentAnimation = this.animations.get(this.currentAnimation);
+        let index = currentAnimation.frames[this.currentFrame].index;
+
+        this.frameProgress += deltaMs*0.3;  // durations in JSON are ms, 0.3 is adjustmnet
+        if (this.frameProgress >= currentAnimation.frames[this.currentFrame].duration) {
+            this.frameProgress = 0;
+            this.currentFrame += 1;
+
+            if (this.currentFrame >= currentAnimation.frames.length) {
+                if (this.loop) {
+                    this.currentFrame = 0;
+                    this.frameProgress = 0;
+                } else {
+                    this.endCurrentAnimation();
                 }
             }
-
-            // Return the current index
-            return index;
-        } else {
-            // No current animation, can't advance. Warn the user
-            console.warn(`Animation index and advance was requested, but the current animation (${this.currentAnimation}) in node with id: ${this.owner.id} was invalid`);
-            return 0;
         }
+
+        return index;
+    } else {
+        console.warn(`Animation index and advance was requested, but the current animation (${this.currentAnimation}) in node with id: ${this.owner.id} was invalid`);
+        return 0;
     }
+}
+    
 
     /** Ends the current animation and fires any necessary events, as well as starting any new animations */
    protected endCurrentAnimation(): void {
@@ -184,6 +186,7 @@ export default class AnimationManager {
 
     this.currentAnimation = animation;
     this.currentFrame = 0;
+    this._lastFrameTime = 0; 
     this.frameProgress = 0;
     this.animationState = AnimationState.PLAYING;
 
