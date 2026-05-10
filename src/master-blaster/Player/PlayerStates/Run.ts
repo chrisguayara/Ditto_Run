@@ -3,20 +3,18 @@ import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
 import PlayerState from "./PlayerState";
 
-const GRENINJA_TOP_SPEED    = 220;   // max sprint speed
-const GRENINJA_ACCEL_TIME   = 1.4;   // seconds to reach top speed from zero
-const GRENINJA_CARRY_BLEND  = 0.12;  // how much grapple momentum carries over per frame (0=none, 1=full)
-const DEFAULT_DECEL         = 0.18;  // how quickly non-Greninja forms stop
+const GRENINJA_TOP_SPEED   = 220;
+const GRENINJA_ACCEL_TIME  = 1.4;
+const GRENINJA_CARRY_BLEND = 0.12;
+const DEFAULT_DECEL        = 0.18;
 
 export default class Walk extends PlayerState {
-    private holdTimer: number = 0;   // how long we've been holding a direction
+    private holdTimer: number = 0;
 
     onEnter(options: Record<string, any>): void {
         if (!this.parent.isTransforming) {
             this.owner.animation.play(this.parent.getAnimationKey("WALK"));
         }
-        // Don't reset velocity — let momentum carry in from grapple/fall.
-        // We'll blend toward run speed in update().
         this.holdTimer = 0;
         this.parent.doubleJumpAvailable = true;
     }
@@ -24,32 +22,39 @@ export default class Walk extends PlayerState {
     update(deltaT: number): void {
         super.update(deltaT);
 
-        const dir = this.parent.inputDir;
+        const dir        = this.parent.inputDir;
         const isGreninja = this.parent.transformations.activeForm?.key === "GRENINJA";
 
         if (dir.x !== 0) {
             this.owner.invertX = dir.x < 0;
         }
-        if (isGreninja) {
-            const crouchPressed = Input.isPressed(MBControls.DOWN)
-            if (crouchPressed) {
-                this.finished(PlayerStates.CROUCHSLIDE);
-                return;
-            }
+
+        if (isGreninja && Input.isPressed(MBControls.DOWN)) {
+            this.finished(PlayerStates.CROUCHSLIDE);
+            return;
         }
 
-        if (!this.parent.isTransforming) {
+        // Chain-aware: don't restart blaziken_walk once it has chained to blaziken_walking
+       if (!this.parent.isTransforming) {
+        if (isGreninja) {
+            const RUN_THRESHOLD = GRENINJA_ACCEL_TIME * 0.2;
+            const animKey = this.holdTimer >= RUN_THRESHOLD
+                ? this.parent.getAnimationKey("RUN")
+                : this.parent.getAnimationKey("WALK");
+            this.owner.animation.playIfNotAlready(animKey);
+        } else {
             this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("WALK"));
         }
+    }
 
-        // ── State transitions ──
         if (Input.isMouseJustPressed()
-            && this.parent.transformations.activeForm?.key === "CHARIZARD" && this.parent.blitzCooldown <= 0) {
-                this.parent.blitzCooldown = this.parent.BLITZ_COOLDOWN_TIME;
-                this.finished(PlayerStates.BLITZ);
-                return;
-
+            && this.parent.transformations.activeForm?.key === "CHARIZARD"
+            && this.parent.blitzCooldown <= 0) {
+            this.parent.blitzCooldown = this.parent.BLITZ_COOLDOWN_TIME;
+            this.finished(PlayerStates.BLITZ);
+            return;
         }
+
         if (dir.isZero()) {
             this.finished(PlayerStates.IDLE);
             return;
@@ -69,33 +74,22 @@ export default class Walk extends PlayerState {
             if (sameDir) {
                 this.holdTimer = Math.min(this.holdTimer + deltaT, GRENINJA_ACCEL_TIME);
             } else {
-                // Turned around — reset acceleration
                 this.holdTimer = 0;
             }
-
-            // Ramp from MIN_SPEED to top speed over GRENINJA_ACCEL_TIME
-            const t = this.holdTimer / GRENINJA_ACCEL_TIME;
-            const targetSpeed = this.parent.effectiveSpeed;
-
-            // Blend current velocity toward target — preserves carry-over from grapple
-            const targetVx = dir.x * targetSpeed;
+            const targetVx = dir.x * this.parent.effectiveSpeed;
             this.parent.velocity.x += (targetVx - this.parent.velocity.x) * GRENINJA_CARRY_BLEND;
-
+            
         } else {
-            // Non-Greninja: snap to base effectiveSpeed, blend out any carried momentum
             const targetVx = dir.x * this.parent.effectiveSpeed;
             this.parent.velocity.x += (targetVx - this.parent.velocity.x) * DEFAULT_DECEL;
         }
 
-        // Gravity (keeps player grounded on slopes)
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
-
         this.owner.move(this.parent.velocity.scaled(deltaT));
     }
 
     onExit(): Record<string, any> {
         this.owner.animation.stop();
-        // Don't zero velocity — let momentum carry into the next state
         return {};
     }
 }

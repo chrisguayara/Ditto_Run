@@ -91,7 +91,7 @@ export default class PlayerController extends StateMachineAI {
     private _transforming: boolean = false;
     private _transformTimer: number = 0;
     public readonly SLUDGE_COOLDOWN: number = 1;
-    private readonly TRANSFORM_ANIM_DURATION: number = 0.43;
+    private readonly TRANSFORM_ANIM_DURATION: number = 0.6;
     public isPaused: boolean = false;
     /** Set by GreninjaTongueGrapple; null when not grappling. Use for line rendering. */
     public grappleAnchor: Vec2 | null = null;
@@ -309,13 +309,15 @@ export default class PlayerController extends StateMachineAI {
         return this.cooldownProgress >= 1;
     }
 
-   public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL" | "CROUCH" | "SLIDE"| "BASH"| "DAMAGE" | "DEATH"): string {
+   public getAnimationKey(base: "IDLE" | "WALK"|"WALKING"|"RUN" | "JUMP" |"JUMPING"| "FALL" | "GRAPPLE" | "BLITZ" | "WALL" | "CROUCH" | "SLIDE"| "BASH"| "DAMAGE" | "DEATH"): string {
         const form = this.transformations.activeForm?.key ?? "GRENINJA";
 
         if (form === "CHARIZARD") {
             switch (base) {
                 case "IDLE": return PlayerAnimations.CHARIZARD_IDLE;
                 case "WALK": return PlayerAnimations.CHARIZARD_WALK;
+                case "WALK":    return PlayerAnimations.CHARIZARD_WALK;      // blaziken_walk
+                case "WALKING": return PlayerAnimations.CHARIZARD_WALKING;   // blaziken_walking
                 case "JUMP": return PlayerAnimations.CHARIZARD_JUMP;
                 case "FALL": return PlayerAnimations.CHARIZARD_JUMP;
                 case "BLITZ": return PlayerAnimations.CHARIZARD_BLITZ;
@@ -329,7 +331,9 @@ export default class PlayerController extends StateMachineAI {
         // Default to Greninja
         switch (base) {
             case "IDLE": return PlayerAnimations.GRENINJA_IDLE;
-            case "WALK": return PlayerAnimations.GRENINJA_WALK;
+            case "WALK":    return PlayerAnimations.GRENINJA_WALK;  // greninja_walk
+            case "WALKING": return PlayerAnimations.GRENINJA_WALK; 
+            case "RUN": return PlayerAnimations.GRENINJA_RUN;
             case "JUMP": return PlayerAnimations.GRENINJA_JUMP;
             case "FALL": return PlayerAnimations.GRENINJA_FALL;
             case "GRAPPLE": return PlayerAnimations.GRENINJA_GRAPPLE;

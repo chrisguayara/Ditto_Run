@@ -136,7 +136,7 @@ export default class AnimationManager {
     }
 
     /** Ends the current animation and fires any necessary events, as well as starting any new animations */
-    protected endCurrentAnimation(): void {
+   protected endCurrentAnimation(): void {
         const justFinished = this.currentAnimation;
         this.currentFrame = 0;
         this.animationState = AnimationState.STOPPED;
@@ -148,13 +148,12 @@ export default class AnimationManager {
         if (this.pendingAnimation !== null) {
             this.play(this.pendingAnimation, this.pendingLoop, this.pendingOnEnd);
         } else {
-            // Fall back to the JSON "next" field if present
             const animData = this.animations.get(justFinished);
             if (animData?.next) {
                 this.play(animData.next);
             }
+        }
     }
-}
 
     /**
      * Plays the specified animation. Does not restart it if it is already playing
