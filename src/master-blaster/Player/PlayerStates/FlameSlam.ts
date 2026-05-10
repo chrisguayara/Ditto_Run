@@ -22,7 +22,7 @@ export default class FireSlam extends PlayerState {
         this.hasLanded = false;
         this.parent.velocity.x = 0;
         this.parent.velocity.y = FireSlam.SLAM_SPEED;
-        this.owner.animation.play(PlayerAnimations.CHARIZARD_BLITZ, false);
+        this.owner.animation.play(PlayerAnimations.CHARIZARD_BASH, false);
     }
 
     public update(deltaT: number): void {

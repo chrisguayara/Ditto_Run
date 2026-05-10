@@ -23,7 +23,7 @@ export default class WinterLevel extends MBLevel {
 
     public static readonly PLAYER_SPAWN       = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY  = "PLAYER_SPRITE_KEY";
-    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
+    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/GreninjaSplitSteam.json";
 
     public static readonly TILEMAP_KEY            = "Wintermap";
     public static readonly TILEMAP_PATH           = "game_assets/tilemaps/wintermap.json";

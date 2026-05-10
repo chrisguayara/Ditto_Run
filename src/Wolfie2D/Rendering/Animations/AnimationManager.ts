@@ -109,8 +109,8 @@ export default class AnimationManager {
             let index = currentAnimation.frames[this.currentFrame].index;
 
             // Advance the animation
-            this.frameProgress += 1;
-            if(this.frameProgress >= currentAnimation.frames[this.currentFrame].duration){
+            this.frameProgress += 7;  // convert seconds to ms
+            if (this.frameProgress >= currentAnimation.frames[this.currentFrame].duration) {
                 // We have been on this frame for its whole duration, go to the next one
                 this.frameProgress = 0;
                 this.currentFrame += 1;
@@ -137,18 +137,24 @@ export default class AnimationManager {
 
     /** Ends the current animation and fires any necessary events, as well as starting any new animations */
     protected endCurrentAnimation(): void {
+        const justFinished = this.currentAnimation;
         this.currentFrame = 0;
         this.animationState = AnimationState.STOPPED;
 
-        if(this.onEndEvent !== null){
-            this.emitter.fireEvent(this.onEndEvent, {owner: this.owner.id, animation: this.currentAnimation});
+        if (this.onEndEvent !== null) {
+            this.emitter.fireEvent(this.onEndEvent, { owner: this.owner.id, animation: justFinished });
         }
 
-        // If there is a pending animation, play it
-        if(this.pendingAnimation !== null){
+        if (this.pendingAnimation !== null) {
             this.play(this.pendingAnimation, this.pendingLoop, this.pendingOnEnd);
-        }
+        } else {
+            // Fall back to the JSON "next" field if present
+            const animData = this.animations.get(justFinished);
+            if (animData?.next) {
+                this.play(animData.next);
+            }
     }
+}
 
     /**
      * Plays the specified animation. Does not restart it if it is already playing
@@ -169,29 +175,25 @@ export default class AnimationManager {
      * @param onEnd The name of an event to send when this animation naturally stops playing. This only matters if loop is false.
      */
     play(animation: string, loop?: boolean, onEnd?: string): void {
-        this.currentAnimation = animation;
-        this.currentFrame = 0;
-        this.frameProgress = 0;
-        this.animationState = AnimationState.PLAYING;
-
-        // If loop arg was provided, use that
-        if(loop !== undefined){
-            this.loop = loop;
-        } else {
-            // Otherwise, use what the json file specified
-            this.loop = this.animations.get(animation).repeat;
-        }
-
-        if(onEnd !== undefined){
-            this.onEndEvent = onEnd;
-        } else {
-            this.onEndEvent = null;
-        }
-
-        // Reset pending animation
-        this.pendingAnimation = null;
+    if (!this.animations.has(animation)) {
+        console.error(
+            `AnimationManager: Animation "${animation}" not found on node id: ${this.owner.id}. ` +
+            `Available: [${this.animations.keys().join(", ")}]`
+        );
+        return; // fail gracefully instead of crashing
     }
 
+    this.currentAnimation = animation;
+    this.currentFrame = 0;
+    this.frameProgress = 0;
+    this.animationState = AnimationState.PLAYING;
+
+    if (loop !== undefined) {
+        this.loop = loop;
+    } else {
+        this.loop = this.animations.get(animation).repeat; // safe now
+    }
+}
     /**
      * Queues a single animation to be played after the current one. Does NOT stack.
      * Queueing additional animations past 1 will just replace the queued animation

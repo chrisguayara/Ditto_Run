@@ -13,6 +13,7 @@ export class AnimationData {
     name: string;
     frames: Array<{index: number, duration: number}>;
     repeat: boolean = false;
+    next?: string; 
 }
 
 export class TweenEffect {

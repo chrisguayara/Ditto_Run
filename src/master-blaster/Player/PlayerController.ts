@@ -28,24 +28,34 @@ export const PlayerAnimations = {
     IDLE: "IDLE",
     WALK: "WALK",
     JUMP: "JUMP",
-    FALL: "FALL",   
-    // ROWLET_IDLE: "ROWLET_IDLE",
-    // ROWLET_FLY: "ROWLET_FLY",
-    // PHANTUMP_FLY: "PHANTUMP_FLY",
-    // PHANTUMP_IDLE: "PHANTUMP_IDLE",
-    TRANSFORMATION : "TRANSFORMATION",
-    GRENINJA_IDLE:       "GRENINJA_IDLE",
-    GRENINJA_WALK:        "GRENINJA_WALK",
-    GRENINJA_JUMP:       "GRENINJA_JUMP",
-    GRENINJA_FALL:       "GRENINJA_FALL",
-    GRENINJA_WALL_SLIDE: "GRENINJA_WALL_SLIDE",
-    GRENINJA_GRAPPLE:    "GRENINJA_GRAPPLE",
-    CHARIZARD_IDLE: "CHARIZARD_IDLE",
-    CHARIZARD_BLITZ : "CHARIZARD_BLITZ",
-    GRENINJA_WALL : "GRENINJA_WALL",
-    GRENINJA_SLIDE : "GRENINJA_SLIDE",
-    GRENINJA_CROUCH : "GRENINJA_CROUCH",
-} as const
+    FALL: "FALL",
+    TRANSFORMATION: "transform",
+
+    // Greninja
+    GRENINJA_IDLE: "greninja_idle",
+    GRENINJA_RUN: "greninja_run",
+    GRENINJA_JUMP: "greninja_jump",
+    GRENINJA_FALL: "greninja_Fall",
+    GRENINJA_WALL_SLIDE: "greninja_wall_climb",
+    GRENINJA_WALL_CLIMB: "greninja_wall_climb",
+    GRENINJA_WALL_JUMP: "greninja_walljump",
+    GRENINJA_GRAPPLE: "greninja_grapple",
+    GRENINJA_DAMAGE: "greninja_damage",
+    GRENINJA_DEATH: "greninja_death",
+    GRENINJA_WALK: "greninja_walk",
+    GRENINJA_SLIDE: "greninja_sliding",
+    GRENINJA_CROUCH: "greninja_idle",
+
+    // Charizard / Blaziken
+    CHARIZARD_IDLE: "blaziken_idle",
+    CHARIZARD_BLITZ: "blaziken_blitz",
+    CHARIZARD_JUMP: "blaziken_jump",
+    CHARIZARD_DAMAGE: "blaziken_damage",
+    CHARIZARD_DEATH: "blaziken_death",
+    CHARIZARD_WALK: "blaziken_walk",
+    CHARIZARD_WALKING: "blaziken_walking",
+    CHARIZARD_BASH: "blaziken_bash",
+} as const;
 
 export const PlayerTweens = {
     FLIP: "FLIP",
@@ -299,33 +309,36 @@ export default class PlayerController extends StateMachineAI {
         return this.cooldownProgress >= 1;
     }
 
-    public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL" | "CROUCH" | "SLIDE"): string {
-        const form = this._transformations.activeForm?.key ?? null;
+   public getAnimationKey(base: "IDLE" | "WALK" | "JUMP" | "FALL" | "GRAPPLE" | "BLITZ" | "WALL" | "CROUCH" | "SLIDE"| "BASH"| "DAMAGE" | "DEATH"): string {
+        const form = this.transformations.activeForm?.key ?? "GRENINJA";
 
-       
         if (form === "CHARIZARD") {
-            switch(base){
-                case "IDLE" : return PlayerAnimations.CHARIZARD_IDLE;
-                case "BLITZ" : return PlayerAnimations.CHARIZARD_BLITZ;
-                default:
-                    return PlayerAnimations.CHARIZARD_IDLE;
-            }
-        }
-        if (form === "GRENINJA") {
-            // Use base animations since Greninja animations aren't in spritesheet yet
             switch (base) {
-                case "IDLE": return PlayerAnimations.GRENINJA_IDLE;
-                case "WALK": return PlayerAnimations.GRENINJA_WALK;
-                case "JUMP": return PlayerAnimations.GRENINJA_JUMP;
-                case "FALL": return PlayerAnimations.GRENINJA_FALL; 
-                case "GRAPPLE" : return PlayerAnimations.GRENINJA_GRAPPLE;
-                case "WALL" : return PlayerAnimations.GRENINJA_IDLE;
-                case "CROUCH" : return PlayerAnimations.GRENINJA_IDLE;
-                case "SLIDE" : return PlayerAnimations.GRENINJA_IDLE;
-                default:
-                    return PlayerAnimations.GRENINJA_IDLE;
+                case "IDLE": return PlayerAnimations.CHARIZARD_IDLE;
+                case "WALK": return PlayerAnimations.CHARIZARD_WALK;
+                case "JUMP": return PlayerAnimations.CHARIZARD_JUMP;
+                case "FALL": return PlayerAnimations.CHARIZARD_JUMP;
+                case "BLITZ": return PlayerAnimations.CHARIZARD_BLITZ;
+                case "BASH":   return PlayerAnimations.CHARIZARD_BASH;  
+                case "DAMAGE": return PlayerAnimations.CHARIZARD_DAMAGE; 
+                case "DEATH":  return PlayerAnimations.CHARIZARD_DEATH; 
+                default: return PlayerAnimations.CHARIZARD_IDLE;
             }
         }
-        return PlayerAnimations[base];
+
+        // Default to Greninja
+        switch (base) {
+            case "IDLE": return PlayerAnimations.GRENINJA_IDLE;
+            case "WALK": return PlayerAnimations.GRENINJA_WALK;
+            case "JUMP": return PlayerAnimations.GRENINJA_JUMP;
+            case "FALL": return PlayerAnimations.GRENINJA_FALL;
+            case "GRAPPLE": return PlayerAnimations.GRENINJA_GRAPPLE;
+            case "WALL": return PlayerAnimations.GRENINJA_WALL_SLIDE;
+            case "SLIDE": return PlayerAnimations.GRENINJA_SLIDE;
+            case "CROUCH": return PlayerAnimations.GRENINJA_CROUCH;
+            case "DAMAGE": return PlayerAnimations.GRENINJA_DAMAGE;   
+            case "DEATH":  return PlayerAnimations.GRENINJA_DEATH;  
+            default: return PlayerAnimations.GRENINJA_IDLE;
+        }
     }
 }

@@ -112,7 +112,6 @@ export default class SpriteShaderType extends QuadShaderType {
 	getOptions(sprite: Sprite): Record<string, any> {
 		let texShift;
 		let texScale;
-
 		if(sprite instanceof AnimatedSprite){
 			let animationIndex = sprite.animation.getIndexAndAdvanceAnimation();
 			let offset = sprite.getAnimationOffset(animationIndex);

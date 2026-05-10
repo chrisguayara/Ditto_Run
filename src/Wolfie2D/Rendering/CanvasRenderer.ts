@@ -197,7 +197,7 @@ export default class CanvasRenderer extends RenderingManager {
         // Get the image from the resource manager
         let image = this.resourceManager.getImage(sprite.imageId);
 
-        let animationIndex = sprite.animation.getIndexAndAdvanceAnimation();
+        let animationIndex = sprite.animation.getIndexAndAdvanceAnimation(10);
 
         let animationOffset = sprite.getAnimationOffset(animationIndex);
 

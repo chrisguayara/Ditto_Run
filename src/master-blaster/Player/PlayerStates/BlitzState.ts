@@ -51,6 +51,7 @@ export default class BlitzState extends PlayerState {
              explosionOrigin,
         );
         if (!result.hit) {
+            this.owner.animation.stop();     
             this.finished(this.parent.velocity.y < 0 ? PlayerStates.JUMP : PlayerStates.FALL);
             return;
         }
@@ -68,7 +69,8 @@ export default class BlitzState extends PlayerState {
         const dx = mousePos.x - origin.x;
         const dy = mousePos.y - origin.y;
         const len = Math.hypot(dx, dy);
-        if (len < 1) { this.finished(PlayerStates.FALL); return; }
+        if (len < 1) { this.owner.animation.stop(); 
+            this.finished(PlayerStates.FALL); return; }
 
         const towardX = dx / len;
         const towardY = dy / len;

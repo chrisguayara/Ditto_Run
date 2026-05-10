@@ -1,266 +1,393 @@
-
 {
   "name": "Ditto",
-  "spriteSheetImage": "ditto.png",
+  "spriteSheetImage": "GreninjaSplitSteam.png",
   "spriteWidth": 32,
   "spriteHeight": 32,
-  "columns": 10,
-  "rows": 5,
+  "columns": 60,
+  "rows": 1,
   "durationType": "time",
   "animations": [
     {
-      "name": "IDLE",
+      "name": "greninja_idle",
       "repeat": true,
       "frames": [
         {
           "index": 0,
-          "duration": 23
-        }
-      ]
-    },
-    {
-      "name": "WALK",
-      "repeat": true,
-      "frames": [
-        {
-          "index": 0,
-          "duration": 23
+          "duration": 240
         },
         {
-          "index" : 1,
-          "duration" : 23
+          "index": 1,
+          "duration": 240
+        }
+      ]
+    },
+    {
+      "name": "greninja_run",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 2,
+          "duration": 50
         },
-        {
-          "index" : 2,
-          "duration" : 23
-        },
-        {
-          "index" : 1,
-          "duration" : 23
-        }
-      ]
-    },
-    {
-      "name": "JUMP",
-      "repeat": false,
-      "frames": [
-        {
-          "index": 0,
-          "duration": 23
-        }
-      ]
-    },
-    {
-      "name": "ATTACK",
-      "repeat": false,
-      "frames": [
-        {
-          "index": 0,
-          "duration": 23
-        }
-      ]
-    },
-    {
-      "name": "FALL",
-      "repeat": true,
-      "frames": [
-        {
-          "index": 0,
-          "duration": 23
-        }
-      ]
-    },
-    {
-      "name": "TAKE_DAMAGE",
-      "repeat": false,
-      "frames": [
-        {
-          "index": 0,
-          "duration": 23
-        }
-      ]
-    },
-    {
-      "name": "DYING",
-      "repeat": false,
-      "frames": [
-        {
-          "index": 0,
-          "duration": 23
-        }
-      ]
-    },
-    {
-      "name": "DEAD",
-      "repeat": true,
-      "frames": [
-        {
-          "index": 0,
-          "duration": 23
-        }
-      ]
-    },{
-      "name": "ROWLET_IDLE",
-      "repeat": true,
-      "frames": [
         {
           "index": 3,
-          "duration": 23
+          "duration": 100
         },
-          {
-          "index": 3,
-          "duration": 23
-        }
-        
-      ]
-    },
-    {
-      "name": "ROWLET_FLY",
-      "repeat": true,
-      "frames": [
         {
-          "index": 3,
-          "duration": 23
-        },
-          {
           "index": 4,
-          "duration": 23
+          "duration": 100
+        },
+        {
+          "index": 5,
+          "duration": 100
+        },
+        {
+          "index": 6,
+          "duration": 100
+        },
+        {
+          "index": 7,
+          "duration": 100
+        },
+        {
+          "index": 8,
+          "duration": 50
         }
-        
       ]
     },
     {
-      "name": "PHANTUMP_IDLE",
+      "name": "greninja_sliding",
       "repeat": true,
       "frames": [
         {
-          "index": 5,
-          "duration": 23
+          "index": 9,
+          "duration": 100
         },
-          {
-          "index": 6,
-          "duration": 23
-        }
-        
-      ]
-    },{
-      "name": "PHANTUMP_FLY",
-      "repeat": true,
-      "frames": [
-        {
-          "index": 5,
-          "duration": 23
-        },
-          {
-          "index": 6,
-          "duration": 23
-        }
-        
-      ]
-    },{
-      "name": "GRENINJA_IDLE",
-      "repeat": true,
-      "frames": [
         {
           "index": 10,
-          "duration": 23
-        }
-        
-      ]
-    },{
-      "name": "GRENINJA_WALK",
-      "repeat": true,
-      "frames": [
+          "duration": 100
+        },
         {
           "index": 11,
-          "duration": 8
-        },{
-          "index": 12,
-          "duration": 8
-        },{
-          "index": 13,
-          "duration": 8
-        },{
-          "index": 14,
-          "duration": 8
+          "duration": 100
         }
-        
       ]
     },
     {
-      "name": "GRENINJA_FALL",
+      "name": "greninja_wall_climb",
       "repeat": true,
+      "frames": [
+        {
+          "index": 12,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "greninja_walljump",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 13,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "greninja_grapple",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 14,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "greninja_jump",
+      "repeat": false,
+      "next":"greninja_jumping",
       "frames": [
         {
           "index": 15,
-          "duration": 23
-        },{
+          "duration": 100
+        },
+        {
           "index": 16,
-          "duration": 23
+          "duration": 100
+        },
+        {
+          "index": 17,
+          "duration": 100
+        },
+        {
+          "index": 18,
+          "duration": 100
         }
-
       ]
-    },{
-      "name": "GRENINJA_JUMP",
+    },
+    {
+      "name": "greninja_jumping",
       "repeat": true,
       "frames": [
         {
-          "index": 17,
-          "duration": 23
-        },{
-          "index": 18,
-          "duration": 23
-        },{
-          "index" : 19,
-          "duration" : 23
+          "index": 19,
+          "duration": 100
+        },
+        {
+          "index": 20,
+          "duration": 100
         }
       ]
-    },{
-      "name": "GRENINJA_GRAPPLE",
+    },
+    {
+      "name": "greninja_Fall",
       "repeat": true,
       "frames": [
         {
-          "index": 17,
-          "duration": 23
-        },{
-          "index": 18,
-          "duration": 23
-        },{
-          "index" : 19,
-          "duration" : 23
+          "index": 21,
+          "duration": 100
+        },
+        {
+          "index": 22,
+          "duration": 100
         }
-      ]}
-    ,{
-    "name": "TRANSFORMATION",
-    "repeat": false,
-    "frames": [
-        { "index": 20, "duration": 5 },
-        { "index": 21, "duration": 8},
-        { "index": 22, "duration": 12  },
-        { "index": 23, "duration": 8 },
-        { "index": 24, "duration": 10 }
-        ]
-      
-      },{
-        "name": "CHARIZARD_IDLE",
-        "repeat": true,
-        "frames": [
-          {
-            "index": 30,
-            "duration": 23
-          }
-        ]},{
-        "name": "CHARIZARD_BLITZ",
-        "repeat": true,
-        "frames": [
-          {
-            "index": 31,
-            "duration": 8
-          },{
-            "index": 32,
-            "duration": 8
-          }
-        ]}
-
-    ]
+      ]
+    },
+    {
+      "name": "greninja_damage",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 23,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "greninja_death",
+      "repeat": false,
+      "next":"death",
+      "frames": [
+        {
+          "index": 24,
+          "duration": 100
+        },
+        {
+          "index": 25,
+          "duration": 100
+        },
+        {
+          "index": 26,
+          "duration": 100
+        },
+        {
+          "index": 27,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "greninja_walk",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 28,
+          "duration": 100
+        },
+        {
+          "index": 29,
+          "duration": 100
+        },
+        {
+          "index": 30,
+          "duration": 100
+        },
+        {
+          "index": 31,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "transform",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 32,
+          "duration": 75
+        },
+        {
+          "index": 33,
+          "duration": 75
+        },
+        {
+          "index": 34,
+          "duration": 75
+        },
+        {
+          "index": 35,
+          "duration": 75
+        },
+        {
+          "index": 36,
+          "duration": 75
+        },
+        {
+          "index": 37,
+          "duration": 75
+        },
+        {
+          "index": 38,
+          "duration": 75
+        }
+      ]
+    },
+    {
+      "name": "blaziken_idle",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 39,
+          "duration": 250
+        },
+        {
+          "index": 40,
+          "duration": 250
+        }
+      ]
+    },
+    {
+      "name": "blaziken_blitz",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 41,
+          "duration": 200
+        },
+        {
+          "index": 42,
+          "duration": 200
+        }
+      ]
+    },
+    {
+      "name": "blaziken_jump",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 43,
+          "duration": 150
+        },
+        {
+          "index": 44,
+          "duration": 150
+        },
+        {
+          "index": 45,
+          "duration": 150
+        },
+        {
+          "index": 46,
+          "duration": 150
+        }
+      ]
+    },
+    {
+      "name": "blaziken_damage",
+      "repeat": false,
+      "frames": [
+        {
+          "index": 47,
+          "duration": 250
+        }
+      ]
+    },
+    {
+      "name": "blaziken_death",
+      "repeat": false,
+      "next":"death",
+      "frames": [
+        {
+          "index": 48,
+          "duration": 150
+        },
+        {
+          "index": 49,
+          "duration": 150
+        },
+        {
+          "index": 50,
+          "duration": 150
+        },
+        {
+          "index": 51,
+          "duration": 150
+        }
+      ]
+    },
+    {
+      "name": "blaziken_jumping",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 52,
+          "duration": 100
+        },
+        {
+          "index": 53,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "blaziken_walking",
+      "repeat": true,
+      "next":"blaziken_walk",
+      "frames": [
+        {
+          "index": 54,
+          "duration": 250
+        }
+      ]
+    },
+    {
+      "name": "blaziken_walk",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 55,
+          "duration": 200
+        },
+        {
+          "index": 56,
+          "duration": 200
+        }
+      ]
+    },
+    {
+      "name": "blaziken_bash",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 57,
+          "duration": 100
+        },
+        {
+          "index": 58,
+          "duration": 100
+        }
+      ]
+    },
+    {
+      "name": "death",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 59,
+          "duration": 240
+        }
+      ]
+    }
+  ]
 }

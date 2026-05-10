@@ -8,6 +8,7 @@ export default class Idle extends PlayerState {
     public onEnter(options: Record<string, any>): void {
         this.parent.speed = this.parent.MIN_SPEED;
         this.parent.velocity.y = 0;
+        const key = this.parent.getAnimationKey("IDLE");
 
         if (!this.parent.isTransforming) {
             this.owner.animation.play(this.parent.getAnimationKey("IDLE"));
