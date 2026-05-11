@@ -107,6 +107,8 @@ export default class MountainLevel extends MBLevel {
         this.load.audio(this.levelEndAudioKey,        MountainLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(MountainLevel.TRANSFORM_AUDIO_KEY, MountainLevel.TRANSFORM_AUDIO_PATH);
         this.load.spritesheet("mountainmap_background", "game_assets/tilemaps/backgrounds/mountainmap_background.json");
+        this.loadEndScreenAssets();
+
 
     }
 
@@ -126,6 +128,7 @@ export default class MountainLevel extends MBLevel {
         this.nextLevel = MountainLevel;   
 
         GameState.getInstance().unlockLevel("FOREST");
+        GameState.getInstance().resetLevelStats(5);
 
         const ctrl = this.player._ai as PlayerController;
         ctrl.transformations.unlockForm("GRENINJA");
@@ -138,7 +141,7 @@ export default class MountainLevel extends MBLevel {
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
         const bg = this.add.animatedSprite("mountainmap_background", MBLayers.BACKGROUND);
-        bg.position.set(450, 140); 
+        bg.position.set(600, 140); 
         
         bg.animation.play("IDLE", true);
     }
@@ -162,6 +165,7 @@ export default class MountainLevel extends MBLevel {
         this.spawnPatroller(new Vec2(21 * 16, 31 * 16), 23, 50, 2, 1);
         this.spawnPatroller(new Vec2(292 * 16, 37 * 16), 45, 50, 2, 1);
         this.spawnPatroller(new Vec2(330 * 16, 56 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(335 * 16, 23 * 16), 45, 50, 2, 1);
         this.spawnPatroller(new Vec2(374 * 16, 66 * 16), 45, 50, 2, 1);
         // this.spawnShooter(new Vec2(17 * 16, 32 * 16), SNOWBALL);
         // this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);

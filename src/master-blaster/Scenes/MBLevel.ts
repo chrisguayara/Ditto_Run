@@ -44,6 +44,7 @@ import AudioManager from "../../Wolfie2D/Sound/AudioManager";
 import Patroller from "../Entity/Enemies/Patroller";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import Shooter from "../Entity/Enemies/Shooter";
+import LevelEndScreen from "./LevelEndScreen";
 /**
  * A const object for the layer names
  */
@@ -53,6 +54,7 @@ export const MBLayers = {
     PAUSE_BG: "PAUSE_BG", 
     PAUSE: "PAUSE",
     BACKGROUND: "BACKGROUND",
+    LEVEL_END_SCREEN: "LEVEL_END_SCREEN",
 } as const;
 
 export type MBLayer = typeof MBLayers[keyof typeof MBLayers];
@@ -85,6 +87,10 @@ export default abstract class MBLevel extends Scene {
     protected phantumpWeaponSystem!: PhantumpWeapon;
     protected originalWeaponSystem!: PlayerWeapon;
     protected sludgePool: SludgeWeapon[] = [];
+    protected levelEndScreen!: LevelEndScreen;
+    
+    protected totalCandiesInLevel: number = 0;
+
 
     // ── Player ────────────────────────────────────────────────────
     protected playerSpriteKey!: string;
@@ -162,7 +168,7 @@ export default abstract class MBLevel extends Scene {
     protected selectAudioPath!: string;
 
     public canUpdateTransform : boolean = true;
-    private levelTimer: number = 0;
+    protected levelTimer: number = 0;
     private timerLabel!: Label;
     private timerRunning: boolean = false;
 
@@ -177,6 +183,9 @@ export default abstract class MBLevel extends Scene {
     protected shooterSpriteKey!:    string;
     protected projectileSpriteKey!: string;
     protected patrollerSpriteKey!:  string;
+
+    public static readonly END_SCREEN_BG_KEY  = "END_SCREEN_BG";
+    public static readonly END_SCREEN_BG_PATH = "game_assets/spritesheets/ui/endscreen.json";
 
     // Entity Logic ---------------------------
     
@@ -386,6 +395,11 @@ export default abstract class MBLevel extends Scene {
                 this.energyLabel.text = "ENERGY:";
                 this.handleEnergyChange(ctrl.transformations.energy, ctrl.transformations.maxEnergy);
             }
+        }
+        if (this.levelEndScreen?.isVisible) {
+            const confirmPressed = Input.isJustPressed(MBControls.CONFIRM);
+            this.levelEndScreen.update(deltaT, confirmPressed);
+            return; // block normal input while end screen is up
         }
 
         
@@ -715,11 +729,11 @@ export default abstract class MBLevel extends Scene {
             }
             
             case MBEvents.LEVEL_END: {
+                // Guard: if the end screen is still up, ignore this event.
+                // The end screen's onConfirm callback handles the transition.
+                if (this.levelEndScreen?.isVisible) break;
                 this.timerRunning = false;
-                // show final time briefly
-                
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
-                
                 this.sceneManager.changeToScene(this.nextLevel);
                 break;
             }
@@ -979,18 +993,22 @@ export default abstract class MBLevel extends Scene {
      * Handle the event when the player enters the level end area.
      */
     protected handleEnteredLevelEnd(): void {
-        if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
-            this.timerRunning = false;
-            this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
-            
-            this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.levelEndAudioKey });
-            this.timerLabel.textColor = Color.YELLOW;
-            
-            
-            this.levelEndTimer.start();
-            this.levelEndLabel.tweens.play("slideIn");
-        }
+    if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
+        this.timerRunning = false;
+
+        const ctrl = this.player._ai as PlayerController;
+        const state = GameState.getInstance();
+
+        
+        this.levelEndScreen.show(
+            this.levelTimer,
+            state.levelCandyCollected,
+            state.levelCandyTotal,
+            ctrl.health,
+            ctrl.maxHealth
+        );
     }
+}
 
     
 
@@ -1018,7 +1036,7 @@ export default abstract class MBLevel extends Scene {
         this.addUILayer(MBLayers.PAUSE);
         
         
-        
+        this.addUILayer(MBLayers.LEVEL_END_SCREEN);
         this.addLayer(MBLayers.PRIMARY);
         
          
@@ -1241,6 +1259,23 @@ export default abstract class MBLevel extends Scene {
             effects: [{ property: TweenableProperties.alpha, start: 1, end: 0, ease: EaseFunctionType.IN_OUT_QUAD }],
             onEnd: MBEvents.LEVEL_START
         });
+
+        const endBg = this.add.animatedSprite(MBLevel.END_SCREEN_BG_KEY, MBLayers.LEVEL_END_SCREEN);
+        endBg.position.set(160, 120);
+        endBg.visible = false;
+
+        this.levelEndScreen = new LevelEndScreen(
+            this,
+            MBLayers.LEVEL_END_SCREEN,
+            endBg,
+            () => {
+                // This fires when player confirms — transition to next level
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                this.sceneManager.changeToScene(this.nextLevel);
+            }
+        );
+
+        
 
         
 
@@ -1543,6 +1578,9 @@ export default abstract class MBLevel extends Scene {
             SpriteKeys.SHOOTER_KEY,  
             position
         ) as Shooter;
+    }
+    public loadEndScreenAssets(): void {
+        this.load.spritesheet(MBLevel.END_SCREEN_BG_KEY, MBLevel.END_SCREEN_BG_PATH);
     }
 
     

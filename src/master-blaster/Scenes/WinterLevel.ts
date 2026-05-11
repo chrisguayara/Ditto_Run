@@ -111,6 +111,8 @@ export default class WinterLevel extends MBLevel {
         this.load.audio(this.levelEndAudioKey,            WinterLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(WinterLevel.TRANSFORM_AUDIO_KEY,  WinterLevel.TRANSFORM_AUDIO_PATH);
         this.load.spritesheet("snowmap_background", "game_assets/tilemaps/backgrounds/snowmap_background.json");
+        this.loadEndScreenAssets();
+
 
     }
 
@@ -141,6 +143,7 @@ export default class WinterLevel extends MBLevel {
 
         this.initializePKMN();
         this.initializeEntities();
+        GameState.getInstance().resetLevelStats(5);
         this.respawnPosition = this.playerSpawn.clone();
 
         const bg = this.add.animatedSprite("snowmap_background", MBLayers.BACKGROUND);

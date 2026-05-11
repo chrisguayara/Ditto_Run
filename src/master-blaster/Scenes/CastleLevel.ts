@@ -107,6 +107,7 @@ export default class CastleLevel extends MBLevel {
         this.load.audio(this.levelEndAudioKey,        CastleLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(CastleLevel.TRANSFORM_AUDIO_KEY, CastleLevel.TRANSFORM_AUDIO_PATH);
         this.load.spritesheet("castlemap_background", "game_assets/tilemaps/backgrounds/castlemap_background.json");
+        this.loadEndScreenAssets();
     }
 
     public unloadScene(): void {
@@ -135,6 +136,7 @@ export default class CastleLevel extends MBLevel {
 
         this.initializePKMN();
         this.initializeEntities();
+        GameState.getInstance().resetLevelStats(3);
         this.respawnPosition = this.playerSpawn.clone();
 
         const bg = this.add.animatedSprite("castlemap_background", MBLayers.BACKGROUND);
