@@ -570,7 +570,7 @@
  "nextobjectid":1,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.12.1",
+ "tiledversion":"1.11.2",
  "tileheight":16,
  "tilesets":[
         {
@@ -583,6 +583,19 @@
          "name":"Snowtileset",
          "spacing":0,
          "tilecount":64,
+         "tileheight":16,
+         "tilewidth":16
+        }, 
+        {
+         "columns":15,
+         "firstgid":65,
+         "image":"hints.png",
+         "imageheight":240,
+         "imagewidth":240,
+         "margin":0,
+         "name":"hints",
+         "spacing":0,
+         "tilecount":225,
          "tileheight":16,
          "tilewidth":16
         }],
