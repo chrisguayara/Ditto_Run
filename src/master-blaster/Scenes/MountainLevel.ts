@@ -15,8 +15,8 @@ import { SpriteKeys } from "./SpriteKeys";
 export const CHECKPOINTS = {
     // SPAWN:          new Vec2(141 * 16, 40 * 16),
     SPAWN:          new Vec2(7 * 16, 7 * 16),
-    CHECKPOINT_ONE: new Vec2(73  * 16, 10 * 16),
-    CHECKPOINT_TWO: new Vec2(64  * 16, 42 * 16),
+    CHECKPOINT_ONE: new Vec2(141  * 16, 40 * 16),
+    CHECKPOINT_TWO: new Vec2(329  * 16, 72 * 16),
 } as const;
 
 export default class MountainLevel extends MBLevel {
@@ -79,8 +79,8 @@ export default class MountainLevel extends MBLevel {
         this.tileDestroyedAudioKey = MountainLevel.TILE_DESTROYED_KEY;
         this.levelEndAudioKey      = MountainLevel.LEVEL_END_KEY;
 
-        this.levelEndPosition = new Vec2(309 * 16, 36 * 16).mult(this.tilemapScale);
-        this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(384 * 16, 22 * 16).mult(this.tilemapScale);
+        this.levelEndHalfSize = new Vec2(64, 64).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 = CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
         this.checkpoint_sqr2 = CHECKPOINTS.CHECKPOINT_TWO.mult(this.tilemapScale);
@@ -151,14 +151,18 @@ export default class MountainLevel extends MBLevel {
         // RULE: never pass a class directly to spawnEntity.
         // Always use a factory lambda: (sprite) => new Foo(sprite)
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(173 * 16, 36 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(157  * 16, 18 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(113 * 16, 18 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(168  * 16, 39 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(313  * 16, 28 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(389  * 16, 42 * 16));
 
         this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(292 * 16, 45.5 * 16), true);
         
-        this.spawnPatroller(new Vec2(65 * 16, 29 * 16), 80, 60, 2, 1);
-        this.spawnPatroller(new Vec2(205 * 16, 45 * 16), 23, 50, 2, 1);
-        this.spawnPatroller(new Vec2(286 * 16, 34 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(63 * 16, 29 * 16), 80, 60, 2, 1);
+        this.spawnPatroller(new Vec2(21 * 16, 31 * 16), 23, 50, 2, 1);
+        this.spawnPatroller(new Vec2(292 * 16, 37 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(330 * 16, 56 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(374 * 16, 66 * 16), 45, 50, 2, 1);
         // this.spawnShooter(new Vec2(17 * 16, 32 * 16), SNOWBALL);
         // this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);
     }
