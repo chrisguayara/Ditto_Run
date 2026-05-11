@@ -29,22 +29,25 @@
             "scaleInDock": 1
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json": {
-            "scale": 1.1861,
+            "scale": 0.4567,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 895.7929348284295,
-                "y": 410.58932636371304
+                "x": 631.7057149113203,
+                "y": 529.8883293190278
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json#Snowtileset": {
             "scaleInDock": 2.9085
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/mountain.json#hints": {
+            "scaleInDock": 1
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json": {
             "scale": 0.5219,
             "selectedLayer": 4,
             "viewCenter": {
                 "x": 799.9616784824678,
-                "y": 628.472887526346
+                "y": 708.948074343744
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#hints": {

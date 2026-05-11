@@ -14,17 +14,17 @@ export default class BlitzState extends PlayerState {
 
     // ── Tuning ────────────────────────────────────────────────────
     /** How long Blitz owns the physics before handing back to Jump/Fall */
-    private static readonly DURATION:      number = 0.3;
+    private static readonly DURATION:      number = 0.36;
     /** Gravity fraction during blitz arc — lower = floatier */
     private static readonly GRAVITY_MULT:  number = 0.65;
     /** How much pre-existing velocity carries into the launch */
-    private static readonly MOMENTUM_CARRY: number = 0.2;
+    private static readonly MOMENTUM_CARRY: number = 0.3;
 
     // ── Runtime ───────────────────────────────────────────────────
     private timer:     number = 0;
     private launchDir: Vec2   = Vec2.ZERO;
     
-    private static readonly LAUNCH_SPEED:    number = 300;
+    private static readonly LAUNCH_SPEED:    number = 280;
 
     private static readonly HORIZONTAL_BIAS: number = 1.5;
     private static readonly VERTICAL_BIAS:   number = 0.85;

@@ -1,6 +1,6 @@
 import AABB from "../../Wolfie2D/DataTypes/Shapes/AABB";
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
-import MBLevel from "./MBLevel";
+import MBLevel, { MBLayers } from "./MBLevel";
 import RenderingManager from "../../Wolfie2D/Rendering/RenderingManager";
 import SceneManager from "../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
@@ -13,9 +13,10 @@ import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
 
 export const CHECKPOINTS = {
+    // SPAWN:          new Vec2(141 * 16, 40 * 16),
     SPAWN:          new Vec2(7 * 16, 7 * 16),
-    CHECKPOINT_ONE: new Vec2(73  * 16, 10 * 16),
-    CHECKPOINT_TWO: new Vec2(64  * 16, 42 * 16),
+    CHECKPOINT_ONE: new Vec2(141  * 16, 40 * 16),
+    CHECKPOINT_TWO: new Vec2(329  * 16, 72 * 16),
 } as const;
 
 export default class MountainLevel extends MBLevel {
@@ -51,7 +52,7 @@ export default class MountainLevel extends MBLevel {
     public static readonly ROTOM_SPRITE_KEY  = "Rotom";
     public static readonly ROTOM_SPRITE_PATH = "game_assets/spritesheets/rotom.json";
 
-    public static readonly LEVEL_END = new AABB(new Vec2(159 * 16, 232), new Vec2(24, 16));
+    public static readonly LEVEL_END = new AABB(new Vec2(309 * 16, 232), new Vec2(24, 16));
 
     public constructor(
         viewport: Viewport,
@@ -78,8 +79,8 @@ export default class MountainLevel extends MBLevel {
         this.tileDestroyedAudioKey = MountainLevel.TILE_DESTROYED_KEY;
         this.levelEndAudioKey      = MountainLevel.LEVEL_END_KEY;
 
-        this.levelEndPosition = new Vec2(159 * 16, 36 * 16).mult(this.tilemapScale);
-        this.levelEndHalfSize = new Vec2(32, 32).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(384 * 16, 22 * 16).mult(this.tilemapScale);
+        this.levelEndHalfSize = new Vec2(64, 64).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 = CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
         this.checkpoint_sqr2 = CHECKPOINTS.CHECKPOINT_TWO.mult(this.tilemapScale);
@@ -105,6 +106,8 @@ export default class MountainLevel extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey,   MountainLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,        MountainLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(MountainLevel.TRANSFORM_AUDIO_KEY, MountainLevel.TRANSFORM_AUDIO_PATH);
+        this.load.spritesheet("mountainmap_background", "game_assets/tilemaps/backgrounds/mountainmap_background.json");
+
     }
 
     public unloadScene(): void {
@@ -117,6 +120,7 @@ export default class MountainLevel extends MBLevel {
     }
 
     public startScene(): void {
+        this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.1, 0.1), -1);
         super.startScene();
 
         this.nextLevel = MountainLevel;   
@@ -133,6 +137,10 @@ export default class MountainLevel extends MBLevel {
         this.initializePKMN();
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
+        const bg = this.add.animatedSprite("mountainmap_background", MBLayers.BACKGROUND);
+        bg.position.set(450, 140); 
+        
+        bg.animation.play("IDLE", true);
     }
 
     protected initializePKMN(): void {
@@ -143,20 +151,24 @@ export default class MountainLevel extends MBLevel {
         // RULE: never pass a class directly to spawnEntity.
         // Always use a factory lambda: (sprite) => new Foo(sprite)
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(173 * 16, 36 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(157  * 16, 18 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(113 * 16, 18 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(168  * 16, 39 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(313  * 16, 28 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(389  * 16, 42 * 16));
 
-        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(182 * 16, 34.5 * 16), true);
+        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(292 * 16, 45.5 * 16), true);
         
-        this.spawnPatroller(new Vec2(125 * 16, 19 * 16), 80, 60, 2, 1);
-        this.spawnPatroller(new Vec2(153 * 16, 45 * 16), 45, 50, 2, 1);
-        this.spawnPatroller(new Vec2(75 * 16, 45 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(63 * 16, 29 * 16), 80, 60, 2, 1);
+        this.spawnPatroller(new Vec2(21 * 16, 31 * 16), 23, 50, 2, 1);
+        this.spawnPatroller(new Vec2(292 * 16, 37 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(330 * 16, 56 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(374 * 16, 66 * 16), 45, 50, 2, 1);
         // this.spawnShooter(new Vec2(17 * 16, 32 * 16), SNOWBALL);
         // this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);
     }
 
     protected initializeViewport(): void {
         super.initializeViewport();
-        this.viewport.setBounds(0, 0, 200 * 16, 50 * 16);
+        this.viewport.setBounds(0, 0, 400 * 16, 80 * 16);
     }
 }

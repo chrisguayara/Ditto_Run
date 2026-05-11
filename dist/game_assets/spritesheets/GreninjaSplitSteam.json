@@ -205,19 +205,19 @@
       "frames": [
         {
           "index": 28,
-          "duration": 25
+          "duration": 15
         },
         {
           "index": 29,
-          "duration": 25
+          "duration": 15
         },
         {
           "index": 30,
-          "duration": 25
+          "duration": 15
         },
         {
           "index": 31,
-          "duration": 25
+          "duration": 15
         }
       ]
     },
@@ -355,15 +355,20 @@
       "frames": [
         {
           "index": 54,
-          "duration": 25
+          "duration": 30
         },
           {
           "index": 55,
-          "duration": 25
+          "duration": 30
         },
         {
           "index": 56,
-          "duration": 25
+          "duration": 30
+        }
+        ,
+          {
+          "index": 55,
+          "duration": 10
         }
       ]
     },
