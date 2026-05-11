@@ -1,6 +1,6 @@
 import AABB from "../../Wolfie2D/DataTypes/Shapes/AABB";
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
-import MBLevel from "./MBLevel";
+import MBLevel, { MBLayers } from "./MBLevel";
 import RenderingManager from "../../Wolfie2D/Rendering/RenderingManager";
 import SceneManager from "../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
@@ -13,8 +13,8 @@ import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
 
 export const CHECKPOINTS = {
-    SPAWN:          new Vec2(141 * 16, 40 * 16),
-    // SPAWN:          new Vec2(7 * 16, 7 * 16),
+    // SPAWN:          new Vec2(141 * 16, 40 * 16),
+    SPAWN:          new Vec2(7 * 16, 7 * 16),
     CHECKPOINT_ONE: new Vec2(73  * 16, 10 * 16),
     CHECKPOINT_TWO: new Vec2(64  * 16, 42 * 16),
 } as const;
@@ -106,6 +106,8 @@ export default class MountainLevel extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey,   MountainLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,        MountainLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(MountainLevel.TRANSFORM_AUDIO_KEY, MountainLevel.TRANSFORM_AUDIO_PATH);
+        this.load.spritesheet("mountainmap_background", "game_assets/tilemaps/backgrounds/mountainmap_background.json");
+
     }
 
     public unloadScene(): void {
@@ -118,6 +120,7 @@ export default class MountainLevel extends MBLevel {
     }
 
     public startScene(): void {
+        this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.1, 0.1), -1);
         super.startScene();
 
         this.nextLevel = MountainLevel;   
@@ -134,6 +137,10 @@ export default class MountainLevel extends MBLevel {
         this.initializePKMN();
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
+        const bg = this.add.animatedSprite("mountainmap_background", MBLayers.BACKGROUND);
+        bg.position.set(450, 140); 
+        
+        bg.animation.play("IDLE", true);
     }
 
     protected initializePKMN(): void {
