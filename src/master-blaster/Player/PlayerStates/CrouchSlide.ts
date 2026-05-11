@@ -7,10 +7,10 @@ import AABB from "../../../Wolfie2D/DataTypes/Shapes/AABB";
 
 // ── Tuning ────────────────────────────────────────────────────────────────────
 /** px/s, above this on entry the player slides instead of crouching */
-const SLIDE_THRESHOLD    =30;
+const SLIDE_THRESHOLD    =60;
 const SLIDE_BOOST         = 1.3; 
 /** Friction multiplier per frame during slide */
-const SLIDE_FRICTION     = 0.995;
+const SLIDE_FRICTION     = 0.9997;
 /** px/s, slide ends when horizontal speed drops below this */
 const SLIDE_END_SPEED    = 20;
 /** Safety cap on slide duration (seconds) */
@@ -54,22 +54,21 @@ export default class CrouchSlide extends PlayerState {
     // ── Lifecycle ─────────────────────────────────────────────────
 
     public onEnter(options: Record<string, any>): void {
-        this.shrinkHitbox();
+    this.shrinkHitbox();
 
-        const speed = Math.abs(this.parent.velocity.x);
-        this.isSliding  = speed > SLIDE_THRESHOLD;
-        this.slideTimer = 0;
-        this.slideDir   = Math.sign(this.parent.velocity.x) || 1;
+    const speed = Math.abs(this.parent.velocity.x);
+    this.isSliding  = speed > SLIDE_THRESHOLD;
+    this.slideTimer = 0;
+    this.slideDir   = Math.sign(this.parent.velocity.x) || 1;
 
-           if (this.isSliding) {
-                // Boost entry speed so sliding feels like committing to a move
-                this.parent.velocity.x *= SLIDE_BOOST;
-            } else {
-                this.parent.velocity.x *= 0.25;
-            }
-
-        this.playAnim();
+    if (this.isSliding) {
+        this.parent.velocity.x *= SLIDE_BOOST;
     }
+    // Remove the else branch entirely — don't kill momentum on crouch entry
+    // If they're barely moving, the crouch branch's decel loop handles it naturally
+
+    this.playAnim();
+}
 
     public update(deltaT: number): void {
         super.update(deltaT);
