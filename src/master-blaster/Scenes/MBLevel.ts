@@ -749,7 +749,7 @@ export default abstract class MBLevel extends Scene {
             }
             case MBEvents.PLAYER_DEAD: {
                 const ctrl = this.player._ai as PlayerController;
-                this.damageFlashTimer = 0;      // ← replaces damageCooldown = 0
+                this.damageFlashTimer = 0;      
                 this.player.alpha = 1;
                 this.player.position.copy(this.respawnPosition);
                 this.player.scaleX = 1;
@@ -1384,6 +1384,7 @@ export default abstract class MBLevel extends Scene {
             ctrl.velocity.x = knockDir.x * 120;
             ctrl.velocity.y = -80;
         }
+        this.player.animation.play(ctrl.getAnimationKey("DAMAGE"), false);
     }
 
     protected initializeViewport(): void {

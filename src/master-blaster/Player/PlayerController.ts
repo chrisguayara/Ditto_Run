@@ -279,10 +279,17 @@ export default class PlayerController extends StateMachineAI {
 
     public get health(): number { return this._health; }
     public set health(health: number) {
-        this._health = MathUtils.clamp(health, 0, this.maxHealth);
-        this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
-        if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
+    const prev = this._health;
+    this._health = MathUtils.clamp(health, 0, this.maxHealth);
+    this.emitter.fireEvent(MBEvents.HEALTH_CHANGE, {curhp: this.health, maxhp: this.maxHealth});
+
+    if (this._health < prev && this._health > 0) {
+        // Took damage but not dead
+        this.owner.animation.play(this.getAnimationKey("DAMAGE"), false);
     }
+
+    if (this.health === 0) { this.changeState(PlayerStates.DEAD); }
+}
     public get cooldownProgress(): number {
         const form = this._transformations.activeForm?.key ?? null;
         if (form === "GRENINJA") {
