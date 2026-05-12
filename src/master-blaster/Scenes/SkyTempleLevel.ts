@@ -105,7 +105,7 @@ export default class SkyTempleLevel extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey,   SkyTempleLevel.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,        SkyTempleLevel.LEVEL_END_AUDIO_PATH);
         this.load.audio(SkyTempleLevel.TRANSFORM_AUDIO_KEY, SkyTempleLevel.TRANSFORM_AUDIO_PATH);
-        this.load.spritesheet("mountainmap_background", "game_assets/tilemaps/backgrounds/mountainmap_background.json");
+        this.load.spritesheet("finallevel_background", "game_assets/tilemaps/backgrounds/finallevel_background.json");
         this.loadEndScreenAssets();
 
 
@@ -139,8 +139,8 @@ export default class SkyTempleLevel extends MBLevel {
         this.initializePKMN();
         this.initializeEntities();
         this.respawnPosition = this.playerSpawn.clone();
-        const bg = this.add.animatedSprite("mountainmap_background", MBLayers.BACKGROUND);
-        bg.position.set(600, 140); 
+        const bg = this.add.animatedSprite("finallevel_background", MBLayers.BACKGROUND);
+        bg.position.set(200, 200); 
         
         bg.animation.play("IDLE", true);
     }
