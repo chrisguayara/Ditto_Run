@@ -15,7 +15,7 @@ export default class TransformationManager {
     private _unlockedForms: Transformation[];
     /** Index into _unlockedForms for the currently selected (but not necessarily active) form */
     private _selectedIndex: number;
-    /** The form currently active, it shouldn't be null anymore because ditto isn't a valid form*/
+    /** The form currently active, it shouldn't be null anymore because ditto isn't a valid*/
     private _activeForm: Transformation | null;
 
     private emitter: Emitter;
@@ -63,8 +63,7 @@ export default class TransformationManager {
         this.emitter.fireEvent(MBEvents.TRANSFORM_END, {});
     }
 
-    /** Toggle if a form is active deactivate it, otherwise activate selected */
-    
+
 
     /** Cycle to the next unlocked form */
     public cycleNext(): void {
