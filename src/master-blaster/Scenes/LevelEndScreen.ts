@@ -18,7 +18,7 @@ const SCORE_PER_TICK  = 8;
 const START_DELAY     = 0.6;
 /** Seconds before the screen auto-advances to the next level */
 const AUTO_ADVANCE    = 30;
-/** SFX key — use your existing select/switch sound */
+/** SFX key*/
 const TICK_SFX        = "SELECT_AUDIO_KEY";
 
 export default class LevelEndScreen {
@@ -33,7 +33,7 @@ export default class LevelEndScreen {
     private timeLabel!:    Label;
     private candyLabel!:   Label;
     private healthLabel!:  Label;
-    private scoreTitleLabel!: Label;   // "SCORE" header — medium
+    private scoreTitleLabel!: Label;   // "SCORE" header
     private scoreLabel!:   Label;      // the big number
     private promptLabel!:  Label;
 
@@ -43,7 +43,7 @@ export default class LevelEndScreen {
     private timer:          number  = 0;
     private tickTimer:      number  = 0;
 
-    // Countdown to auto-advance (starts as soon as counting finishes)
+    // Countdown to auto-advance 
     private autoTimer:      number  = AUTO_ADVANCE;
 
     private targetScore:    number  = 0;
@@ -55,7 +55,7 @@ export default class LevelEndScreen {
     private healthRemaining: number = 0;
     private maxHealth:      number  = 3;
 
-    // Callback fired when player confirms (after the brief delay)
+    // Callback fired when player confirms 
     private onConfirm: () => void;
 
     public constructor(scene: Scene, layer: string, bgSprite: AnimatedSprite, onConfirm: () => void) {
@@ -72,16 +72,16 @@ export default class LevelEndScreen {
     // ─────────────────────────────────────────────────────────────
     //  Layout
     //
-    //   "LEVEL CLEAR!"      ← big title              (size 16)
+    //   "LEVEL CLEAR!"       big title              (size 16)
     //   ─────────────────
-    //   Time  00:00.00      ← small stat row         (size  8)
-    //   Candy 0/0           ← small stat row         (size  8)
-    //   Hearts 0/0          ← small stat row         (size  8)
+    //   Time  00:00.00       small stat row         (size  8)
+    //   Candy 0/0            small stat row         (size  8)
+    //   Hearts 0/0           small stat row         (size  8)
     //   ─────────────────
-    //   SCORE               ← medium section header  (size 10)
-    //   00000               ← HUGE number            (size 22)
+    //   SCORE                medium section header  (size 10)
+    //   00000                HUGE number            (size 22)
     //   ─────────────────
-    //   ENTER to continue   ← tiny prompt            (size  7)
+    //   ENTER to continue    tiny prompt            (size  7)
     // ─────────────────────────────────────────────────────────────
     private buildLabels(): void {
         const cx = 160; // center of 320px viewport
@@ -104,23 +104,23 @@ export default class LevelEndScreen {
         const CYAN   = new Color(100, 220, 255);
         const GRAY   = new Color(180, 180, 180);
 
-        // Title — largest text on screen
+        // Title 
         this.titleLabel  = make("LEVEL CLEAR!",       cx,      cy - 68, 32, YELLOW);
 
-        // Stat rows — small, de-emphasised
+        // Stat rows
         this.timeLabel   = make("TIME    0:00.00",     cx,      cy - 38,  32, GRAY);
         this.candyLabel  = make("CANDY   0 / 0",       cx,      cy - 27,  32, GRAY);
         this.healthLabel = make("HEARTS  0 / 0",       cx,      cy - 16,  32, GRAY);
 
-        // Score section — the hero element
+        // Score section 
         this.scoreTitleLabel = make("SCORE",           cx,      cy +  20, 10, WHITE);
         this.scoreLabel      = make("0",               cx,      cy + 50, 22, WHITE);
 
-        // Prompt — tiny, below everything
+        // Prompt
         this.promptLabel = make("ENTER to continue",   cx,      cy + 60,  20, CYAN);
     }
 
-    // ── Public API ────────────────────────────────────────────────
+    // public api
 
     /** Call this when the level-end zone is triggered */
     public show(
@@ -170,7 +170,7 @@ export default class LevelEndScreen {
         this.timer += deltaT;
         if (this.timer < START_DELAY) return;
 
-        // ── Score counter ─────────────────────────────────────────
+        // score counter
         if (!this.done) {
             this.tickTimer += deltaT;
             if (this.tickTimer >= TICK_INTERVAL) {
@@ -207,7 +207,7 @@ export default class LevelEndScreen {
             return; // don't start the auto-timer until counting is done
         }
 
-        // ── Auto-advance countdown (only runs after counting finishes) ──
+        // Auto-advance countdown
         this.autoTimer -= deltaT;
         const secsLeft = Math.ceil(Math.max(0, this.autoTimer));
         this.promptLabel.text = `ENTER to continue  (${secsLeft})`;
@@ -221,8 +221,8 @@ export default class LevelEndScreen {
 
     public get isVisible(): boolean { return this.visible; }
 
-    // ── Helpers ───────────────────────────────────────────────────
-
+    // Helpers
+    
     private updateScoreLabel(): void {
         const score = this.displayScore;
 
