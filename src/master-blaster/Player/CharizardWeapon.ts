@@ -2,14 +2,14 @@ import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
 import OrthogonalTilemap from "../../Wolfie2D/Nodes/Tilemaps/OrthogonalTilemap";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
 
-// ─── Result types ─────────────────────────────────────────────────────────────
+// ─── Result types
 
 export const enum CharizardAttackResult {
-    /** Aimed at ground within range → rocket upward */
+    /** Aimed at ground within range to rocket upward */
     ROCKET_JUMP = "ROCKET_JUMP",
-    /** Aimed at a nearby wall → launch in the reflected direction */
+    /** Aim at a nearby wall to launch in the reflected direction */
     WALL_LAUNCH = "WALL_LAUNCH",
-    /** Fire blast struck a pokemon */
+    /** Fire blast struck an entity that cares about that */
     HIT_ENTITY  = "HIT_ENTITY",
     /** Nothing in range */
     MISS        = "MISS",
@@ -23,17 +23,17 @@ export interface CharizardAttackData {
     entityId?: number;
 }
 
-// ─── Fire-breakable tile IDs ──────────────────────────────────────────────────
+// ─── Fire-breakable tile IDs
 //
 // Add tile IDs from the destructible layer that Charizard's blast can remove.
 // These are SEPARATE from the tiles the normal PlayerWeapon particle breaks.
 // Example:  new Set([14, 15, 16])
 //
 export const CHARIZARD_BREAKABLE_TILE_IDS: ReadonlySet<number> = new Set([
-    // TODO: populate with fire-breakable tile IDs
+    //this might not be needed anymore since that logic is handled elsewhere.
 ]);
 
-// ─── Tuning ───────────────────────────────────────────────────────────────────
+// ─── Tuning
 
 /** Step size (px) for the ray march. Smaller = more precise, more expensive. */
 const RAY_STEP = 4;
@@ -48,7 +48,7 @@ const GROUND_RAY_LENGTH = 24;
 const WALL_RAY_LENGTH   = 26;
 
 /**
- * The click direction's Y component must be ≥ this for it to count as
+ * The click direction's Y component must be >= this for it to count as
  * "aimed at the ground" (positive Y = downward in screen-space).
  * 0.35 ≈ within ~70° of straight down.
  */
@@ -86,7 +86,7 @@ export default class CharizardWeapon {
         playerPos:      Vec2,
         walls:          OrthogonalTilemap,
         destructable:   OrthogonalTilemap | undefined,
-        explosionOrigin?: Vec2,   // ← new: where the explosion actually happened
+        explosionOrigin?: Vec2,  
     ): { impulse: Vec2; distance: number; hit: boolean } {
 
         const PROBE_DIRS = [
@@ -125,7 +125,7 @@ export default class CharizardWeapon {
             return { impulse: new Vec2(0, -MIN_FORCE), distance: MAX_PROBE, hit: false };
         }
 
-        // ── Impact-to-player direction ────────────────────────────────────────────
+        // ── Impact-to-player direction 
         // If an explosion origin was supplied, compute the vector FROM it TO player.
         // Otherwise fall back to the surface normal (old behaviour).
         let impactDirX: number;
@@ -142,7 +142,7 @@ export default class CharizardWeapon {
             impactDirY = closestNormal.y;
         }
 
-        // ── Blend surface normal + impact direction ───────────────────────────────
+        // ── Blend surface normal + impact direction
         // lerp(surfaceNormal, impactToPlayerDir, ANGLE_WEIGHT)
         const blendX = closestNormal.x * (1 - ANGLE_WEIGHT) + impactDirX * ANGLE_WEIGHT;
         const blendY = closestNormal.y * (1 - ANGLE_WEIGHT) + impactDirY * ANGLE_WEIGHT;
@@ -150,7 +150,7 @@ export default class CharizardWeapon {
         let nx = blendLen > 0 ? blendX / blendLen : 0;
         let ny = blendLen > 0 ? blendY / blendLen : -1;
 
-        // ── Enforce minimum upward angle ──────────────────────────────────────────
+        // ── Enforce minimum upward angle
         // Prevent purely horizontal or downward launches.
         // const minSinUp = Math.sin((MIN_LAUNCH_ANGLE_DEG * Math.PI) / 180); // positive = up in world-space
         // if (ny > -minSinUp) {
@@ -159,7 +159,7 @@ export default class CharizardWeapon {
         //     nx = Math.sqrt(Math.max(0, 1 - ny * ny)) * Math.sign(nx || impactDirX || 1);
         // }
 
-        // ── Scale by proximity ────────────────────────────────────────────────────
+        // ── Scale by proximity ────────
         const t     = 1 - Math.min(closestDist / MAX_PROBE, 1);
         const force = MIN_FORCE + (MAX_FORCE - MIN_FORCE) * t;
 
@@ -194,7 +194,7 @@ export default class CharizardWeapon {
         const dirX = dist > 0.001 ? dx / dist : 0;
         const dirY = dist > 0.001 ? dy / dist : 1;   // default: straight down
 
-        // ── 1. Entity hit (highest priority — feels responsive) ────────────
+        // 1. Entity hit (highest priority — feels responsive)
         const hit = CharizardWeapon.raycastEntity(
             playerPos, dirX, dirY, pokemonOwners
         );
@@ -207,7 +207,7 @@ export default class CharizardWeapon {
             };
         }
 
-        // ── 2. Ground attack → rocket jump ────────────────────────────────
+        //  2. Ground attack rocket jump
         if (dirY >= GROUND_ANGLE_THRESHOLD) {
             const groundHit = CharizardWeapon.raycastDown(playerPos, walls, destructable);
             if (groundHit) {
@@ -219,7 +219,7 @@ export default class CharizardWeapon {
             }
         }
 
-        // ── 3. Wall attack → wall launch ──────────────────────────────────
+        //  3. Wall attack wall launch 
         const wallNormal = CharizardWeapon.raycastWall(playerPos, dirX, dirY, walls);
         if (wallNormal) {
             CharizardWeapon.destroyFireTiles(playerPos, dirX, dirY, destructable);
@@ -241,11 +241,11 @@ export default class CharizardWeapon {
             };
         }
 
-        // ── 4. Nothing ─────────────────────────────────────────────────────
+        // 4. Nothing
         return { result: CharizardAttackResult.MISS, impulse: new Vec2(0, 0) };
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // Private helpers
 
     /**
      * Walk straight down from the player's feet and check for any solid tile
@@ -285,7 +285,7 @@ export default class CharizardWeapon {
             const px = origin.x + dirX * d;
             const py = origin.y + dirY * d;
 
-            // Only check walls (not destructable) — we want to bounce off solid geometry.
+            // Only check walls (not destructable)  we want to bounce off solid geometry.
             if (CharizardWeapon.isSolid(new Vec2(px, py), walls)) {
                 const stepX = px - prevX;
                 const stepY = py - prevY;

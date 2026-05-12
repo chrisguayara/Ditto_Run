@@ -272,7 +272,7 @@ export default class PlayerController extends StateMachineAI {
     }
     public get effectiveJumpForce(): number {
         const force = this._transformations.jumpForce ?? this.BASE_JUMP_FORCE;
-        console.log("effectiveJumpForce:", force, "BASE_JUMP_FORCE:", this.BASE_JUMP_FORCE);
+        // console.log("effectiveJumpForce:", force, "BASE_JUMP_FORCE:", this.BASE_JUMP_FORCE);
         return force;
     }
     public get isTransforming(): boolean { return this._transforming; }
