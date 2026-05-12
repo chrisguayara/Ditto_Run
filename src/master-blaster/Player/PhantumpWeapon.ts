@@ -18,7 +18,7 @@ export default class PhantumpWeapon extends ParticleSystem {
     public getPool(): Array<Particle> { return this.particlePool; }
 
     public setParticleAnimation(particle: Particle): void {
-        // Tight spread, very fast — sniper feel
+        // Tight spread, very fast, sniper feel
         particle.vel = RandUtils.randVec(-15, 15, 400, 600);
         particle.vel.rotateCCW(this._rotation);
         particle.color = new Color(160, 32, 240); // purple
@@ -37,7 +37,6 @@ export default class PhantumpWeapon extends ParticleSystem {
 
     public update(deltaT: number): void {
         super.update(deltaT);
-        // No gravity — straight shots only
     }
 
     public initializePool(scene: Scene, layer: string): void {

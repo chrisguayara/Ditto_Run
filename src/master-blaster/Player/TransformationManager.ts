@@ -5,17 +5,17 @@ import { Transformation, Transformations } from "./Transformation";
 
 export default class TransformationManager {
 
-    // ── Energy ────────────────────────────────────────────────────
+    // ── Energy 
     private _energy: number;
     private _maxEnergy: number;
     private readonly RECHARGE_RATE = 0.05; // energy per second while inactive
 
-    // ── Forms ─────────────────────────────────────────────────────
+    // ── Forms
     /** All forms the player has discovered and can use */
     private _unlockedForms: Transformation[];
     /** Index into _unlockedForms for the currently selected (but not necessarily active) form */
     private _selectedIndex: number;
-    /** The form currently active, null if Ditto is in base form */
+    /** The form currently active, it shouldn't be null anymore because ditto isn't a valid form*/
     private _activeForm: Transformation | null;
 
     private emitter: Emitter;
@@ -29,7 +29,7 @@ export default class TransformationManager {
         this.emitter = new Emitter();
     }
 
-    // ── Public API ────────────────────────────────────────────────
+    // api
 
     /** Call this every frame from PlayerController.update() */
     public update(deltaT: number): void {
@@ -93,7 +93,7 @@ export default class TransformationManager {
         this._unlockedForms.push(form);
     }
 
-    // ── Stat accessors used by PlayerController ───────────────────
+    // ── Stat accessors used by PlayerController
 
     /** Speed multiplier from active form, 1.0 if no form */
     public get speedMultiplier(): number {
@@ -121,7 +121,7 @@ export default class TransformationManager {
     }
     public get unlockedForms(): Transformation[] { return [...this._unlockedForms]; }
 
-    // ── Energy with clamping + event ──────────────────────────────
+    // ── Energy with clamping + event
     public get energy(): number { return this._energy; }
     public set energy(value: number) {
         this._energy = MathUtils.clamp(value, 0, this._maxEnergy);
@@ -145,7 +145,7 @@ export default class TransformationManager {
     
     public toggle(): void {
         if (this._unlockedForms.length === 0) return;
-        // Cycle to next — never drop to base
+        // Cycle to next. we don't have a base form anymore
         this._selectedIndex = (this._selectedIndex + 1) % this._unlockedForms.length;
         this._activeForm = this._unlockedForms[this._selectedIndex];
         this.emitter.fireEvent(MBEvents.TRANSFORM_START, { form: this._activeForm.key });
