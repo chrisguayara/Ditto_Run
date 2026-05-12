@@ -51,7 +51,7 @@ const ALL_LEVELS: Array<{ label: string; unlockKey: string; scene: new (...args:
 export default class LevelSelectMenu extends Scene {
 
     public loadScene(): void {
-        // All assets kept alive from TitleCard → MainMenu chain
+        // All assets kept alive from TitleCard for MainMenu chain
     }
 
     public startScene(): void {
