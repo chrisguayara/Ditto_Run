@@ -233,12 +233,12 @@ export default class ForestLevel extends MBLevel {
     }
     protected initializeEntities(): void {
             
-            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(76*16, 23*16));
-            this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(44*16, 9*16));
+            // this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(76*16, 23*16));
+            // this.spawnEntity(RareCandy, RareCandy.SPRITE_KEY, new Vec2(44*16, 9*16));
         
-            // Snorlax as a trampoline platform — collidable=true so player lands on it
-            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44.5*16, 13.5*16), true);
-            this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(35*16, 43.5*16), true);
+            // // Snorlax as a trampoline platform — collidable=true so player lands on it
+            // this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(44.5*16, 13.5*16), true);
+            // this.spawnEntity(Snorlax, Snorlax.SPRITE_KEY, new Vec2(35*16, 43.5*16), true);
     }
     
     
