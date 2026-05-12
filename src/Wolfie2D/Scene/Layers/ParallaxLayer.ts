@@ -11,7 +11,7 @@ export default class ParallaxLayer extends Layer {
 	
 	/**
 	 * Creates a new ParallaxLayer.
-	 * Use addParallaxLayer() in @reference[Scene] to add a layer of this type to your game.
+	 * Use addParallaxLayer() in @reference[Scene] to add a layer of this type to the game.
 	 * @param scene The Scene to add this ParallaxLayer to
 	 * @param name The name of the ParallaxLayer
 	 * @param parallax The parallax level
