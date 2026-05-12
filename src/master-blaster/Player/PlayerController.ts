@@ -23,10 +23,6 @@ import FireSlam from "./PlayerStates/FlameSlam";
 import CrouchSlide from "./PlayerStates/CrouchSlide";
 
 export const PlayerAnimations = {
-    IDLE: "IDLE",
-    WALK: "WALK",
-    JUMP: "JUMP",
-    FALL: "FALL",
     TRANSFORMATION: "transform",
 
     // Greninja
@@ -85,7 +81,6 @@ export default class PlayerController extends StateMachineAI {
     public readonly BASE_JUMP_FORCE: number = -200;
     public readonly BASE_GRAVITY: number = 500;
     public doubleJumpAvailable: boolean = false;
-    private _sludgeTimer: number = 0;
     private _transforming: boolean = false;
     private _transformTimer: number = 0;
     public readonly SLUDGE_COOLDOWN: number = 1;
@@ -204,11 +199,7 @@ export default class PlayerController extends StateMachineAI {
         }
         // Phantump weapon rotation (mouse-aimed, unchanged)
         this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-        const isCharizard = this._transformations.activeForm?.key === "CHARIZARD";
-        // if (!isCharizard && Input.isPressed(MBControls.ATTACK) && !this.weapon.isSystemRunning()) {
-        //     this.weapon.rotation = 2*Math.PI - Vec2.UP.angleToCCW(this.faceDir) + Math.PI;
-        //     this.weapon.startSystem(500, 1, this.owner.position);
-        // }
+
 
         if (this._speedBoostTimer > 0) {
             this._speedBoostTimer -= deltaT;
@@ -314,7 +305,6 @@ export default class PlayerController extends StateMachineAI {
             switch (base) {
                 case "IDLE": return PlayerAnimations.CHARIZARD_IDLE;
                 case "WALK": return PlayerAnimations.CHARIZARD_WALK;
-                case "WALK":    return PlayerAnimations.CHARIZARD_WALK;      // blaziken_walk
                 case "WALKING": return PlayerAnimations.CHARIZARD_WALKING;   // blaziken_walking
                 case "JUMP": return PlayerAnimations.CHARIZARD_JUMP;
                 case "FALL": return PlayerAnimations.CHARIZARD_JUMP;
