@@ -7,13 +7,13 @@ import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
 import MBLevel2 from "./MBLevel2";
 
 /**
- * The first level for MB - should be the one with the grass and the clouds.
+ * First level, pivoted away from now, file is mostly only here for reference at this point, is not a real level anymore.
  */
 export default class Level1 extends MBLevel {
 
     public static readonly PLAYER_SPAWN = new Vec2(32, 32);
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
-    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Hero.json";
+
 
     public static readonly TILEMAP_KEY = "LEVEL1";
     public static readonly TILEMAP_PATH = "game_assets/tilemaps/MBLevel1.json";
@@ -71,7 +71,7 @@ export default class Level1 extends MBLevel {
     }
 
     /**
-     * Unload resources for level 1 - decide what to keep
+     * Unload resources for level 1
      */
     public unloadScene(): void {
         this.load.keepSpritesheet(this.playerSpriteKey);
@@ -92,6 +92,7 @@ export default class Level1 extends MBLevel {
      * 
      * - Peter
      */
+    //thanks big p
     protected initializeViewport(): void {
         super.initializeViewport();
         this.viewport.setBounds(16, 16, 496, 512);
