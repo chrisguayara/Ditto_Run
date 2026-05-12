@@ -10,12 +10,12 @@ import Level1 from "./MBLevel1";
 
 /**
  * The second level for Master Blaster. It should be the goose dungeon / cave.
+ * Again, this level file is no longer in use, we just have it here for reference purposes.
  */
 export default class Level2 extends MBLevel {
 
     public static readonly PLAYER_SPAWN = new Vec2(32, 32);
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
-    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Hero.json";
 
     public static readonly TILEMAP_KEY = "LEVEL2";
     public static readonly TILEMAP_PATH = "game_assets/tilemaps/MBLevel2.json";
