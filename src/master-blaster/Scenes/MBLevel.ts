@@ -83,7 +83,7 @@ export default abstract class MBLevel extends Scene {
     protected controlsLabelOffsets: Vec2[] = [];
     private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle",  "Help_Idle", "Controls_Idle","Quit_idle"];
     private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected",  "Help_Selected", "Controls_Selected","Quit_Selected"];
-
+    private selectedCheatOption: number = 0;
     // ── Weapon systems ────────────────────────────────────────────
     protected playerWeaponSystem!: PlayerWeapon;
     protected phantumpWeaponSystem!: PhantumpWeapon;
@@ -463,14 +463,30 @@ export default abstract class MBLevel extends Scene {
         }
 
         if (this.showingCheatsScreen) {
-            if (Input.isJustPressed(MBControls.ATTACK)
-            || Input.isJustPressed(MBControls.CONFIRM)
-            || Input.isJustPressed(MBControls.PAUSE)) {
-                this.showingCheatsScreen = false;
-                this.cheatsLabels.forEach(l => l.visible = false);
-                this.pauseButtonSprites.forEach(b => b.visible = true);
-                this.pauseNavHintLabel.visible = true;
-                this.updatePauseButtonAnimations();
+        // Navigate between options
+        if (Input.isJustPressed(MBControls.JUMP) || Input.isJustPressed(MBControls.ATTACK_UP)) {
+            this.selectedCheatOption = (this.selectedCheatOption - 1 + 2) % 2;
+            this.buildCheatsOverlay();
+        }
+        if (Input.isJustPressed(MBControls.DOWN) || Input.isJustPressed(MBControls.ATTACK_DOWN)) {
+            this.selectedCheatOption = (this.selectedCheatOption + 1) % 2;
+            this.buildCheatsOverlay();
+        }
+        // ATTACK (X) toggles the highlighted cheat
+        if (Input.isJustPressed(MBControls.ATTACK)) {
+            const state = GameState.getInstance();
+            if (this.selectedCheatOption === 0) state.cheatsInfiniteHealth = !state.cheatsInfiniteHealth;
+            else                                 state.cheatsUnlockAll      = !state.cheatsUnlockAll;
+            this.buildCheatsOverlay();
+            this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
+        }
+        // CONFIRM or PAUSE goes back
+        if (Input.isJustPressed(MBControls.CONFIRM) || Input.isJustPressed(MBControls.PAUSE)) {
+            this.showingCheatsScreen = false;
+            this.cheatsLabels.forEach(l => l.visible = false);
+            this.pauseButtonSprites.forEach(b => b.visible = true);
+            this.pauseNavHintLabel.visible = true;
+            this.updatePauseButtonAnimations();
             }
             return;
         }
@@ -1055,45 +1071,50 @@ export default abstract class MBLevel extends Scene {
         this.energyBar.backgroundColor = progress < 1 ? Color.RED : Color.BLUE;
     }
     private buildCheatsOverlay(): void {
-        // Clear any previous cheat labels
-        this.cheatsLabels.forEach(l => l.visible = false);
+        this.cheatsLabels.forEach(l => { l.visible = false; (l as any)._markedForDeletion = true; });
         this.cheatsLabels = [];
 
-        const state = GameState.getInstance();
+        const state  = GameState.getInstance();
         const center = this.getViewportCenter();
 
-        const addLbl = (text: string, xOff: number, yOff: number, color: Color) => {
+        const COL_TITLE    = new Color(255, 230, 100);
+        const COL_ON       = new Color(100, 255, 140);
+        const COL_OFF      = new Color(230, 228, 255);
+        const COL_SELECTED = new Color(255, 255, 100);
+        const COL_HINT     = new Color(74,145,229);
+
+        const addLbl = (text: string, xOff: number, yOff: number, color: Color, size = 16) => {
             const l = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
                 position: new Vec2(center.x + xOff, center.y + yOff),
                 text
             });
-            l.textColor = color;
-            l.fontSize  = 16;
-            l.font      = "monospace";
-            l.backgroundColor = new Color(0, 0, 0, 0);
+            l.textColor        = color;
+            l.fontSize         = size;
+            l.font             = "monospace";
+            l.backgroundColor  = new Color(0, 0, 0, 0);
             this.cheatsLabels.push(l);
-            return l;
         };
 
-        addLbl("CHEATS", 0, -40, new Color(255, 230, 100));
-        addLbl(
-            `Infinite Health:  ${state.cheatsInfiniteHealth ? "ON" : "OFF"}`,
-            0, -20,
-            state.cheatsInfiniteHealth ? new Color(100, 255, 140) : new Color(230, 228, 255)
-        );
-        addLbl(
-            `Unlock All:  ${state.cheatsUnlockAll ? "ON" : "OFF"}`,
-            0, -6,
-            state.cheatsUnlockAll ? new Color(100, 255, 140) : new Color(230, 228, 255)
-        );
-        addLbl("(toggle with ATTACK / X)", 0, 10, new Color(120, 118, 150));
-        addLbl("ESC / Enter  to go back",  0, 22, new Color(120, 118, 150));
+        addLbl("CHEATS", 0, -50, COL_TITLE, 20);
 
-        // Reuse ATTACK to toggle the highlighted cheat (simple: toggle both isn't ideal,
-        // so we'll just let ATTACK_UP/DOWN pick which one and ATTACK toggle it)
-        // For now just show values, toggling in a label-only overlay is complex without
-        // buttons, so we expose the same cheats as read-only here and note that the
-        // full toggle is in the main menu cheats screen. You can expand this if needed.
+        // Option 0: Infinite Health
+        const h0Selected = this.selectedCheatOption === 0;
+        addLbl(
+            `${h0Selected ? "► " : "  "}INF HEALTH:  ${state.cheatsInfiniteHealth ? "ON" : "OFF"}`,
+            0, -24,
+            h0Selected ? COL_SELECTED : (state.cheatsInfiniteHealth ? COL_ON : COL_OFF)
+        );
+
+        // Option 1: Unlock All
+        const h1Selected = this.selectedCheatOption === 1;
+        addLbl(
+            `${h1Selected ? "► " : "  "}UNLOCK ALL:  ${state.cheatsUnlockAll ? "ON" : "OFF"}`,
+            0, -8,
+            h1Selected ? COL_SELECTED : (state.cheatsUnlockAll ? COL_ON : COL_OFF)
+        );
+
+        addLbl("W / S  to select    X to toggle", 0, 14, COL_HINT, 14);
+        addLbl("Enter / Esc  to go back",          0, 26, COL_HINT, 14);
     }
 
     /* Initialization methods for everything in the scene */
