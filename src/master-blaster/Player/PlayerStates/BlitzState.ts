@@ -4,7 +4,6 @@ import { PlayerAnimations, PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import CharizardWeapon from "../CharizardWeapon";
 import MBLevel from "../../Scenes/MBLevel";
-import { MBControls } from "../../MBControls";
 import Enemy from "../../Entity/Enemy";
 
 

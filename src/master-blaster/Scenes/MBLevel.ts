@@ -213,7 +213,7 @@ export default abstract class MBLevel extends Scene {
         // Trigger 1: player body contact (existing — for bumping into them)
         sprite.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_HIT_ENTITY, "");
 
-        // Trigger 2: weapon particles → fires POKEMON_HIT with this sprite's id
+        // Trigger 2: weapon particles, fires POKEMON_HIT with this sprite's id
         sprite.setTrigger(MBPhysicsGroups.PLAYER_WEAPON, MBEvents.POKEMON_HIT, "");
 
         // Attach the AI controller

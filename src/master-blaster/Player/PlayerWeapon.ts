@@ -6,7 +6,7 @@ import Color from "../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../Wolfie2D/Utils/EaseFunctions";
 import RandUtils from "../../Wolfie2D/Utils/RandUtils";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
-//I don't think split steam uses the particle system anywhere anymore, it shouldn't be a valid attack anymore.
+//Split steam does not use the particle system anywhere anymore, if everything works like we want it to, it shouldn't be a valid attack anymore.
 //All this code is the stuff we added before, when the game was going in a different direction, our game doesn't use it anymore - Kush
 export default class PlayerWeapon extends ParticleSystem {
     protected _rotation: number = 0;

@@ -13,7 +13,6 @@ import MainMenu from "./MainMenu";
 import { MenuAssets } from "./MenuAssets";
 import WinterLevel from "./WinterLevel";
 import CastleLevel from "./CastleLevel";
-import ForestLevel from "./ForestLevel";
 import SkyTempleLevel from "./SkyTempleLevel";
 import GameState from "./GameState";
 import MountainLevel from "./MountainLevel";

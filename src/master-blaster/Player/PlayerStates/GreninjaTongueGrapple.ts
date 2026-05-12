@@ -3,11 +3,10 @@ import Input from "../../../Wolfie2D/Input/Input";
 import Color from "../../../Wolfie2D/Utils/Color";
 import Line from "../../../Wolfie2D/Nodes/Graphics/Line";
 import { GraphicType } from "../../../Wolfie2D/Nodes/Graphics/GraphicTypes";
-import { PlayerAnimations, PlayerStates } from "../PlayerController";
+import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import { MBLayer } from "../../Scenes/MBLevel";
 import { MBControls } from "../../MBControls";
-import Fall from "./Fall";
 import AABB from "../../../Wolfie2D/DataTypes/Shapes/AABB";
 
 const enum GrapplePhase { CASTING, ATTACHED, MISSED }
@@ -281,7 +280,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
             const t0 = i / N;
             const t1 = (i + 1) / N;
 
-            // sin(t * π) → 0 at both ends, 1 in the middle
+            // sin(t * π) is 0 at both ends, 1 in the middle
             const off0 = Math.sin(t0 * Math.PI) * waveAmp;
             const off1 = Math.sin(t1 * Math.PI) * waveAmp;
 

@@ -1,4 +1,3 @@
-import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
 import { PlayerStates } from "../PlayerController";
@@ -64,8 +63,8 @@ export default class CrouchSlide extends PlayerState {
     if (this.isSliding) {
         this.parent.velocity.x *= SLIDE_BOOST;
     }
-    // Remove the else branch entirely — don't kill momentum on crouch entry
-    // If they're barely moving, the crouch branch's decel loop handles it naturally
+    // Removed the else branch entirely — don't kill momentum on crouch entry
+    // If they're barely moving, the crouch branch's decel loop should just handle it
 
     this.playAnim();
 }
@@ -76,7 +75,7 @@ export default class CrouchSlide extends PlayerState {
         // Gravity keeps the player grounded on slopes
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
 
-        // ── Global exits ──────────────────────────────────────────
+        //Global exits
 
         // Fell off a ledge
         if (!this.owner.onGround && this.parent.velocity.y > FALL_VY_THRESHOLD) {
@@ -99,7 +98,7 @@ export default class CrouchSlide extends PlayerState {
             return;
         }
 
-        // ── Slide branch ──────────────────────────────────────────
+        // Slide branch 
 
         if (this.isSliding) {
             this.slideTimer += deltaT;
@@ -127,9 +126,9 @@ export default class CrouchSlide extends PlayerState {
             return;
         }
 
-        // ── Crouch branch ─────────────────────────────────────────
+        // Crouch branch
 
-        // Release crouch key → return to movement
+        // Release crouch key to return to movement
         if (!Input.isPressed(MBControls.DOWN)) {
             const dir = this.parent.inputDir;
             this.finished(dir.x !== 0 ? PlayerStates.RUN : PlayerStates.IDLE);
@@ -158,7 +157,7 @@ export default class CrouchSlide extends PlayerState {
         return {};
     }
 
-    // ── Helpers ───────────────────────────────────────────────────
+    //  Helpers
 
     private playAnim(): void {
         if (this.parent.isTransforming) return;

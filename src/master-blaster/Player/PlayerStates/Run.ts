@@ -3,7 +3,7 @@ import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
 import PlayerState from "./PlayerState";
 
-const GRENINJA_TOP_SPEED   = 220;
+// const GRENINJA_TOP_SPEED   = 220;
 const GRENINJA_ACCEL_TIME  = 1.4;
 const GRENINJA_CARRY_BLEND = 0.12;
 const DEFAULT_DECEL        = 0.18;

@@ -1,8 +1,7 @@
 import Input from "../../../Wolfie2D/Input/Input";
 import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
-import MBAnimatedSprite from "../../Nodes/MBAnimatedSprite";
-import PlayerController from "../PlayerController";
+
 import { MBControls } from "../../MBControls";
 
 /**
@@ -17,11 +16,11 @@ import { MBControls } from "../../MBControls";
  *   BLITZ — player left-clicks while gliding
  *
  * Entry guard (add to Jump.update and Fall.update — see INTEGRATION.md):
- *   Charizard + W held + velocity.y > GLIDE_ENTRY_VY → finished(GLIDE)
+ *   Charizard + W held + velocity.y > GLIDE_ENTRY_VY  finished(GLIDE)
  */
 export default class GlideState extends PlayerState {
 
-    // ── Tuning ────────────────────────────────────────────────────
+    // Tuning stuff
 
     /** Gravity applied per second while gliding (normal 500). */
     private static readonly GLIDE_GRAVITY   = 350;
@@ -37,11 +36,9 @@ export default class GlideState extends PlayerState {
      */
     public static readonly GLIDE_ENTRY_VY = -120;
 
-    // ── Lifecycle ─────────────────────────────────────────────────
+    //Lifecycle
 
     public onEnter(_options: Record<string, any>): void {
-        // Uses CHARIZARD_IDLE during glide — swap for a dedicated animation
-        // key here once the art is ready.
                 this.owner.animation.playIfNotAlready(this.parent.getAnimationKey("BASH"));
 
     }
@@ -49,13 +46,13 @@ export default class GlideState extends PlayerState {
     public update(deltaT: number): void {
         super.update(deltaT);
 
-        // ── Exit: landed ──────────────────────────────────────────
+        //  Exit: landed 
         if (this.owner.onGround) {
             this.finished(PlayerStates.IDLE);
             return;
         }
 
-        // ── Exit: W released → normal fall ───────────────────────
+        //Exit: W released --> normal fall
         if (!Input.isPressed(MBControls.JUMP)) {
             this.finished(PlayerStates.FALL);
             return;
@@ -71,7 +68,7 @@ export default class GlideState extends PlayerState {
             this.parent.velocity.y = GlideState.GLIDE_FALL_CAP;
         }
 
-        // ── Horizontal control ────────────────────────────────────
+        // Horizontal control
         const dir = this.parent.inputDir;
         if (dir.x !== 0) {
             this.owner.invertX = dir.x < 0;

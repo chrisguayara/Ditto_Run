@@ -6,7 +6,6 @@ import PlayerState from "./PlayerState";
 import { MBControls } from "../../MBControls";
 import Enemy from "../../Entity/Enemy";
 import MBLevel from "../../Scenes/MBLevel";
-import Fall from "./Fall";
 
 export default class FireSlam extends PlayerState {
 

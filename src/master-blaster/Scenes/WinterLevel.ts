@@ -12,7 +12,7 @@ import CastleLevel from "./CastleLevel";
 import GameState from "./GameState";
 import { MBLayers } from "./MBLevel";
 
-// ── Checkpoints ───────────────────────────────────────────────────────────────
+//Checkpoints
 export const CHECKPOINTS = {
     SPAWN:          new Vec2(13 * 16, 75 * 16),
     CHECKPOINT_ONE: new Vec2(73 * 16, 10 * 16),

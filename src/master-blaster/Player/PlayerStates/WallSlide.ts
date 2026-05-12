@@ -1,7 +1,7 @@
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
-import { PlayerAnimations, PlayerStates } from "../PlayerController";
+import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 
 export default class WallSlide extends PlayerState {
@@ -14,7 +14,7 @@ export default class WallSlide extends PlayerState {
     private _wallJumped: boolean = false;
 
     public onEnter(options: Record<string, any>): void {
-        console.log("ON WALL");
+        // console.log("ON WALL");
         this._wallJumped = false;
         const wall = this.parent.wallDir;
         this.wallSide = (wall !== 0 ? wall : 1) as -1 | 1;

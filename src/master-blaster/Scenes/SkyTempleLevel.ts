@@ -9,8 +9,6 @@ import SludgeWeapon from "../Player/SludgeWeapon";
 import RareCandy from "../Entity/Items/RareCandy";
 import Snorlax from "../Entity/Objects/Snorlax";
 import GameState from "./GameState";
-import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
-import { SpriteKeys } from "./SpriteKeys";
 import MainMenu from "./MainMenu";
 
 export const CHECKPOINTS = {

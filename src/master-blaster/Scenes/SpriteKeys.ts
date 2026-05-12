@@ -11,7 +11,7 @@ export const SpriteKeys = {
     SHIELD_CANDY_KEY:  "SHIELD_CANDY_KEY",
     SHIELD_CANDY_PATH: "game_assets/spritesheets/entities/shield.json",
 
-    // ── Gengar ────────────────────────────────────────────────────
+    // Gengar
     GENGAR_KEY:  "GENGAR_KEY",
     GENGAR_PATH: "game_assets/spritesheets/entities/gengar.json",
 } as const;
