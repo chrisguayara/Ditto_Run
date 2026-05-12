@@ -355,20 +355,20 @@
       "frames": [
         {
           "index": 54,
-          "duration": 30
+          "duration": 50
         },
           {
           "index": 55,
-          "duration": 30
+          "duration": 50
         },
         {
           "index": 56,
-          "duration": 30
+          "duration": 50
         }
         ,
           {
-          "index": 55,
-          "duration": 10
+          "index": 43,
+          "duration": 50
         }
       ]
     },
