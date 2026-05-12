@@ -175,15 +175,15 @@ export default abstract class MBLevel extends Scene {
     private timerRunning: boolean = false;
 
     // ── Controls screen ───────────────────────────────────────────
-    private showingControls: boolean = false;
+    // private showingControls: boolean = false;
 
     public selectKey!: string;
     protected idleTimeThreshold: number = 5; // seconds
     private idleTimer: number = 0;
     private escOverlayShowing: boolean = false;
 
-    protected shooterSpriteKey!:    string;
-    protected projectileSpriteKey!: string;
+    // protected shooterSpriteKey!:    string;
+    // protected projectileSpriteKey!: string;
     protected patrollerSpriteKey!:  string;
 
     public static readonly END_SCREEN_BG_KEY  = "END_SCREEN_BG";
@@ -570,15 +570,15 @@ export default abstract class MBLevel extends Scene {
         switch(formName){
             case DittoForms.CHARIZARD:
                 // this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.CHARIZARD, true);
-                console.log(formName);
+                // console.log(formName);
                 break;
             case DittoForms.GRENINJA:
                 this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.GRENINJA, true);
-                console.log(formName);
+                // console.log(formName);
                 break;
             default:
                 this.UI_transformationSprite.animation.playIfNotAlready(DittoForms.DITTO, true);
-                console.log(formName);
+                // console.log(formName);
                 break;
 
         }
@@ -894,23 +894,7 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
 
-            case MBEvents.PROJECTILE_HIT_PLAYER: {
-                if (this.damageFlashTimer > 0) break;
-                if (!GameState.getInstance().cheatsInfiniteHealth) {
-                    const ctrl = this.player._ai as PlayerController;
-                    ctrl.health -= event.data.get("damage");
-                }
-                this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
-                this.applyDamageKnockback(this.player._ai as PlayerController);
-
-                if (event.data.get("slowOnHit")) {
-                    this.emitter.fireEvent(MBEvents.PLAYER_SLOWED, {
-                        duration: event.data.get("slowDuration"),
-                        multiplier: event.data.get("slowMultiplier"),
-                    });
-                }
-                break;
-            }
+           
 
             case MBEvents.PLAYER_SLOWED: {
                 const ctrl = this.player._ai as PlayerController;
