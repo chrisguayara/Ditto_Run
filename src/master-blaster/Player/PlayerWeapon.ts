@@ -6,12 +6,13 @@ import Color from "../../Wolfie2D/Utils/Color";
 import { EaseFunctionType } from "../../Wolfie2D/Utils/EaseFunctions";
 import RandUtils from "../../Wolfie2D/Utils/RandUtils";
 import { MBPhysicsGroups } from "../MBPhysicsGroups";
-
+//I don't think split steam uses the particle system anywhere anymore, it shouldn't be a valid attack anymore.
+//All this code is the stuff we added before, when the game was going in a different direction, our game doesn't use it anymore - Kush
 export default class PlayerWeapon extends ParticleSystem {
     protected _rotation: number = 0;
     private _tilemap: OrthogonalTilemap | null = null;
 
-    // Shotgun feel — gravity drags them down quickly
+    // Shotgun feel, gravity drags them down quickly
     private readonly PARTICLE_GRAVITY = 600;
 
     public get rotation(): number { return this._rotation; }
@@ -21,7 +22,7 @@ export default class PlayerWeapon extends ParticleSystem {
     public getPool(): Array<Particle> { return this.particlePool; }
 
     public setParticleAnimation(particle: Particle): void {
-        // Wide spread, moderate speed — shotgun pellets
+        // Wide spread, moderate speed, shotgun pellets
         particle.vel = RandUtils.randVec(-60, 60, 40, 120);
         particle.vel.rotateCCW(this._rotation);
         particle.color = Color.MAGENTA;
