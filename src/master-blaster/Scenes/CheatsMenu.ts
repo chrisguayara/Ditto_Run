@@ -26,8 +26,8 @@ const COL_BTN_BG     = new Color( 38,  36,  60, 1.0 );
 const COL_BTN_BORDER = new Color(140, 138, 180, 1.0 );
 const COL_TITLE      = new Color(255, 230, 100, 1.0 );
 const COL_BACK       = new Color(170, 168, 200, 1.0 );
-const COL_ON         = new Color(100, 255, 140, 1.0 );  // green  = cheat active
-const COL_OFF        = new Color(230, 228, 255, 1.0 );  // normal = cheat off
+const COL_ON         = new Color(100, 255, 140, 1.0 );  // green  for cheat active
+const COL_OFF        = new Color(230, 228, 255, 1.0 );  // normal for cheat off
 
 const FONT          = "PixelSimple";
 const BTN_FONT_SIZE = 16;
@@ -83,7 +83,7 @@ export default class CheatsMenu extends Scene {
         const state  = GameState.getInstance();
         const startY = CY - BTN_SPACING + 8;
 
-        // ── Toggle: Unlock All Levels ─────────────────────────────
+        // Unlock all levels toggle
         this.unlockAllLabel = this.makeToggleButton(
             this.getUnlockLabel(state.cheatsUnlockAll),
             CX, startY,
@@ -97,7 +97,7 @@ export default class CheatsMenu extends Scene {
             }
         );
 
-        // ── Toggle: Infinite Health ───────────────────────────────
+        // Infinite Health Toggle
         this.infHealthLabel = this.makeToggleButton(
             this.getHealthLabel(state.cheatsInfiniteHealth),
             CX, startY + BTN_SPACING,
@@ -111,7 +111,7 @@ export default class CheatsMenu extends Scene {
             }
         );
 
-        // ── Back ──────────────────────────────────────────────────
+        // Back Button
         this.makeToggleButton("← BACK", CX, startY + BTN_SPACING * 2, COL_BACK, () => {
             this.select();
             this.sceneManager.changeToScene(MainMenu);
@@ -130,7 +130,7 @@ export default class CheatsMenu extends Scene {
         this.load.keepAudio(MenuAssets.SELECT_AUDIO_KEY);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────
+    // Helpers
 
     private getUnlockLabel(on: boolean): string {
         return `UNLOCK ALL:  ${on ? "ON" : "OFF"}`;
