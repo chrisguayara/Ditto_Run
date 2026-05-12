@@ -151,8 +151,8 @@ export default class CastleLevel extends MBLevel {
     }
 
     protected initializeEntities(): void {
-        // RULE: never pass a class directly to spawnEntity.
-        // Always use a factory lambda: (sprite) => new Foo(sprite)
+        // General note: never pass a class directly to spawnEntity.
+
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(173 * 16, 36 * 16));
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(157  * 16, 18 * 16));
