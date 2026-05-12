@@ -1,11 +1,11 @@
 import Vec2 from "../../../Wolfie2D/DataTypes/Vec2";
 import Input from "../../../Wolfie2D/Input/Input";
 import { MBControls } from "../../MBControls";
-import { PlayerAnimations, PlayerStates } from "../PlayerController";
+import { PlayerStates } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import AABB from "../../../Wolfie2D/DataTypes/Shapes/AABB";
 
-// ── Tuning ────────────────────────────────────────────────────────────────────
+// Tuning
 /** px/s, above this on entry the player slides instead of crouching */
 const SLIDE_THRESHOLD    =60;
 const SLIDE_BOOST         = 1.3; 
@@ -33,7 +33,7 @@ export default class CrouchSlide extends PlayerState {
     private slideDir:   number  = 0; // -1 or 1, captured on slide start
     private origHeight: number  = 0;
 
-    // ── Hitbox ────────────────────────────────────────────────────
+    // hitbox
 
    private shrinkHitbox(): void {
         const collider = this.owner.collisionShape as AABB;
@@ -51,7 +51,7 @@ export default class CrouchSlide extends PlayerState {
         this.origHeight = 0;
     }
 
-    // ── Lifecycle ─────────────────────────────────────────────────
+    //Lifecycle 
 
     public onEnter(options: Record<string, any>): void {
     this.shrinkHitbox();

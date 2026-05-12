@@ -13,7 +13,7 @@ export default class Jump extends PlayerState {
         this.owner.animation.play(this.parent.getAnimationKey("JUMP"));
 
         // options.wallJump = true is set by WallSlide.onExit() after a wall jump.
-        // In that case velocity is already set — don't override it.
+        // In that case velocity is already set so don't override it.
         if (!options.wallJump) {
             this.parent.velocity.y = this.parent.effectiveJumpForce;
         }

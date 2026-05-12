@@ -6,7 +6,7 @@ import PlayerState from "./PlayerState";
 
 export default class WallSlide extends PlayerState {
 
-    // Slide faster — player should feel the wall, not float on it
+    // set to 0 for stick mechanic, but can change laters
     private static readonly SLIDE_GRAVITY_MULT: number = 0;
     private static readonly MAX_SLIDE_SPEED: number    = 0;
 
@@ -40,7 +40,7 @@ export default class WallSlide extends PlayerState {
             return;
         }
 
-        // Player must hold INTO the wall — let go = fall immediately
+        // Player must hold INTO the wall, let go = fall immediately
         const holdingIntoWall = (this.wallSide === 1  && Input.isPressed(MBControls.MOVE_RIGHT))
                              || (this.wallSide === -1 && Input.isPressed(MBControls.MOVE_LEFT));
 
@@ -70,12 +70,9 @@ export default class WallSlide extends PlayerState {
         // Replace the wallDir === 0 check with:
         
 
-        // Wall jump — kick hard in opposite direction + upward
-        
+        // Wall jump should be kick hard in opposite direction + upward
 
-        
-
-        // Slide down — gravity scaled, capped
+        // stick to wall, but we have a way to change that to a slide
         this.parent.velocity.y += this.parent.effectiveGravity
                                  * WallSlide.SLIDE_GRAVITY_MULT
                                  * deltaT;

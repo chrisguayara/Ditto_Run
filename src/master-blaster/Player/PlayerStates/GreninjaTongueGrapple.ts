@@ -119,28 +119,28 @@ export default class GreninjaTongueGrapple extends PlayerState {
         const nx = px / dist;
         const ny = py / dist;
     
-        // ── Gravity ──
+        // Gravity
         this.parent.velocity.y += this.parent.effectiveGravity * deltaT;
     
-        // ── Remove inward velocity ──
+        // Remove inward velocity
         const vDotN = this.parent.velocity.x * nx + this.parent.velocity.y * ny;
         if (vDotN > 0) {
             this.parent.velocity.x -= vDotN * nx;
             this.parent.velocity.y -= vDotN * ny;
         }
     
-        // ── Centripetal pull ──
+        // Centripetal pull
         this.parent.velocity.x += nx * 80 * deltaT;
         this.parent.velocity.y += ny * 80 * deltaT;
     
-        // ── Steering ──
+        // Steering
         const inputDir = this.parent.inputDir;
         const lateralX = inputDir.x - inputDir.x * nx * nx;
         const lateralY = -inputDir.x * nx * ny;
         this.parent.velocity.x += lateralX * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
         this.parent.velocity.y += lateralY * this.parent.effectiveSpeed * GreninjaTongueGrapple.SWING_STEER;
     
-        // ── Speed cap ──
+        // Speed cap
         const spd = Math.hypot(this.parent.velocity.x, this.parent.velocity.y);
         if (spd > GreninjaTongueGrapple.MAX_SPEED) {
             const scale = GreninjaTongueGrapple.MAX_SPEED / spd;
@@ -167,11 +167,11 @@ export default class GreninjaTongueGrapple extends PlayerState {
             }
         }
     
-        // ── Move (unchanged from original — full speed, full feel) ──
+        // Movement stuff
         this.owner.move(this.parent.velocity.scaled(deltaT));
         this.tipPos = this.anchor.clone();
     
-        // ── Rope length constraint ──
+        // Rope length constraint
         const dx = this.owner.position.x - this.anchor.x;
         const dy = this.owner.position.y - this.anchor.y;
         const dist2 = Math.hypot(dx, dy);
@@ -190,7 +190,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
             this.owner.position.y = this.anchor.y + ny2 * (maxLen - epsilon);
         }
     
-        // ── Collision exits (engine flags, post-move) ──
+        // Collision exits (engine flags, post-move)
         if (this.owner.onWall) {
             this.parent.velocity.x *= 0.5;
             this.exit();
@@ -202,7 +202,7 @@ export default class GreninjaTongueGrapple extends PlayerState {
             return;
         }
     
-        // ── Inputs ──
+        // Inputs
         if (Input.isMouseJustPressed()) { this.exit(); return; }
         if (Input.isJustPressed(MBControls.JUMP)) {
             this.parent.velocity.y = Math.min(this.parent.velocity.y, -200);

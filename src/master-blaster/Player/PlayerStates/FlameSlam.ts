@@ -61,7 +61,7 @@ export default class FireSlam extends PlayerState {
             }
         }
 
-        // Now do the physics move — tiles along path are already cleared
+
         this.parent.velocity.x = 0;
         this.parent.velocity.y = FireSlam.SLAM_SPEED;
         this.owner.move(this.parent.velocity.scaled(deltaT));
@@ -85,7 +85,7 @@ export default class FireSlam extends PlayerState {
         if (this.owner.onGround) {
             this.hasLanded = true;
 
-            // Shockwave — break tiles around landing point
+            // Shockwave to break tiles around landing point
             if (destructable) {
                 const tileSize = destructable.getTileSize();
                 const col = Math.floor(this.lockedX / tileSize.x);
