@@ -179,23 +179,23 @@
       "frames": [
         {
           "index": 24,
-          "duration": 100
+          "duration": 50
         },
         {
           "index": 25,
-          "duration": 100
+          "duration": 50
         },
         {
           "index": 26,
-          "duration": 100
+          "duration": 50
         },
         {
           "index": 27,
-          "duration": 100
+          "duration": 50
         },
          {
           "index": 59,
-          "duration": 24000
+          "duration": 50
         }
       ]
     },
@@ -315,23 +315,23 @@
       "frames": [
         {
           "index": 48,
-          "duration": 150
+          "duration": 50
         },
         {
           "index": 49,
-          "duration": 150
+          "duration": 50
         },
         {
           "index": 50,
-          "duration": 150
+          "duration": 50
         },
         {
           "index": 51,
-          "duration": 150
+          "duration": 50
         },
          {
           "index": 59,
-          "duration": 24000
+          "duration": 50
         }
       ]
     },
