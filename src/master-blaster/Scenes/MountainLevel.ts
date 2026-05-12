@@ -153,7 +153,7 @@ export default class MountainLevel extends MBLevel {
     }
 
     protected initializeEntities(): void {
-        // RULE: never pass a class directly to spawnEntity.
+        // Note: never pass a class directly to spawnEntity.
         // Always use a factory lambda: (sprite) => new Foo(sprite)
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(113 * 16, 18 * 16));
