@@ -71,6 +71,8 @@ export default abstract class MBLevel extends Scene {
     public static readonly PAUSE_BG_PATH = "game_assets/spritesheets/pause.json";
     public static readonly MENU_BTN_KEY = "MENU_BUTTONS";
     public static readonly MENU_BTN_PATH = "game_assets/spritesheets/menubuttons.json";
+    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/GreninjaSplitSteam.json";
+
 
     // ── Pause state ───────────────────────────────────────────────
     protected isPaused: boolean = false;

@@ -36,7 +36,7 @@ export default class ForestLevel extends MBLevel {
     // public static readonly PLAYER_SPAWN = new Vec2(5*16, 160);
     public static readonly PLAYER_SPAWN = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
-    public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
+
 
     public static readonly TILEMAP_KEY = "ForestLevelFinal";
     public static readonly TILEMAP_PATH = "game_assets/tilemaps/forestmap.json";
