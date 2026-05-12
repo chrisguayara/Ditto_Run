@@ -43,7 +43,7 @@ import { DittoForms } from "../UI/DittoForms";
 import AudioManager from "../../Wolfie2D/Sound/AudioManager";
 import Patroller from "../Entity/Enemies/Patroller";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
-import Shooter from "../Entity/Enemies/Shooter";
+// import Shooter from "../Entity/Enemies/Shooter";
 import LevelEndScreen from "./LevelEndScreen";
 /**
  * A const object for the layer names
@@ -1549,38 +1549,38 @@ export default abstract class MBLevel extends Scene {
     }
 
     /** Spawns a shooter enemy. Load shooterSpriteKey + projectileSpriteKey in subclass loadScene(). */
-    protected spawnShooter(
-        position: Vec2,
-        config: ProjectileConfig = SNOWBALL,
-        poolSize: number = 4,
-        fireInterval: number = 2.5,
-        maxHealth: number = 2,
-        detectionRange: number = 200
-    ): Shooter {
-        const pool: Projectile[] = [];
+    // protected spawnShooter(
+    //     position: Vec2,
+    //     config: ProjectileConfig = SNOWBALL,
+    //     poolSize: number = 4,
+    //     fireInterval: number = 2.5,
+    //     maxHealth: number = 2,
+    //     detectionRange: number = 200
+    // ): Shooter {
+    //     const pool: Projectile[] = [];
     
-        for (let i = 0; i < poolSize; i++) {
-            // Uses the unified PROJECTILE_KEY; animation is chosen per-shot by Shooter
-            const pSprite = this.add.animatedSprite(SpriteKeys.PROJECTILE_KEY, MBLayers.PRIMARY);
-            pSprite.visible = false;
-            pool.push(new Projectile(pSprite));
-        }
+    //     for (let i = 0; i < poolSize; i++) {
+    //         // Uses the unified PROJECTILE_KEY; animation is chosen per-shot by Shooter
+    //         const pSprite = this.add.animatedSprite(SpriteKeys.PROJECTILE_KEY, MBLayers.PRIMARY);
+    //         pSprite.visible = false;
+    //         pool.push(new Projectile(pSprite));
+    //     }
     
-        return this.spawnEntity(
-            (sprite) =>
-                new Shooter(
-                    sprite,
-                    pool,
-                    this.player as MBAnimatedSprite,
-                    fireInterval,
-                    maxHealth,
-                    detectionRange,
-                    config
-                ),
-            SpriteKeys.SHOOTER_KEY,  
-            position
-        ) as Shooter;
-    }
+    //     return this.spawnEntity(
+    //         (sprite) =>
+    //             new Shooter(
+    //                 sprite,
+    //                 pool,
+    //                 this.player as MBAnimatedSprite,
+    //                 fireInterval,
+    //                 maxHealth,
+    //                 detectionRange,
+    //                 config
+    //             ),
+    //         SpriteKeys.SHOOTER_KEY,  
+    //         position
+    //     ) as Shooter;
+    // }
     public loadEndScreenAssets(): void {
         this.load.spritesheet(MBLevel.END_SCREEN_BG_KEY, MBLevel.END_SCREEN_BG_PATH);
     }
