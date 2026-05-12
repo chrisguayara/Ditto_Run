@@ -98,6 +98,7 @@ export default class MainMenu extends Scene {
             key: MenuAssets.MUSIC_KEY,
             loop: true,
             holdReference: true,
+            volume: 0.5,
         });
 
         setTimeout(() => { this.canStart = true; }, 300);

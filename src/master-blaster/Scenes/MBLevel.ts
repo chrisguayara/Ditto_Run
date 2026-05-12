@@ -352,7 +352,8 @@ export default abstract class MBLevel extends Scene {
         this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
             key: this.levelMusicKey,
             loop: true,
-            holdReference: true
+            holdReference: true,
+            volume: 0.3,
         });
     }
 
