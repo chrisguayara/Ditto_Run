@@ -123,9 +123,9 @@ export default class CastleLevel extends MBLevel {
         this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.1, 0), -1);
         super.startScene();
 
-        this.nextLevel = MountainLevel;   // TODO: point at the actual next level
+        this.nextLevel = MountainLevel;   
 
-        GameState.getInstance().unlockLevel("FOREST");
+        GameState.getInstance().unlockLevel("MOUNTAIN");
 
         const ctrl = this.player._ai as PlayerController;
         ctrl.transformations.unlockForm("GRENINJA");

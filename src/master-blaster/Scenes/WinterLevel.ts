@@ -33,7 +33,7 @@ export default class WinterLevel extends MBLevel {
     public static readonly DAMAGE_LAYER_KEY       = "Damage";
 
     public static readonly LEVEL_MUSIC_KEY  = "LEVEL_MUSIC";
-    public static readonly LEVEL_MUSIC_PATH = "game_assets/music/jeanparker_synced-146-master.wav";
+    public static readonly LEVEL_MUSIC_PATH = "game_assets/music/repack_loop_JP149bpm.mp3";
 
     public static readonly JUMP_AUDIO_KEY  = "PLAYER_JUMP";
     public static readonly JUMP_AUDIO_PATH = "game_assets/sounds/jump.wav";

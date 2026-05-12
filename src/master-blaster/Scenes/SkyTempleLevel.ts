@@ -11,11 +11,12 @@ import Snorlax from "../Entity/Objects/Snorlax";
 import GameState from "./GameState";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
+import MainMenu from "./MainMenu";
 
 export const CHECKPOINTS = {
-    // SPAWN:          new Vec2(141 * 16, 40 * 16),
-    SPAWN:          new Vec2(7 * 16, 7 * 16),
-    CHECKPOINT_ONE: new Vec2(141  * 16, 40 * 16),
+    
+    SPAWN:          new Vec2(16 * 16, 114 * 16),
+    CHECKPOINT_ONE: new Vec2(34  * 16, 52 * 16),
     CHECKPOINT_TWO: new Vec2(329  * 16, 72 * 16),
 } as const;
 
@@ -25,8 +26,8 @@ export default class SkyTempleLevel extends MBLevel {
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/Ditto.json";
 
-    public static readonly TILEMAP_KEY   = "Mountainmap";
-    public static readonly TILEMAP_PATH  = "game_assets/tilemaps/mountain.json";
+    public static readonly TILEMAP_KEY   = "SkyTemplemap";
+    public static readonly TILEMAP_PATH  = "game_assets/tilemaps/skytemplemap.json";
     public static readonly TILEMAP_SCALE = new Vec2(1, 1);
     public static readonly WALLS_LAYER_KEY  = "Ground";
     public static readonly DAMAGE_LAYER_KEY = "damage";
@@ -52,7 +53,7 @@ export default class SkyTempleLevel extends MBLevel {
     public static readonly ROTOM_SPRITE_KEY  = "Rotom";
     public static readonly ROTOM_SPRITE_PATH = "game_assets/spritesheets/rotom.json";
 
-    public static readonly LEVEL_END = new AABB(new Vec2(309 * 16, 232), new Vec2(24, 16));
+    public static readonly LEVEL_END = new AABB(new Vec2(13 * 16, 17*16), new Vec2(24, 16));
 
     public constructor(
         viewport: Viewport,
@@ -79,7 +80,7 @@ export default class SkyTempleLevel extends MBLevel {
         this.tileDestroyedAudioKey = SkyTempleLevel.TILE_DESTROYED_KEY;
         this.levelEndAudioKey      = SkyTempleLevel.LEVEL_END_KEY;
 
-        this.levelEndPosition = new Vec2(384 * 16, 22 * 16).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(13 * 16, 17 * 16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(64, 64).mult(this.tilemapScale);
 
         this.checkpoint_sqr1 = CHECKPOINTS.CHECKPOINT_ONE.mult(this.tilemapScale);
@@ -125,9 +126,9 @@ export default class SkyTempleLevel extends MBLevel {
         this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.1, 0.1), -1);
         super.startScene();
 
-        this.nextLevel = SkyTempleLevel;   
+        this.nextLevel = MainMenu;   
 
-        GameState.getInstance().unlockLevel("FOREST");
+        
         GameState.getInstance().resetLevelStats(5);
 
         const ctrl = this.player._ai as PlayerController;
@@ -153,26 +154,29 @@ export default class SkyTempleLevel extends MBLevel {
     protected initializeEntities(): void {
         // RULE: never pass a class directly to spawnEntity.
         // Always use a factory lambda: (sprite) => new Foo(sprite)
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(113 * 16, 18 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(34 * 16, 40 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(74 * 16, 57 * 16));
         this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(168  * 16, 39 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(313  * 16, 28 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(389  * 16, 42 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(53  * 16, 72 * 16));
+        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(54  * 16, 23 * 16));
 
-        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(292 * 16, 45.5 * 16), true);
+        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(51 * 16, 92.5 * 16), true);
+        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(46 * 16, 86.5 * 16), true);
+        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(53 * 16, 78.5 * 16), true);
+        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(47 * 16, 71.5 * 16), true);
+        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(74 * 16, 32.5 * 16), true);
         
-        this.spawnPatroller(new Vec2(63 * 16, 29 * 16), 80, 60, 2, 1);
-        this.spawnPatroller(new Vec2(21 * 16, 31 * 16), 23, 50, 2, 1);
-        this.spawnPatroller(new Vec2(292 * 16, 37 * 16), 45, 50, 2, 1);
-        this.spawnPatroller(new Vec2(330 * 16, 56 * 16), 45, 50, 2, 1);
-        this.spawnPatroller(new Vec2(335 * 16, 23 * 16), 45, 50, 2, 1);
-        this.spawnPatroller(new Vec2(374 * 16, 66 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(31 * 16, 35 * 16), 80, 60, 2, 1);
+        this.spawnPatroller(new Vec2(60 * 16, 52 * 16), 23, 50, 2, 1);
+        this.spawnPatroller(new Vec2(50 * 16, 66 * 16), 45, 50, 2, 1);
+        this.spawnPatroller(new Vec2(64 * 16, 18 * 16), 45, 50, 2, 1);
+        
         // this.spawnShooter(new Vec2(17 * 16, 32 * 16), SNOWBALL);
         // this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);
     }
 
     protected initializeViewport(): void {
         super.initializeViewport();
-        this.viewport.setBounds(0, 0, 400 * 16, 80 * 16);
+        this.viewport.setBounds(0, 0, 80 * 16, 120 * 16);
     }
 }

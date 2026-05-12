@@ -14,6 +14,7 @@ import { MenuAssets } from "./MenuAssets";
 import WinterLevel from "./WinterLevel";
 import CastleLevel from "./CastleLevel";
 import ForestLevel from "./ForestLevel";
+import SkyTempleLevel from "./SkyTempleLevel";
 import GameState from "./GameState";
 import MountainLevel from "./MountainLevel";
 
@@ -44,8 +45,7 @@ const ALL_LEVELS: Array<{ label: string; unlockKey: string; scene: new (...args:
     { label: "WINTER",     unlockKey: "WINTER",     scene: WinterLevel  },
     { label: "STRONGHOLD", unlockKey: "STRONGHOLD", scene: CastleLevel  },
     { label: "MOUNTAIN", unlockKey: "MOUNTAIN", scene: MountainLevel},
-    { label: "FOREST",     unlockKey: "FOREST",     scene: ForestLevel  },
-    
+    { label: "SKY TEMPLE", unlockKey: "SKYTEMPLE",  scene: SkyTempleLevel  }
 ];
 
 export default class LevelSelectMenu extends Scene {

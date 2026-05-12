@@ -11,6 +11,7 @@ import Snorlax from "../Entity/Objects/Snorlax";
 import GameState from "./GameState";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
+import SkyTempleLevel from "./SkyTempleLevel";
 
 export const CHECKPOINTS = {
     // SPAWN:          new Vec2(141 * 16, 40 * 16),
@@ -125,9 +126,9 @@ export default class MountainLevel extends MBLevel {
         this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.1, 0.1), -1);
         super.startScene();
 
-        this.nextLevel = MountainLevel;   
+        this.nextLevel = SkyTempleLevel;   
 
-        GameState.getInstance().unlockLevel("FOREST");
+        GameState.getInstance().unlockLevel("SKYTEMPLE");
         GameState.getInstance().resetLevelStats(5);
 
         const ctrl = this.player._ai as PlayerController;
@@ -144,6 +145,7 @@ export default class MountainLevel extends MBLevel {
         bg.position.set(600, 140); 
         
         bg.animation.play("IDLE", true);
+        
     }
 
     protected initializePKMN(): void {
