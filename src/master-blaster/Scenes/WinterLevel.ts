@@ -90,7 +90,7 @@ export default class WinterLevel extends MBLevel {
     }
 
     public loadScene(): void {
-        // Shared enemy/item sprites — defined once in MBLevel via SpriteKeys
+        // Shared enemy/item sprites
         this.loadSharedSprites();
 
         this.load.tilemap(this.tilemapKey, WinterLevel.TILEMAP_PATH);
@@ -147,13 +147,13 @@ export default class WinterLevel extends MBLevel {
         this.respawnPosition = this.playerSpawn.clone();
 
         const bg = this.add.animatedSprite("snowmap_background", MBLayers.BACKGROUND);
-        bg.position.set(350, 100); // adjust to match your spritesheet frame size
+        bg.position.set(350, 100); //may need more adjustment
         
         bg.animation.play("IDLE", true);
     }
 
     protected initializePKMN(): void {
-        // Rotom disabled — uncomment to re-enable
+        // Rotom disabled, uncomment to re-enable
         // let rotom = this.add.animatedSprite(WinterLevel.ROTOM_SPRITE_KEY, "PRIMARY");
         // rotom.position.set(WinterLevel.PLAYER_SPAWN.x + 20, WinterLevel.PLAYER_SPAWN.y - 20);
         // rotom.addPhysics(new AABB(Vec2.ZERO, new Vec2(3, 3)));
@@ -170,7 +170,7 @@ export default class WinterLevel extends MBLevel {
         this.spawnPatroller(new Vec2(45 * 16, 18 * 16), 80, 60, 2, 1);
         
 
-        // Snorlax trampoline — collidable=true so player lands on top
+        // Snorlax trampoline collidable=true so player lands on top
         // this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(16 * 16, 75 * 16), true);
     }
 
