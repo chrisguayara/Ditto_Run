@@ -353,7 +353,7 @@ export default abstract class MBLevel extends Scene {
             key: this.levelMusicKey,
             loop: true,
             holdReference: true,
-            volume: 0.3,
+            volume: 0.1,
         });
     }
 
