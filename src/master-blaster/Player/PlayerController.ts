@@ -233,7 +233,7 @@ export default class PlayerController extends StateMachineAI {
        
     }
 
-    // ── Transformation passthrough ────────────────────────────────
+    //Transformation passthrough
     public get transformations(): TransformationManager { return this._transformations; }
 
     public applySpeedBoost(multiplier: number, duration: number): void {
@@ -278,7 +278,7 @@ export default class PlayerController extends StateMachineAI {
     public get isTransforming(): boolean { return this._transforming; }
     public get tilemap(): OrthogonalTilemap { return this._tilemap; }
 
-    // ── Standard getters/setters ──────────────────────────────────
+    //Standard getters/setters
     public get velocity(): Vec2 { return this._velocity; }
     public set velocity(velocity: Vec2) { this._velocity = velocity; }
 
