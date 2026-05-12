@@ -1,0 +1,13 @@
+{
+    "name": "endscreen",
+    "spriteSheetImage": "ENDSCREEN.png",
+    "spriteWidth": 320,
+    "spriteHeight": 240,
+    "columns": 1,
+    "rows": 1,
+    "durationType": "time",
+    "animations": [
+      {"name": "IDLE", "repeat": true, "frames": [{"index": 0, "duration": 10}]}
+      
+    ]
+  }

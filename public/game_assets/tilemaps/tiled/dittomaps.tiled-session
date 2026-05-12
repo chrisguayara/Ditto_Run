@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
+    "activeFile": "",
     "expandedProjectPaths": [
         "."
     ],
@@ -34,38 +34,49 @@
             "scaleInDock": 1
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/Snowtileset.tsx": {
-            "scaleInDock": 3
+            "scaleInDock": 2,
+            "scaleInEditor": 1
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/final_forestlevel_tileset.tsx": {
             "scaleInDock": 4
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/forestmap.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 7,
+            "expandedObjectLayers": [
+                9
+            ],
+            "scale": 2,
+            "selectedLayer": 8,
             "viewCenter": {
-                "x": 640,
-                "y": 299
+                "x": 621.25,
+                "y": 82
             }
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/hints.tsx": {
-            "scaleInDock": 1
+            "scaleInDock": 1,
+            "scaleInEditor": 1
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json": {
-            "scale": 0.75,
-            "selectedLayer": 1,
+            "expandedObjectLayers": [
+                4
+            ],
+            "scale": 3,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 722,
-                "y": 1085.3333333333333
+                "x": 1005.3333333333333,
+                "y": 720.5
             }
         },
-        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#wintermap": {
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#hints": {
             "scaleInDock": 1
+        },
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json#wintermap": {
+            "scaleInDock": 4
         },
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.tmx": {
             "scale": 0.49058593749999996,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 624.7631180826501,
+                "x": 431.1171271598057,
                 "y": 731.7780078031691
             }
         },
@@ -90,35 +101,34 @@
             }
         },
         "tilemap_forest.tmx": {
-            "scale": 1.61,
+            "scale": 0.75,
             "selectedLayer": 4,
             "viewCenter": {
-                "x": 181.05590062111798,
-                "y": 214.90683229813664
+                "x": 191.33333333333331,
+                "y": 118.66666666666669
             }
         }
     },
     "last.exportedFilePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps",
     "last.externalTilesetPath": "/Users/chrisguayara/Downloads",
-    "last.imagePath": "/Users/chrisguayara/Downloads",
+    "last.imagePath": "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/spritesheets/hints",
+    "map.height": 23,
     "map.lastUsedExportFilter": "All Files (*)",
     "map.lastUsedFormat": "tmx",
     "map.tileHeight": 16,
     "map.tileWidth": 16,
-    "map.width": 40,
+    "map.width": 64,
     "openFiles": [
-        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.tmx",
-        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/forestmap.tmx",
-        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
-        "tilemap_forest.tmx"
     ],
     "project": "dittomaps.tiled-project",
     "property.type": "bool",
     "recentFiles": [
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/hints.tsx",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/Snowtileset.tsx",
+        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
+        "tilemap_forest.tmx",
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.tmx",
         "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/forestmap.tmx",
-        "tilemap_forest.tmx",
-        "/Users/chrisguayara/github-classroom/CSE380/Ditto_Run/dist/game_assets/tilemaps/wintermap.json",
         "forestmap.tmx",
         "forest.tsx",
         "forest_tiles.tsx",
@@ -127,7 +137,7 @@
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
-        "height": 16,
-        "width": 16
+        "height": 48,
+        "width": 48
     }
 }

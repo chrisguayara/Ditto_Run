@@ -1,0 +1,21 @@
+{
+    "name": "snowmap_background",
+    "spriteSheetImage": "snowmap_background.png",
+    "spriteWidth": 704,
+    "spriteHeight": 256,
+    "columns": 1,
+    "rows": 1,
+    "durationType": "time",
+    "animations": [
+        {
+        "name": "IDLE",
+        "repeat": true,
+        "frames": [
+          {
+            "index": 0,
+            "duration": 100
+          }
+        ]
+      }
+    ]
+}

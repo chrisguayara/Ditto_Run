@@ -1,6 +1,6 @@
 {
   "name": "StartScreen",
-  "spriteSheetImage": "STARTSCREEN.png",
+  "spriteSheetImage": "ui/splitsteam.png",
   "spriteWidth": 320,
   "spriteHeight": 240,
   "columns": 1,
