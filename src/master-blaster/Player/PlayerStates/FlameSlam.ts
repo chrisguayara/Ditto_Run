@@ -30,7 +30,6 @@ export default class FireSlam extends PlayerState {
 
         const scene = this.owner.getScene() as MBLevel;
         const destructable = scene.getDestructable();
-        const walls = scene.getWalls();
 
         // How far we want to move this frame
         const stepY = FireSlam.SLAM_SPEED * deltaT;
