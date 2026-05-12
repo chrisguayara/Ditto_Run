@@ -18,18 +18,13 @@ export default abstract class Enemy extends Entity {
         this._contactDamage = contactDamage;
     }
 
-    // ── Entity contract ───────────────────────────────────────────
-
-    // Subclasses still define what happens on player touch,
-    // but default behavior is just dealing contact damage.
+    
     public onPlayerContact(): void {
         if (this._isFainted) return;
-        // MBLevel reads contactDamage directly off the pokemonMap controllers,
-        // but entityMap enemies go through onPlayerContact — so we fire the event here.
+        
         this.emitter.fireEvent("PLAYER_HIT_ENTITY_DAMAGE", { damage: this._contactDamage });
     }
 
-    // ── Enemy-specific API ────────────────────────────────────────
 
     public onHit(damage: number): void {
         if (this._isFainted) return;
@@ -39,18 +34,16 @@ export default abstract class Enemy extends Entity {
         if (this._health <= 0) {
             this._health = 0;
             this._isFainted = true;
-            this.consumed = true; // reuse Entity's consumed flag — stops further contact
+            this.consumed = true; 
             this.onFaint();
         }
     }
 
-    /** Override to play death animation, drop items, etc. */
     protected abstract onFaint(): void;
 
     public get isFainted(): boolean { return this._isFainted; }
     public get contactDamage(): number { return this._contactDamage; }
 
-    // ── Shared per-frame logic — call super.update(deltaT) in subclasses ──
 
     public update(deltaT: number): void {
         if (this._isFainted) return;
