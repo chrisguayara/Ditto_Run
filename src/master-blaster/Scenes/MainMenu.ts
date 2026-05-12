@@ -45,7 +45,7 @@ export default class MainMenu extends Scene {
     private canStart: boolean = false;
 
     public loadScene(): void {
-        // Always load these — if they were kept alive the engine skips re-fetching,
+        // if the assets were kept alive the engine skips re-fetching,
         // if they weren't (e.g. returning from a level) this reloads them properly.
         this.load.audio(MenuAssets.MUSIC_KEY, MenuAssets.MUSIC_PATH);
         this.load.spritesheet(MenuAssets.START_SCREEN_KEY, MenuAssets.START_SCREEN_PATH);
@@ -85,15 +85,14 @@ export default class MainMenu extends Scene {
         titleLabel.fontSize        = 28;
         titleLabel.backgroundColor = new Color(0, 0, 0, 0);
 
-        // Buttons — START always goes to WinterLevel, LEVELS opens level select
+        // Buttons, START always goes to WinterLevel
         const BUTTONS = ["START", "LEVELS", "CONTROLS", "CHEATS"];
         BUTTONS.forEach((label, i) => {
             const y = (CY - ((BUTTONS.length - 1) * BTN_SPACING) / 2) + i * BTN_SPACING;
             this.makeButton(label, CX, y, () => this.onButtonClick(label));
         });
 
-        // (Re)start music — safe to fire even if already playing in most engines;
-        // if yours deduplicates by key this is harmless, otherwise stop first.
+        // (Re)start music;
         this.emitter.fireEvent(GameEventType.STOP_SOUND,  { key: MenuAssets.MUSIC_KEY });
         this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
             key: MenuAssets.MUSIC_KEY,
