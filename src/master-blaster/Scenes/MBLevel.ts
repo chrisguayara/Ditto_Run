@@ -192,6 +192,14 @@ export default abstract class MBLevel extends Scene {
     public static readonly END_SCREEN_BG_KEY  = "END_SCREEN_BG";
     public static readonly END_SCREEN_BG_PATH = "game_assets/spritesheets/ui/endscreen.json";
 
+    protected springAudioKey!:      string;   
+    protected blitzBreakAudioKey!:  string;   
+    protected blitzLaunchAudioKey!: string;   
+    protected runAudioKey!:         string;   
+    protected slideAudioKey!:       string;   
+    protected candyAudioKey!:       string;   
+    protected checkpointAudioKey!:  string;  
+
     // Entity Logic ---------------------------
     
 
@@ -293,10 +301,29 @@ export default abstract class MBLevel extends Scene {
         this.load.spritesheet(SpriteKeys.PATROLLER_KEY,   SpriteKeys.PATROLLER_PATH);
         this.load.spritesheet(SpriteKeys.SHOOTER_KEY,     SpriteKeys.SHOOTER_PATH);
         this.load.spritesheet(SpriteKeys.PROJECTILE_KEY,  SpriteKeys.PROJECTILE_PATH);
-        this.load.audio("Grapple", "game_assets/sounds/spring.m4a");
+        this.load.audio("Grapple", "game_assets/sounds/spring.mp3");
+        this.load.audio("Damage", "game_assets/sounds/dmg.mp3");
+
+        this.load.audio("Spring",      "game_assets/sounds/spring.mp3");   
+        this.load.audio("BlitzBreak",  "game_assets/sounds/blitz_break.mp3");
+        this.load.audio("BlitzLaunch", "game_assets/sounds/blitz_launch.mp3");
+        
+        
+        this.load.audio("Candy",       "game_assets/sounds/switch.wav");
+        this.load.audio("Checkpoint",  "game_assets/sounds/pickup.mp3");
+
+        
+        this.springAudioKey     = "Spring";
+        this.blitzBreakAudioKey = "BlitzBreak";
+        this.blitzLaunchAudioKey= "BlitzLaunch";
+        this.runAudioKey        = "Run";
+        this.slideAudioKey      = "Slide";
+        this.candyAudioKey      = "Candy";
+        this.checkpointAudioKey = "Checkpoint";
+    
 
 
-        // this.load.spritesheet(SpriteKeys.SHIELD_CANDY_KEY, SpriteKeys.SHIELD_CANDY_PATH);
+        
     }
 
     public startScene(): void {
@@ -859,6 +886,8 @@ export default abstract class MBLevel extends Scene {
                 } else if (this.checkpointTwoArea && nodeId === this.checkpointTwoArea.id) {
                     this.respawnPosition = this.checkpoint_sqr2.clone();
                 }
+                
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: "Checkpoint"});
                 break;
             }
             case MBEvents.PLAYER_HIT_DAMAGE_TILE: {
@@ -869,6 +898,7 @@ export default abstract class MBLevel extends Scene {
                     this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
                     this.applyDamageKnockback(ctrl);
                 }
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: "Damage"});
                 break;
             }
 
@@ -887,6 +917,7 @@ export default abstract class MBLevel extends Scene {
                             }
                             this.damageFlashTimer = this.DAMAGE_FLASH_DURATION;
                             this.applyDamageKnockback(ctrl, entity.position);
+                            this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: "Damage"});
                         }
                     }
                 }
@@ -895,6 +926,11 @@ export default abstract class MBLevel extends Scene {
             case MBEvents.PLAYER_HEAL: {
                 const ctrl = this.player._ai as PlayerController;
                 ctrl.health = Math.min(ctrl.health + event.data.get("amount"), ctrl.maxHealth);
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+                    key: this.checkpointAudioKey,
+                    loop: false,
+                    holdReference: false
+                });
                 break;
             }
             case MBEvents.PLAYER_ENERGY_RESTORE: {
