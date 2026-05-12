@@ -24,17 +24,17 @@ export const PokemonStates = {
 } as const
 
 export default abstract class PokemonController extends StateMachineAI {
-    protected owner: MBAnimatedSprite;
-    protected _health: number;
-    protected _maxHealth: number;
-    protected _velocity: Vec2;
+    protected owner!: MBAnimatedSprite;
+    protected _health!: number;
+    protected _maxHealth!: number;
+    protected _velocity!: Vec2;
     protected _speed!: number;
     protected _gravityMultiplier: number = 1.0;
     public contactDamage: number = 1;
     
     
 
-    public playerRef: MBAnimatedSprite;
+    public playerRef!: MBAnimatedSprite;
 
     public patrolLeft: number = 0;
     public patrolRight: number = 100;

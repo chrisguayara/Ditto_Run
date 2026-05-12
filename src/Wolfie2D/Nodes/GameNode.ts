@@ -51,13 +51,13 @@ export default abstract class GameNode implements Positioned, Unique, Updateable
 	sweptRect: AABB;
 	collidedWithTilemap: boolean;
 	group: number;
-	isPlayer: boolean;
+	isPlayer!: boolean;
 	isColliding: boolean = false;
 
 	/*---------- ACTOR ----------*/
-	_ai: AI | GoapAI;
-	aiActive: boolean;
-	path: NavigationPath;
+	_ai!: AI | GoapAI;
+	aiActive!: boolean;
+	path!: NavigationPath;
 	pathfinding: boolean = false;
 
 	/*---------- GENERAL ----------*/
@@ -66,9 +66,9 @@ export default abstract class GameNode implements Positioned, Unique, Updateable
 	/** An event emitter. */
 	protected emitter: Emitter;
 	/** A reference to the scene this GameNode is a part of. */
-	protected scene: Scene;
+	protected scene!: Scene;
 	/** The visual layer this GameNode resides in. */
-	protected layer: Layer;
+	protected layer!: Layer;
 	/** A utility that allows the use of tweens on this GameNode */
 	tweens: TweenController;
 	/** A tweenable property for rotation. Does not affect the bounding box of this GameNode - Only rendering. */

@@ -15,7 +15,7 @@ export default class SludgeWeapon {
     private readonly _gravity: number = 80;
     private _alive: boolean = false;
     private _tilemap: OrthogonalTilemap;
-    private _particles: PlayerWeapon;
+    private _particles!: PlayerWeapon;
     private _damage: number = 1;
     private _aoeRadius: number = 32;
     private _enemies: PokemonController[] = [];
