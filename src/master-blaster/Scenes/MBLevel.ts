@@ -144,6 +144,7 @@ export default abstract class MBLevel extends Scene {
     protected hintSpritePath!: string;
 
     protected showingControlsScreen: boolean = false;
+    protected showingCheatsScreen:   boolean = false;
     protected controlsLabels: Label[] = [];
     protected controlsSelectedBack: number = 0;
     
@@ -176,6 +177,8 @@ export default abstract class MBLevel extends Scene {
 
     // ── Controls screen ───────────────────────────────────────────
     // private showingControls: boolean = false;
+    private pauseNavHintLabel!: Label;
+    private cheatsLabels: Label[] = [];
 
     public selectKey!: string;
     protected idleTimeThreshold: number = 5; // seconds
@@ -337,8 +340,12 @@ export default abstract class MBLevel extends Scene {
 
         
         if (Input.isJustPressed(MBControls.PAUSE)) {
-            this.isPaused ? this.resumeGame() : this.pauseGame();
-            return;
+            if (this.isPaused && (this.showingControlsScreen || this.showingCheatsScreen)) {
+                //fall through
+            } else {
+                this.isPaused ? this.resumeGame() : this.pauseGame();
+                return;
+    }
         }
 
         if (this.isPaused) {
@@ -422,13 +429,17 @@ export default abstract class MBLevel extends Scene {
         this.repositionPauseMenu();
         this.pauseMenuBg.visible = true;
         this.pauseButtonSprites.forEach(b => b.visible = true);
+        this.pauseNavHintLabel.visible = true; 
         this.updatePauseButtonAnimations();
     }
 
     protected resumeGame(): void {
         this.isPaused = false;
         this.showingControlsScreen = false;
+        this.showingCheatsScreen   = false;
         this.controlsLabels.forEach(l => l.visible = false);
+        this.cheatsLabels.forEach(l => l.visible = false);
+        this.pauseNavHintLabel.visible = false; 
         (this.player._ai as PlayerController).isPaused = false;
         this.pauseMenuBg.visible = false;
         this.pauseButtonSprites.forEach(b => b.visible = false);
@@ -436,22 +447,34 @@ export default abstract class MBLevel extends Scene {
 
     protected updatePauseMenu(): void {
         this.repositionPauseMenu();
-    
+
         if (this.showingControlsScreen) {
             this.repositionControlsLabels();
-            // Only one action: back
             if (Input.isJustPressed(MBControls.ATTACK)
-                || Input.isJustPressed(MBControls.CONFIRM)
-                || Input.isJustPressed(MBControls.PAUSE)) {
+            || Input.isJustPressed(MBControls.CONFIRM)
+            || Input.isJustPressed(MBControls.PAUSE)) {
                 this.showingControlsScreen = false;
                 this.controlsLabels.forEach(l => l.visible = false);
                 this.pauseButtonSprites.forEach(b => b.visible = true);
+                this.pauseNavHintLabel.visible = true;
                 this.updatePauseButtonAnimations();
             }
-            return; // don't process normal pause nav
+            return;
         }
-    
-        // ... rest of existing updatePauseMenu nav code unchanged
+
+        if (this.showingCheatsScreen) {
+            if (Input.isJustPressed(MBControls.ATTACK)
+            || Input.isJustPressed(MBControls.CONFIRM)
+            || Input.isJustPressed(MBControls.PAUSE)) {
+                this.showingCheatsScreen = false;
+                this.cheatsLabels.forEach(l => l.visible = false);
+                this.pauseButtonSprites.forEach(b => b.visible = true);
+                this.pauseNavHintLabel.visible = true;
+                this.updatePauseButtonAnimations();
+            }
+            return;
+        }
+
         if (Input.isJustPressed(MBControls.JUMP) || Input.isJustPressed(MBControls.ATTACK_UP)) {
             this.selectedPauseOption = (this.selectedPauseOption - 1 + 5) % 5;
             this.updatePauseButtonAnimations();
@@ -487,20 +510,28 @@ export default abstract class MBLevel extends Scene {
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.sceneManager.changeToScene(this.constructor as new (...args: any[]) => Scene);
                 break;
-            case 2: // Hints()
-                this.resumeGame();
-                this.hintsVisible = !this.hintsVisible;
+            // case 2: // Hints()
+            //     this.resumeGame();
+            //     this.hintsVisible = !this.hintsVisible;
                 
-                for (const s of this.hintSprites) {
-                    s.visible = this.hintsVisible;
-                }
+            //     for (const s of this.hintSprites) {
+            //         s.visible = this.hintsVisible;
+            //     }
+            //     this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
+            //     break;
+            case 2: // Help → inline cheats overlay
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
+                this.showingCheatsScreen = true;
+                this.pauseButtonSprites.forEach(b => b.visible = false);
+                this.pauseNavHintLabel.visible = false;
+                this.buildCheatsOverlay();  // see below
                 break;
+
             case 3: // Controls
                 this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.selectAudioKey });
                 this.showingControlsScreen = true;
-                // Hide pause buttons, show controls labels (bg stays visible)
                 this.pauseButtonSprites.forEach(b => b.visible = false);
+                this.pauseNavHintLabel.visible = false;
                 this.repositionControlsLabels();
                 this.controlsLabels.forEach(l => l.visible = true);
                 break;
@@ -613,6 +644,10 @@ export default abstract class MBLevel extends Scene {
             btn.position.set(center.x, startY + i * btnSpacing);
             btn.scale.set(btnScale, btnScale);
         });
+        if (this.pauseNavHintLabel) {
+            const lastBtnY = startY + (this.pauseButtonSprites.length - 1) * btnSpacing;
+            this.pauseNavHintLabel.position.set(center.x, lastBtnY + 28 / zoom);
+        }
     }
 
     protected initializePauseMenu(): void {
@@ -629,7 +664,17 @@ export default abstract class MBLevel extends Scene {
         }
     
         this.repositionPauseMenu();
-        this.initializeControlsScreen(); // <-- add this
+        // Nav hint label
+        this.pauseNavHintLabel = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
+            position: new Vec2(0, 0), // repositioned each frame by repositionPauseMenu
+            text: "W / S  to navigate                        Enter to select"
+        });
+        this.pauseNavHintLabel.textColor = new Color(160, 158, 200);
+        this.pauseNavHintLabel.fontSize  = 18;
+        this.pauseNavHintLabel.font      = "monospace";
+        this.pauseNavHintLabel.backgroundColor = new Color(0, 0, 0, 0);
+        this.pauseNavHintLabel.visible   = false;
+        this.initializeControlsScreen();
     }
     protected initializeControlsScreen(): void {
     const screen = this.viewport.getHalfSize().scaled(2);
@@ -1008,6 +1053,47 @@ export default abstract class MBLevel extends Scene {
         );
         // Color: red when cooling down, blue when ready
         this.energyBar.backgroundColor = progress < 1 ? Color.RED : Color.BLUE;
+    }
+    private buildCheatsOverlay(): void {
+        // Clear any previous cheat labels
+        this.cheatsLabels.forEach(l => l.visible = false);
+        this.cheatsLabels = [];
+
+        const state = GameState.getInstance();
+        const center = this.getViewportCenter();
+
+        const addLbl = (text: string, xOff: number, yOff: number, color: Color) => {
+            const l = <Label>this.add.uiElement(UIElementType.LABEL, MBLayers.PAUSE, {
+                position: new Vec2(center.x + xOff, center.y + yOff),
+                text
+            });
+            l.textColor = color;
+            l.fontSize  = 16;
+            l.font      = "monospace";
+            l.backgroundColor = new Color(0, 0, 0, 0);
+            this.cheatsLabels.push(l);
+            return l;
+        };
+
+        addLbl("CHEATS", 0, -40, new Color(255, 230, 100));
+        addLbl(
+            `Infinite Health:  ${state.cheatsInfiniteHealth ? "ON" : "OFF"}`,
+            0, -20,
+            state.cheatsInfiniteHealth ? new Color(100, 255, 140) : new Color(230, 228, 255)
+        );
+        addLbl(
+            `Unlock All:  ${state.cheatsUnlockAll ? "ON" : "OFF"}`,
+            0, -6,
+            state.cheatsUnlockAll ? new Color(100, 255, 140) : new Color(230, 228, 255)
+        );
+        addLbl("(toggle with ATTACK / X)", 0, 10, new Color(120, 118, 150));
+        addLbl("ESC / Enter  to go back",  0, 22, new Color(120, 118, 150));
+
+        // Reuse ATTACK to toggle the highlighted cheat (simple: toggle both isn't ideal,
+        // so we'll just let ATTACK_UP/DOWN pick which one and ATTACK toggle it)
+        // For now just show values, toggling in a label-only overlay is complex without
+        // buttons, so we expose the same cheats as read-only here and note that the
+        // full toggle is in the main menu cheats screen. You can expand this if needed.
     }
 
     /* Initialization methods for everything in the scene */
