@@ -1692,6 +1692,7 @@ export default abstract class MBLevel extends Scene {
             this.checkpointOneArea.addPhysics(undefined, undefined, false, true);
             this.checkpointOneArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_CHECKPOINT, "");
             this.checkpointOneArea.color = new Color(255, 255, 0, 0.20);
+            this.checkpointOneArea.alpha = 0.0;
         }
 
         if (this.checkpoint_sqr2) {
@@ -1702,6 +1703,7 @@ export default abstract class MBLevel extends Scene {
             this.checkpointTwoArea.addPhysics(undefined, undefined, false, true);
             this.checkpointTwoArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_CHECKPOINT, "");
             this.checkpointTwoArea.color = new Color(255, 255, 0, 0.20);
+            this.checkpointOneArea.alpha = 0.0;
         }
     }
 
