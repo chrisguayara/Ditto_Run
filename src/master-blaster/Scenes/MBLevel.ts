@@ -77,6 +77,8 @@ export default abstract class MBLevel extends Scene {
     public static readonly COUNTDOWN_PATH = "game_assets/spritesheets/countdown.json";
     public static readonly ARROW_SPRITE_KEY  = "DIRECTION_ARROW";
     public static readonly ARROW_SPRITE_PATH = "game_assets/spritesheets/Arrow.json";
+    public static readonly LEVEL_START_AUDIO_KEY  = "LEVEL_START_SFX";
+    public static readonly LEVEL_START_AUDIO_PATH = "game_assets/sounds/level_start.wav";
 
     protected countdownSprite!: AnimatedSprite;
     protected countdownTimer!: Timer;
@@ -310,6 +312,7 @@ export default abstract class MBLevel extends Scene {
         this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
         this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
         this.load.spritesheet(MBLevel.COUNTDOWN_KEY,  MBLevel.COUNTDOWN_PATH);
+        this.load.audio(MBLevel.LEVEL_START_AUDIO_KEY, MBLevel.LEVEL_START_AUDIO_PATH);
         
     }
     protected loadSharedSprites(): void {
@@ -841,28 +844,32 @@ export default abstract class MBLevel extends Scene {
                 break;
             }
            case MBEvents.LEVEL_START: {
-                const ctrl = this.player._ai as PlayerController;
-                this.handleHealthChange(ctrl.health, ctrl.maxHealth);
+        const ctrl = this.player._ai as PlayerController;
+        this.handleHealthChange(ctrl.health, ctrl.maxHealth);
 
-                // Show countdown, keep input disabled until it finishes
-                this.countdownSprite.visible = true;
-                this.countdownSprite.animation.play("COUNTDOWN", false);
+        this.countdownSprite.visible = true;
+        this.countdownSprite.animation.play("COUNTDOWN", false);
 
-                new Timer(4000, () => {
-                    this.countdownSprite.visible = false;
-                    this.timerRunning = true;
-                    Input.enableInput();
-                    this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
-                    key: this.levelMusicKey,
-                    loop: true,
-                    holdReference: true
-                });
-                }).start();
+        // Play level start sound immediately when countdown appears
+        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+            key: MBLevel.LEVEL_START_AUDIO_KEY,
+            loop: false,
+            holdReference: false,
+        });
 
-                // AudioManager.setVolume(AudioChannelType.MUSIC, 0.3);
+        new Timer(4000, () => {
+            this.countdownSprite.visible = false;
+            this.timerRunning = true;
+            Input.enableInput();
+            this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+                key: this.levelMusicKey,
+                loop: true,
+                holdReference: true,
+            });
+        }).start();
 
-                break;
-            }
+        break;
+    }
             
             case MBEvents.LEVEL_END: {
                 // Guard: if the end screen is still up, ignore this event.
