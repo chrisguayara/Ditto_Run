@@ -15,7 +15,7 @@ import { MBLayers } from "./MBLevel";
 
 export const CHECKPOINTS = {
     SPAWN:          new Vec2(5 * 16, 32 * 16),
-    CHECKPOINT_ONE: new Vec2(73  * 16, 10 * 16),
+    CHECKPOINT_ONE: new Vec2(74  * 16, 14 * 16),
     CHECKPOINT_TWO: new Vec2(64  * 16, 42 * 16),
 } as const;
 

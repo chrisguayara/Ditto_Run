@@ -1678,6 +1678,7 @@ export default abstract class MBLevel extends Scene {
         this.levelEndArea.addPhysics(undefined, undefined, false, true);
         this.levelEndArea.setTrigger(MBPhysicsGroups.PLAYER, MBEvents.PLAYER_ENTERED_LEVEL_END, "");
         this.levelEndArea.color = new Color(255, 0, 255, .50);
+        this.levelEndArea.alpha = 0.0;
     }
 
     protected initializeCheckpoints(): void {
