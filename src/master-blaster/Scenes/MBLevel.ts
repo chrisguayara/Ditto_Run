@@ -65,6 +65,7 @@ export default abstract class MBLevel extends Scene {
     private damageFlashTimer: number = 0;
     private readonly DAMAGE_FLASH_DURATION = 1.5; // seconds of iframes
     private readonly DAMAGE_FLASH_RATE = 0.1; 
+  
 
     // ── Pause menu assets ─────────────────────────────────────────
     public static readonly PAUSE_BG_KEY = "PAUSE_MENU_BG";
@@ -74,6 +75,8 @@ export default abstract class MBLevel extends Scene {
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/GreninjaSplitSteam.json";
     public static readonly COUNTDOWN_KEY  = "COUNTDOWN";
     public static readonly COUNTDOWN_PATH = "game_assets/spritesheets/countdown.json";
+    public static readonly ARROW_SPRITE_KEY  = "DIRECTION_ARROW";
+    public static readonly ARROW_SPRITE_PATH = "game_assets/spritesheets/Arrow.json";
 
     protected countdownSprite!: AnimatedSprite;
     protected countdownTimer!: Timer;
@@ -89,6 +92,8 @@ export default abstract class MBLevel extends Scene {
     private readonly PAUSE_IDLE_ANIMS = ["Resume_Idle", "Restart_Idle",  "Help_Idle", "Controls_Idle","Quit_idle"];
     private readonly PAUSE_SELECTED_ANIMS = ["Resume_Selected", "Restart_Selected",  "Help_Selected", "Controls_Selected","Quit_Selected"];
     private selectedCheatOption: number = 0;
+    private directionArrow!: AnimatedSprite;
+    private _arrowTargetAlpha: number = 0;
     // ── Weapon systems ────────────────────────────────────────────
     protected playerWeaponSystem!: PlayerWeapon;
     protected phantumpWeaponSystem!: PhantumpWeapon;
@@ -206,6 +211,10 @@ export default abstract class MBLevel extends Scene {
     protected checkpointAudioKey!:  string;  
 
     // Entity Logic ---------------------------
+    private _wrongDirTimer: number = 0;
+    private _idleArrowTimer: number = 0;
+    private static readonly WRONG_DIR_THRESHOLD = 3.0;
+    private static readonly IDLE_ARROW_THRESHOLD = 1.5;
     
 
     // Entity Logic ---------------------------
@@ -314,7 +323,7 @@ export default abstract class MBLevel extends Scene {
         this.load.audio("BlitzBreak",  "game_assets/sounds/blitz_break.mp3");
         this.load.audio("BlitzLaunch", "game_assets/sounds/blitz_launch.mp3");
         
-        
+        this.load.spritesheet(MBLevel.ARROW_SPRITE_KEY, MBLevel.ARROW_SPRITE_PATH);
         this.load.audio("Candy",       "game_assets/sounds/switch.wav");
         this.load.audio("Checkpoint",  "game_assets/sounds/pickup.mp3");
 
@@ -396,6 +405,7 @@ export default abstract class MBLevel extends Scene {
 
             return;
         }
+        this.updateDirectionArrow(deltaT);
         const playerMoving =
         Input.isPressed(MBControls.MOVE_LEFT)  ||
         Input.isPressed(MBControls.MOVE_RIGHT) ||
@@ -1130,7 +1140,66 @@ export default abstract class MBLevel extends Scene {
         }
     }
         
+    private updateDirectionArrow(deltaT: number): void {
+        if (!this.directionArrow || !this.levelEndPosition) return;
 
+        const ctrl  = this.player._ai as PlayerController;
+        const vel   = ctrl.velocity;
+        const dx    = this.levelEndPosition.x - this.player.position.x;
+        const dy    = this.levelEndPosition.y - this.player.position.y;
+        const len   = Math.hypot(dx, dy);
+
+        if (len > 64) {
+            const ndx  = dx / len;
+            const ndy  = dy / len;
+            const speed = Math.hypot(vel.x, vel.y);
+
+            const movingAway = speed > 30 && (vel.x * ndx + vel.y * ndy) < -0.2;
+            const isIdle     = speed < 10;
+
+            // Accumulate timers
+            this._wrongDirTimer  = movingAway ? this._wrongDirTimer + deltaT : 0;
+            this._idleArrowTimer = isIdle     ? this._idleArrowTimer + deltaT : 0;
+
+            const shouldShow =
+                this._wrongDirTimer  >= MBLevel.WRONG_DIR_THRESHOLD ||
+                this._idleArrowTimer >= MBLevel.IDLE_ARROW_THRESHOLD;
+
+            // Reset timers once arrow appears so it doesn't stay forever
+            // if (shouldShow && this._arrowTargetAlpha === 0) {
+            //     this._wrongDirTimer  = 0;
+            //     this._idleArrowTimer = 0;
+            // }
+
+            this._arrowTargetAlpha = shouldShow ? 1 : 0;
+
+            const screen  = this.viewport.getHalfSize().scaled(2);
+            const cx      = screen.x / 2;
+            const cy      = screen.y / 2;
+            const padding = 18;
+            const hw      = screen.x / 2 - padding;
+            const hh      = screen.y / 2 - padding;
+
+            let t = Infinity;
+            if (Math.abs(ndx) > 0.001) t = Math.min(t, hw / Math.abs(ndx));
+            if (Math.abs(ndy) > 0.001) t = Math.min(t, hh / Math.abs(ndy));
+
+            this.directionArrow.position.set(cx + ndx * t, cy + ndy * t);
+            this.directionArrow.rotation = -Math.atan2(dx, -dy);
+        } else {
+            this._arrowTargetAlpha = 0;
+            this._wrongDirTimer    = 0;
+            this._idleArrowTimer   = 0;
+        }
+
+        const FADE_SPEED = 4.0;
+        const a      = this.directionArrow.alpha;
+        const target = this._arrowTargetAlpha;
+        this.directionArrow.alpha = a + Math.sign(target - a)
+            * Math.min(Math.abs(target - a), FADE_SPEED * deltaT);
+
+        this.directionArrow.visible = this.directionArrow.alpha > 0.01;
+    }
     private updateCooldownBar(progress: number): void {
         // progress is 0–1, treat it like energy where 1 = full bar
         const fullWidth = this.energyBarBg.size.x;
@@ -1316,7 +1385,11 @@ export default abstract class MBLevel extends Scene {
 
     protected initializeUI(): void {
         const screen = this.viewport.getHalfSize().scaled(2);
-
+        this.directionArrow = this.add.animatedSprite(MBLevel.ARROW_SPRITE_KEY, MBLayers.UI);
+        this.directionArrow.position.set(screen.x / 2, screen.y / 2);
+        this.directionArrow.animation.play("IDLE", true);
+        this.directionArrow.alpha   = 0;
+        this.directionArrow.visible = false;
         this.UI_escapeSprite = this.add.animatedSprite(MBLevel.ESCAPE_OVERLAY_KEY, MBLayers.UI);
         this.UI_escapeSprite.position.set(44, 180);
         this.UI_escapeSprite.animation.play("IDLE", true);
