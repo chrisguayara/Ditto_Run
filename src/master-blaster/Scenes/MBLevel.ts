@@ -373,7 +373,11 @@ export default abstract class MBLevel extends Scene {
             const ms   = Math.floor((this.levelTimer % 1) * 100);
             this.timerLabel.text = `${mins}:${secs.toString()}:${ms.toString()}`;
         }
-        
+        if (this.levelEndScreen?.isVisible) {
+            const confirmPressed = Input.isJustPressed(MBControls.CONFIRM);
+            this.levelEndScreen.update(deltaT, confirmPressed);
+            return; // block normal input while end screen is up
+        }
         if (this.countdownSprite?.visible) {
             this.repositionCountdown();
         }
@@ -444,11 +448,7 @@ export default abstract class MBLevel extends Scene {
                 this.handleEnergyChange(ctrl.transformations.energy, ctrl.transformations.maxEnergy);
             }
         }
-        if (this.levelEndScreen?.isVisible) {
-            const confirmPressed = Input.isJustPressed(MBControls.CONFIRM);
-            this.levelEndScreen.update(deltaT, confirmPressed);
-            return; // block normal input while end screen is up
-        }
+     
 
         
     }
@@ -1116,7 +1116,8 @@ export default abstract class MBLevel extends Scene {
 
         const ctrl = this.player._ai as PlayerController;
         const state = GameState.getInstance();
-
+        ctrl.isPaused = true;
+        Input.disableInput();
         
         this.levelEndScreen.show(
             this.levelKey, 
@@ -1434,7 +1435,8 @@ export default abstract class MBLevel extends Scene {
             MBLayers.LEVEL_END_SCREEN,
             endBg,
             () => {
-                // This fires when player confirms — transition to next level
+                // This fires when player confirms, transition to next level
+                Input.enableInput();
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.sceneManager.changeToScene(this.nextLevel);
             }
