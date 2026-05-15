@@ -180,6 +180,7 @@ export default class Prologue extends MBLevel {
             GameState.getInstance().markPrologueSeen();
             this.levelTransitionScreen.tweens.play("fadeIn");
         }
+        this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
     }
 
     // ── Cutscene setup ────────────────────────────────────────────
