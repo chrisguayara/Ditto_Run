@@ -131,22 +131,24 @@ export default class LevelEndScreen {
     // public api
 
     /** Call this when the level-end zone is triggered */
-    public show(
+    public async show(
         levelKey:        string, 
         elapsedSeconds: number,
         candyCollected: number,
         candyTotal:     number,
         healthRemaining: number,
         maxHealth:      number
-    ): void {
+    ): Promise<void> {
         const state = GameState.getInstance();
-        const result = state.recordScore(
+        this.targetScore = state.computeScore(elapsedSeconds);
+        const result =  await state.recordScore(
             levelKey,
             this.targetScore,
             elapsedSeconds,
             candyCollected,
             healthRemaining
         );
+        
         this.cheatsWereOn  = state.cheatsEnabled;
         this.isNewBest     = result === "new_best";
         this.isTopThree    = result === "top_three";
@@ -159,7 +161,6 @@ export default class LevelEndScreen {
         this.healthRemaining = healthRemaining;
         this.maxHealth       = maxHealth;
 
-        this.targetScore  = state.computeScore(elapsedSeconds);
         this.displayScore = 0;
         this.timer        = 0;
         this.tickTimer    = 0;

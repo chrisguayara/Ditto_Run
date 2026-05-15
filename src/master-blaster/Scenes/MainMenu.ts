@@ -15,7 +15,8 @@ import CheatsMenu from "./CheatsMenu";
 import { MenuAssets } from "./MenuAssets";
 import WinterLevel from "./WinterLevel";
 import StatsScreen from "./StatsScreen";
-import Prologue from "./Prologue";
+import NameEntryScreen from "./NameEntryScreen"
+import GameState from "./GameState";import Prologue from "./Prologue";
 
 export const MenuLayers = {
     BACKGROUND: "BACKGROUND",
@@ -136,7 +137,13 @@ export default class MainMenu extends Scene {
     // START always goes to WinterLevel (first level)
     private launchLevel(): void {
         this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: MenuAssets.MUSIC_KEY });
-        this.sceneManager.changeToScene(Prologue);
+         const state = GameState.getInstance();
+        // First play this session: ask for name before going to level select
+        if (!state.playerName) {
+            this.sceneManager.changeToScene(NameEntryScreen);
+        } else {
+            this.sceneManager.changeToScene(Prologue);
+        }
     }
 
     private select(): void {
