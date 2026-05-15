@@ -137,12 +137,11 @@ export default class MainMenu extends Scene {
     // START always goes to WinterLevel (first level)
     private launchLevel(): void {
         this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: MenuAssets.MUSIC_KEY });
-         const state = GameState.getInstance();
-        // First play this session: ask for name before going to level select
-        if (!state.playerName) {
+        const state = GameState.getInstance();
+        if (!state.playerName || !state.hasSeenPrologue) {
             this.sceneManager.changeToScene(NameEntryScreen);
         } else {
-            this.sceneManager.changeToScene(Prologue);
+            this.sceneManager.changeToScene(WinterLevel);
         }
     }
 

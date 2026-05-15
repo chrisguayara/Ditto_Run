@@ -168,7 +168,7 @@ export default class NameEntryScreen extends Scene {
         // ── Confirm ───────────────────────────────────────────────
         if (Input.isJustPressed(MBControls.CONFIRM)) {
             const name = this.charValues.map(i => CHARS[i]).join("");
-            GameState.getInstance().playerName = name;
+            GameState.getInstance().setPlayerName(name);
             this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: MenuAssets.SELECT_AUDIO_KEY });
             this.sceneManager.changeToScene(Prologue);
         }

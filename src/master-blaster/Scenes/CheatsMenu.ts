@@ -14,7 +14,7 @@ import { MBControls } from "../MBControls";
 import MainMenu from "./MainMenu";
 import { MenuAssets } from "./MenuAssets";
 import GameState from "./GameState";
-
+import ScoreManager from "./ScoreManager";
 const Layers = {
     BACKGROUND: "BACKGROUND",
     PANEL:      "PANEL",
@@ -61,7 +61,7 @@ export default class CheatsMenu extends Scene {
         bg.position.set(CX, CY);
         bg.animation.playIfNotAlready("DEFAULT", true);
 
-        const rowCount = 3; // unlock all + inf health + back
+        const rowCount = 4; // unlock all + inf health + back
         const panelH   = rowCount * BTN_SPACING + 80;
         const panelW   = 320;
         const panel = <Rect>this.add.graphic(GraphicType.RECT, Layers.PANEL, {
@@ -108,6 +108,15 @@ export default class CheatsMenu extends Scene {
                     this.getHealthLabel(state.cheatsInfiniteHealth),
                     state.cheatsInfiniteHealth);
                 this.select();
+            }
+        );
+        this.makeToggleButton("RESET SAVE DATA", CX, startY + BTN_SPACING * 3, 
+            new Color(255, 100, 100), () => {
+                GameState.getInstance().resetPersistentData();
+                ScoreManager.getInstance().clearAll();
+                this.select();
+                // Visual feedback — briefly change label
+                this.sceneManager.changeToScene(CheatsMenu);
             }
         );
 

@@ -4,6 +4,7 @@ import { FIRESTORE_BASE } from "./FirebaseConfig";
 
 export default class GameState {
     private static instance: GameState;
+    private static readonly STORAGE_KEY = "ditto_run_state";
 
     public cheatsUnlockAll: boolean = false;
     public cheatsInfiniteHealth: boolean = false;
@@ -14,11 +15,34 @@ export default class GameState {
     public levelHealthAtEnd: number = 3;     
     public levelMaxHealth: number = 3;
     public playerName: string = "";
-    
-    public unlockedLevels: Set<string> = new Set(["WINTER"]); 
 
-    private constructor() {}
+    public hasSeenPrologue: boolean      = false;
+    public unlockedLevels:  Set<string>  = new Set(["WINTER"]);
 
+
+    private constructor() {
+            this.loadFromStorage();
+
+    }
+    private loadFromStorage(): void {
+        try {
+            const raw = localStorage.getItem(GameState.STORAGE_KEY);
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            if (data.playerName)      this.playerName      = data.playerName;
+            if (data.hasSeenPrologue) this.hasSeenPrologue  = data.hasSeenPrologue;
+            if (data.unlockedLevels)  this.unlockedLevels   = new Set(data.unlockedLevels);
+        } catch { /* ignore */ }
+    }
+    private saveToStorage(): void {
+    try {
+        localStorage.setItem(GameState.STORAGE_KEY, JSON.stringify({
+            playerName:      this.playerName,
+            hasSeenPrologue: this.hasSeenPrologue,
+            unlockedLevels:  [...this.unlockedLevels],
+        }));
+        } catch { /* storage full */ }
+    }
     public static getInstance(): GameState {
         if (!GameState.instance) {
             GameState.instance = new GameState();
@@ -33,12 +57,26 @@ export default class GameState {
 
     public unlockLevel(label: string): void {
         this.unlockedLevels.add(label);
+        this.saveToStorage();
+    }
+    public setPlayerName(name: string): void {
+        this.playerName = name;
+        this.saveToStorage();
     }
     public resetLevelStats(totalCandies: number): void {
     this.levelCandyTotal     = totalCandies;
     this.levelCandyCollected = 0;
     }
-
+    public markPrologueSeen(): void {
+        this.hasSeenPrologue = true;
+        this.saveToStorage();
+    }
+    public resetPersistentData(): void {
+        this.playerName      = "";
+        this.hasSeenPrologue = false;
+        this.unlockedLevels  = new Set(["WINTER"]);
+        this.saveToStorage();
+    }
     public recordCandyCollected(): void {
         this.levelCandyCollected++;
     }
