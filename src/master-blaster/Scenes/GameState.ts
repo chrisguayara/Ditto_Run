@@ -1,5 +1,7 @@
 // src/mb_game/Scenes/GameState.ts
 import ScoreManager from "./ScoreManager";
+import { FIRESTORE_BASE } from "./FirebaseConfig";
+
 export default class GameState {
     private static instance: GameState;
 
@@ -11,7 +13,7 @@ export default class GameState {
     public levelStartTime: number = 0;      
     public levelHealthAtEnd: number = 3;     
     public levelMaxHealth: number = 3;
-
+    public playerName: string = "";
     
     public unlockedLevels: Set<string> = new Set(["WINTER"]); 
 
@@ -50,15 +52,63 @@ export default class GameState {
         const healthScore  = Math.round((this.levelHealthAtEnd / this.levelMaxHealth) * 200);
         return Math.min(1000, timeScore + candyScore + healthScore);
     }
-    public recordScore(
-    level: string, score: number, time: number,
-    candy: number, health: number
-    ): "new_best" | "top_three" | "none" {
-        const sm = ScoreManager.getInstance();
-        return sm.tryRecord(
+   public async recordScore(
+    level:  string,
+    score:  number,
+    time:   number,
+    candy:  number,
+    health: number
+    ): Promise<"new_best" | "top_three" | "none"> {
+        const sm     = ScoreManager.getInstance();
+        const result = sm.tryRecord(
             level as any, score, time, candy, health,
             this.cheatsEnabled
         );
+        console.log(`[recordScore] level=${level} score=${score} cheats=${this.cheatsEnabled} name="${this.playerName}"`);
+
+        if (!this.cheatsEnabled) {
+            // ── Submit individual run to Scores collection (existing) ──
+            try {
+                await fetch(`${FIRESTORE_BASE}/Scores`, {
+                    method:  "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        fields: {
+                            level:  { stringValue:  level              },
+                            score:  { integerValue: String(score)      },
+                            time:   { doubleValue:  time               },
+                            candy:  { integerValue: String(candy)      },
+                            health: { integerValue: String(health)     },
+                        }
+                    })
+                });
+            } catch (e) {
+                console.warn("Score submit failed:", e);
+            }
+
+            // ── Submit cumulative total to Leaderboard collection ──────
+            // Only submit if the player has entered their name this session.
+            if (this.playerName) {
+                try {
+                    const cumulative = sm.getCumulativeTotal();
+                    await fetch(`${FIRESTORE_BASE}/Leaderboard`, {
+                        method:  "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            fields: {
+                                name:  { stringValue:  this.playerName          },
+                                score: { integerValue: String(cumulative)       },
+                                ts:    { integerValue: String(Date.now())       },
+                            }
+                        })
+                    });
+                } catch (e) {
+                    console.warn("Leaderboard submit failed:", e);
+                }
+            }
+        }
+
+        return result;
     }
 
     public get cheatsEnabled(): boolean {
