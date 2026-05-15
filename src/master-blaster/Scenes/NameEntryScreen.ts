@@ -12,6 +12,7 @@ import { MenuAssets } from "./MenuAssets";
 import GameState from "./GameState";
 import LevelSelectMenu from "./LevelSelectMenu";
 import MainMenu from "./MainMenu";
+import Prologue from "./Prologue";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -169,7 +170,7 @@ export default class NameEntryScreen extends Scene {
             const name = this.charValues.map(i => CHARS[i]).join("");
             GameState.getInstance().playerName = name;
             this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: MenuAssets.SELECT_AUDIO_KEY });
-            this.sceneManager.changeToScene(LevelSelectMenu);
+            this.sceneManager.changeToScene(Prologue);
         }
 
         // ── Back — skip name entry (will be asked again next session) ──
