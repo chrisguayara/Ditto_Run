@@ -66,35 +66,31 @@ export default class ScoreManager {
         const entry: LevelScore = { score, time, candy, health };
         const list = this.data.levels[level] ?? [];
 
-        // Insert in sorted order (highest score first)
         const insertIdx = list.findIndex(s => s.score < score);
         if (insertIdx === -1) {
             if (list.length < TOP_N) {
                 list.push(entry);
             } else {
-                return "none"; // didn't make the list
+                return "none";
             }
         } else {
             list.splice(insertIdx, 0, entry);
         }
 
-        // Keep only top N
         if (list.length > TOP_N) list.splice(TOP_N);
         this.data.levels[level] = list;
 
-        // Update cumulative total using new #1
-        const oldBest = insertIdx === 0 
-            ? (list[1]?.score ?? 0)   // we just displaced the old #1
-            : (list[0]?.score ?? 0);  // #1 didn't change
+        // ── Fix: check actual position in list after insert ──────────
+        const finalIdx = list.findIndex(s => s === entry);
 
-        if (insertIdx === 0) {
-            // New #1 — update total
-            const displaced = list[1]?.score ?? 0;
-            this.data.total = this.data.total - displaced + score;
+        if (finalIdx === 0) {
+            // This is the new #1 — update cumulative total
+            const oldBest = list[1]?.score ?? 0; // previous #1, now at index 1
+            this.data.total = this.data.total - oldBest + score;
         }
 
         this.save();
-        return insertIdx === 0 ? "new_best" : "top_three";
+        return finalIdx === 0 ? "new_best" : "top_three";
     }
 
     public clearAll(): void {
