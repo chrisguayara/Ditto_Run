@@ -40,7 +40,7 @@ import Projectile from "../Entity/Enemies/Projectile";
 import { ProjectileConfig } from "../Entity/Enemies/ProjectileConfig";
 import { SpriteKeys } from "./SpriteKeys";
 import { DittoForms } from "../UI/DittoForms";
-import AudioManager from "../../Wolfie2D/Sound/AudioManager";
+import AudioManager, { AudioChannelType } from "../../Wolfie2D/Sound/AudioManager";
 import Patroller from "../Entity/Enemies/Patroller";
 import { SNOWBALL, FIREBALL } from "../Entity/Enemies/ProjectileConfig";
 // import Shooter from "../Entity/Enemies/Shooter";
@@ -855,10 +855,11 @@ export default abstract class MBLevel extends Scene {
                     this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
                     key: this.levelMusicKey,
                     loop: true,
-                    holdReference: true,
-                    volume: 0.1,
+                    holdReference: true
                 });
                 }).start();
+
+                // AudioManager.setVolume(AudioChannelType.MUSIC, 0.3);
 
                 break;
             }

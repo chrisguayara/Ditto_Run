@@ -16,7 +16,8 @@ import { MenuAssets } from "./MenuAssets";
 import WinterLevel from "./WinterLevel";
 import StatsScreen from "./StatsScreen";
 import NameEntryScreen from "./NameEntryScreen"
-import GameState from "./GameState";
+import GameState from "./GameState";import Prologue from "./Prologue";
+
 export const MenuLayers = {
     BACKGROUND: "BACKGROUND",
     PANEL:      "PANEL",
@@ -141,7 +142,7 @@ export default class MainMenu extends Scene {
         if (!state.playerName) {
             this.sceneManager.changeToScene(NameEntryScreen);
         } else {
-            this.sceneManager.changeToScene(WinterLevel);
+            this.sceneManager.changeToScene(Prologue);
         }
     }
 
