@@ -10,7 +10,6 @@ import Scene from "../../Wolfie2D/Scene/Scene";
 import { MBControls } from "../MBControls";
 import { TextboxConfig, IceBreakConfig } from "./CutsceneType";
 
-
 export enum CutscenePhase {
     INACTIVE     = "INACTIVE",
     FROZEN       = "FROZEN",
@@ -21,15 +20,12 @@ export enum CutscenePhase {
 
 export interface CutsceneConfig {
     lines: string[];
-    // The single cryo-greninja sprite that plays ICE_BREAK1..ICE_BREAK4
     iceSprite: AnimatedSprite;
     pickupSprite?: AnimatedSprite;
     onPickup?: () => void;
     onFree?: () => void;
     pressesPerLayer?: number;
     totalLayers?: number;
-    // Instead of using emitter directly, pass a callback so CutsceneSystem
-    // stays decoupled from the protected emitter on Scene.
     onPlayAudio?: (key: string) => void;
     scene: Scene;
     uiLayerName: string;
@@ -47,14 +43,13 @@ export default class CutsceneSystem {
     private charTimer:      number   = 0;
     private lineComplete:   boolean  = false;
 
-    // Single cryo-greninja sprite — we drive its animation per layer broken
     private iceSprite!:      AnimatedSprite;
     private pressCount:      number = 0;
     private pressesPerLayer: number = IceBreakConfig.PRESSES_PER_LAYER;
     private totalLayers:     number = IceBreakConfig.TOTAL_LAYERS;
     private layersBroken:    number = 0;
 
-    // Animation names for each ice-break layer, e.g. ICE_BREAK1 … ICE_BREAK4
+    // ICE_BREAK1..ICE_BREAK4 played consecutively as each layer breaks
     private readonly ICE_BREAK_ANIMS = ["ICE_BREAK1", "ICE_BREAK2", "ICE_BREAK3", "ICE_BREAK4"];
 
     private onPlayAudio?: (key: string) => void;
@@ -65,6 +60,9 @@ export default class CutsceneSystem {
 
     private wasLeftPressed:  boolean = false;
     private wasRightPressed: boolean = false;
+    private wasConfirmPressed: boolean = false;
+    private wasAttackPressed:  boolean = false;
+    private wasJumpPressed:    boolean = false;
 
     private scene:       Scene;
     private uiLayerName: string;
@@ -89,21 +87,29 @@ export default class CutsceneSystem {
         this.buildTextbox();
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // The viewport is 320×240 in game units, scaled up to 1200×800
+    // on screen. UI layer coordinates are in those 320×240 units.
+    // The box is centred horizontally with a LEFT_PAD offset and
+    // pinned near the bottom with BOTTOM_PAD.
+    // ─────────────────────────────────────────────────────────────
+
     private buildTextbox(): void {
         const cfg    = TextboxConfig;
-        const screen = this.scene.getViewport().getHalfSize().scaled(2);
-        const bx     = (screen.x - cfg.WIDTH)  / 2;
-        const by     = screen.y - cfg.HEIGHT - cfg.BOTTOM_PAD;
+        const vp     = this.scene.getViewport().getHalfSize().scaled(2); // 320 × 240
+        const cx     = vp.x / 2 + cfg.LEFT_PAD;                         // centre + right shift
+        const cy     = vp.y - cfg.HEIGHT / 2 - cfg.BOTTOM_PAD;          // near bottom
 
         this.textboxBg = <Rect>this.scene.add.graphic(GraphicType.RECT, this.uiLayerName, {
-            position: new Vec2(bx + cfg.WIDTH / 2, by + cfg.HEIGHT / 2),
+            position: new Vec2(cx, cy),
             size:     new Vec2(cfg.WIDTH, cfg.HEIGHT),
         });
         this.textboxBg.color   = new Color(cfg.BG_COLOR[0], cfg.BG_COLOR[1], cfg.BG_COLOR[2], cfg.BG_ALPHA);
         this.textboxBg.visible = false;
 
+        // Label left-edge = box left-edge + small internal pad
         this.textboxLabel = <Label>this.scene.add.uiElement(UIElementType.LABEL, this.uiLayerName, {
-            position: new Vec2(bx + 8, by + cfg.HEIGHT / 2),
+            position: new Vec2(cx - cfg.WIDTH / 2 + 8, cy),
             text: ""
         });
         this.textboxLabel.textColor       = Color.fromStringHex(cfg.TEXT_COLOR);
@@ -122,7 +128,14 @@ export default class CutsceneSystem {
         this.pressCount     = 0;
         this.layersBroken   = 0;
 
-        // Show the cryo-greninja frozen in place
+        // Reset edge-detect booleans so a key held before start() doesn't
+        // count as a fresh press on the very first frame.
+        this.wasConfirmPressed = true;
+        this.wasAttackPressed  = true;
+        this.wasJumpPressed    = true;
+        this.wasLeftPressed    = true;
+        this.wasRightPressed   = true;
+
         this.iceSprite.visible = true;
         this.iceSprite.animation.play("IDLE", true);
 
@@ -131,6 +144,8 @@ export default class CutsceneSystem {
         this.textboxBg.visible    = true;
         this.textboxLabel.visible = true;
         this.textboxLabel.text    = "";
+
+        this.repositionTextbox();
     }
 
     public update(deltaT: number): boolean {
@@ -144,9 +159,12 @@ export default class CutsceneSystem {
         return true;
     }
 
-    // ── FROZEN phase: typewriter dialogue ────────────────────────
+    // ── FROZEN: typewriter + manual edge-detect for advance ───────
+    // We can't use Input.isJustPressed because Input may still be
+    // "disabled" at the engine level during the fade-in. Instead we
+    // track the previous frame's state ourselves using isPressed.
 
-    private updateFrozen(deltaT: number): void {
+    private updateFrozen(_deltaT: number): void {
         const fullLine = this.lines[this.currentLine] ?? "";
 
         if (!this.lineComplete) {
@@ -159,25 +177,36 @@ export default class CutsceneSystem {
                 );
             }
             this.textboxLabel.text = fullLine.substring(0, this.displayedChars);
-
-            if (this.displayedChars >= fullLine.length) {
-                this.lineComplete = true;
-            }
+            if (this.displayedChars >= fullLine.length) this.lineComplete = true;
         } else {
-            if (Input.isJustPressed(MBControls.CONFIRM)
-             || Input.isJustPressed(MBControls.ATTACK)
-             || Input.isJustPressed(MBControls.JUMP)) {
+            // Manually detect rising-edge on confirm / attack / jump
+            const confirmNow = Input.isPressed(MBControls.CONFIRM);
+            const attackNow  = Input.isPressed(MBControls.ATTACK);
+            const jumpNow    = Input.isPressed(MBControls.JUMP);
+
+            const justConfirm = confirmNow && !this.wasConfirmPressed;
+            const justAttack  = attackNow  && !this.wasAttackPressed;
+            const justJump    = jumpNow    && !this.wasJumpPressed;
+
+            if (justConfirm || justAttack || justJump) {
                 this.advanceLine();
             }
+
+            this.wasConfirmPressed = confirmNow;
+            this.wasAttackPressed  = attackNow;
+            this.wasJumpPressed    = jumpNow;
         }
     }
 
     private advanceLine(): void {
         this.currentLine++;
         if (this.currentLine >= this.lines.length) {
-            // All dialogue done — move to mashing phase
             this.textboxLabel.text = "[ Press A or D to break free! ]";
             this.phase = CutscenePhase.ICE_BREAKING;
+
+            // Reset edge-detect for ice-break phase
+            this.wasLeftPressed  = true;
+            this.wasRightPressed = true;
         } else {
             this.displayedChars = 0;
             this.charTimer      = 0;
@@ -185,7 +214,9 @@ export default class CutsceneSystem {
         }
     }
 
-    // ── ICE_BREAKING phase: mash A/D to cycle ICE_BREAK1…ICE_BREAK4 ─
+    // ── ICE_BREAKING: each A/D press advances one step ───────────
+    // Every `pressesPerLayer` presses plays the next ICE_BREAK anim.
+    // After `totalLayers` layers the cutscene ends.
 
     private updateIceBreaking(_deltaT: number): void {
         const leftNow  = Input.isPressed(MBControls.MOVE_LEFT);
@@ -219,20 +250,16 @@ export default class CutsceneSystem {
     }
 
     private breakNextLayer(): void {
-        if (this.layersBroken < this.totalLayers) {
-            // Play ICE_BREAK1, ICE_BREAK2, ICE_BREAK3, ICE_BREAK4 in order
-            const animName = this.ICE_BREAK_ANIMS[this.layersBroken]
-                          ?? this.ICE_BREAK_ANIMS[this.ICE_BREAK_ANIMS.length - 1];
+        // layersBroken is the index of the layer we're about to break (0-based)
+        if (this.layersBroken < this.ICE_BREAK_ANIMS.length) {
+            const animName = this.ICE_BREAK_ANIMS[this.layersBroken];
             this.iceSprite.animation.play(animName, false);
-
-            // Fire audio via callback — no emitter access needed
             if (this.onPlayAudio) this.onPlayAudio("BlitzBreak");
         }
 
         this.layersBroken++;
 
         if (this.layersBroken >= this.totalLayers) {
-            // All ice broken — move to pickup or directly to FREE
             if (this.pickupSprite) {
                 this.phase = CutscenePhase.PICKUP;
                 this.textboxLabel.text = "";
@@ -243,13 +270,12 @@ export default class CutsceneSystem {
         }
     }
 
-    // ── PICKUP phase ─────────────────────────────────────────────
+    // ── PICKUP ────────────────────────────────────────────────────
 
     private updatePickup(): void {
         this.textboxLabel.text = "The Steamheart... it's here.";
     }
 
-    /** Call from Prologue when player walks over the steamheart entity. */
     public collectPickup(): void {
         if (this.phase !== CutscenePhase.PICKUP) return;
         if (this.pickupSprite) this.pickupSprite.visible = false;
@@ -265,16 +291,17 @@ export default class CutsceneSystem {
         this.onFree?.();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────
+    // ── Reposition every frame (screen-space, 320×240 units) ─────
 
-    /** Call every frame from the scene's updateScene so the textbox tracks the viewport. */
-    public repositionTextbox(): void {
+   public repositionTextbox(): void {
         const cfg    = TextboxConfig;
         const screen = this.scene.getViewport().getHalfSize().scaled(2);
-        const bx     = (screen.x - cfg.WIDTH)  / 2;
-        const by     = screen.y - cfg.HEIGHT - cfg.BOTTOM_PAD;
-        this.textboxBg.position.set(bx + cfg.WIDTH / 2, by + cfg.HEIGHT / 2);
-        this.textboxLabel.position.set(bx + 8, by + cfg.HEIGHT / 2);
+
+        const cx = screen.x / 2;
+        const cy = screen.y - cfg.HEIGHT / 2 - cfg.BOTTOM_PAD - 8;
+
+        this.textboxBg.position.set(cx, cy);
+        this.textboxLabel.position.set(cx , cy);
     }
 
     public hide(): void {

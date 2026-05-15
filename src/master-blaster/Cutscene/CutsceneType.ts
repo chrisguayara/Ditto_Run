@@ -24,9 +24,10 @@ export const IceBreakConfig = {
 export const TextboxConfig = {
     WIDTH:        312,
     HEIGHT:       34,
-    BOTTOM_PAD:   4,    // gap from screen bottom
-    FONT_SIZE:    8,    // pixels, adjust to taste
-    FONT:         "Courier",
+    BOTTOM_PAD:   16,    // gap from screen bottom
+    LEFT_PAD:     100,    // gap from screen left
+    FONT_SIZE:    24,    // pixels, adjust to taste
+    FONT:         "PixelSimple",  // make sure to load this in your scene's preload()
     TEXT_COLOR:   "#FFFFFF",
     BG_COLOR:     [0, 0, 0] as [number, number, number],
     BG_ALPHA:     0.85,

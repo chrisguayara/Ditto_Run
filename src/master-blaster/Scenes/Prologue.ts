@@ -1,4 +1,3 @@
-import AABB from "../../Wolfie2D/DataTypes/Shapes/AABB";
 import Vec2 from "../../Wolfie2D/DataTypes/Vec2";
 import MBLevel, { MBLayers } from "./MBLevel";
 import RenderingManager from "../../Wolfie2D/Rendering/RenderingManager";
@@ -6,18 +5,20 @@ import SceneManager from "../../Wolfie2D/Scene/SceneManager";
 import Viewport from "../../Wolfie2D/SceneGraph/Viewport";
 import PlayerController from "../Player/PlayerController";
 import SludgeWeapon from "../Player/SludgeWeapon";
-import RareCandy from "../Entity/Items/RareCandy";
-import Snorlax from "../Entity/Objects/Snorlax";
 import GameState from "./GameState";
-import SkyTempleLevel from "./SkyTempleLevel";
-import CutsceneSystem, {CutscenePhase} from "../Cutscene/CutsceneSystem";
+import WinterLevel from "./WinterLevel";
+import CutsceneSystem from "../Cutscene/CutsceneSystem";
 import { PrologueLines } from "../Cutscene/CutsceneType";
 import MBAnimatedSprite from "../Nodes/MBAnimatedSprite";
-import WinterLevel from "./WinterLevel";
+import { GameEventType } from "../../Wolfie2D/Events/GameEventType";
+import AudioManager, { AudioChannelType } from "../../Wolfie2D/Sound/AudioManager";
+import Input from "../../Wolfie2D/Input/Input";
+import Timer from "../../Wolfie2D/Timing/Timer";
+import GameEvent from "../../Wolfie2D/Events/GameEvent";
+import { MBEvents } from "../MBEvents";
 
 export const CHECKPOINTS = {
-    
-    SPAWN:          new Vec2(7 * 16, 7 * 16),
+    SPAWN: new Vec2(20 * 16, 27 * 16),
 } as const;
 
 export default class Prologue extends MBLevel {
@@ -25,10 +26,9 @@ export default class Prologue extends MBLevel {
     public static readonly PLAYER_SPAWN      = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
 
-
-    public static readonly TILEMAP_KEY   = "Mountainmap";
-    public static readonly TILEMAP_PATH  = "game_assets/tilemaps/mountain.json";
-    public static readonly TILEMAP_SCALE = new Vec2(1, 1);
+    public static readonly TILEMAP_KEY      = "Prologuemap";
+    public static readonly TILEMAP_PATH     = "game_assets/tilemaps/prologue.json";
+    public static readonly TILEMAP_SCALE    = new Vec2(1, 1);
     public static readonly WALLS_LAYER_KEY  = "Ground";
     public static readonly DAMAGE_LAYER_KEY = "damage";
 
@@ -50,18 +50,11 @@ export default class Prologue extends MBLevel {
     public static readonly CRYO_GRENINJA_SPRITE_KEY  = "Greninja";
     public static readonly CRYO_GRENINJA_SPRITE_PATH = "game_assets/spritesheets/greninja_cryo.json";
 
-    public static readonly ROTOM_SPRITE_KEY  = "Rotom";
-    public static readonly ROTOM_SPRITE_PATH = "game_assets/spritesheets/rotom.json";
+    public static readonly STEAMHEART_KEY  = "STEAMHEART";
+    public static readonly STEAMHEART_PATH = "game_assets/spritesheets/entities/steamheart.json";
 
-    public static readonly STEAMHEART_KEY    = "STEAMHEART_HALF";
-    public static readonly STEAMHEART_PATH   = "game_assets/spritesheets/steamheart_greninja.json";
-    
     private cutscene!: CutsceneSystem;
-    private iceLayerSprites: MBAnimatedSprite[] = [];
-    private steamheartSprite!: MBAnimatedSprite;
-    
-
-    public static readonly LEVEL_END = new AABB(new Vec2(309 * 16, 232), new Vec2(24, 16));
+    private cryoGreninjaSprite!: MBAnimatedSprite;
 
     public constructor(
         viewport: Viewport,
@@ -70,12 +63,12 @@ export default class Prologue extends MBLevel {
         options: Record<string, any>
     ) {
         super(viewport, sceneManager, renderingManager, options);
-        this.levelKey = "MOUNTAIN";
-        this.tilemapKey      = Prologue.TILEMAP_KEY;
-        this.tilemapScale    = Prologue.TILEMAP_SCALE;
-        this.wallsLayerKey   = Prologue.WALLS_LAYER_KEY;
-        this.phantomWallLayerKey = "phasewalls";
-        this.damageWallLayerKey  = Prologue.DAMAGE_LAYER_KEY;
+
+        this.tilemapKey           = Prologue.TILEMAP_KEY;
+        this.tilemapScale         = Prologue.TILEMAP_SCALE;
+        this.wallsLayerKey        = Prologue.WALLS_LAYER_KEY;
+        this.phantomWallLayerKey  = "phasewalls";
+        this.damageWallLayerKey   = Prologue.DAMAGE_LAYER_KEY;
         this.destructibleLayerKey = "destructable";
 
         this.playerSpriteKey = Prologue.PLAYER_SPRITE_KEY;
@@ -88,36 +81,32 @@ export default class Prologue extends MBLevel {
         this.tileDestroyedAudioKey = Prologue.TILE_DESTROYED_KEY;
         this.levelEndAudioKey      = Prologue.LEVEL_END_KEY;
 
-        this.levelEndPosition = new Vec2(384 * 16, 22 * 16).mult(this.tilemapScale);
+        this.levelEndPosition = new Vec2(40 * 16, 26 * 16).mult(this.tilemapScale);
         this.levelEndHalfSize = new Vec2(64, 64).mult(this.tilemapScale);
-
-        
     }
 
     public loadScene(): void {
-        // Shared entity sprites (patroller, shooter, projectile, shield)
         this.loadSharedSprites();
 
         this.load.tilemap(this.tilemapKey, Prologue.TILEMAP_PATH);
         this.loadPauseMenuAssets();
 
-        this.load.spritesheet(this.playerSpriteKey, Prologue.PLAYER_SPRITE_PATH);
-        this.load.spritesheet(SludgeWeapon.SLUDGE_KEY, SludgeWeapon.SLUDGE_PATH);
+        this.load.spritesheet(this.playerSpriteKey,              Prologue.PLAYER_SPRITE_PATH);
+        this.load.spritesheet(SludgeWeapon.SLUDGE_KEY,           SludgeWeapon.SLUDGE_PATH);
         this.load.spritesheet(Prologue.CRYO_GRENINJA_SPRITE_KEY, Prologue.CRYO_GRENINJA_SPRITE_PATH);
-        this.load.spritesheet(RareCandy.SPRITE_KEY,  RareCandy.SPRITE_PATH);
-        this.load.spritesheet(Snorlax.SPRITE_KEY,    Snorlax.SPRITE_PATH);
-        this.load.spritesheet(this.hintSpriteKey,    this.hintSpritePath);
-        this.load.spritesheet(this.transformUIkey,   this.transformUIpath);
+        this.load.spritesheet(this.hintSpriteKey,                this.hintSpritePath);
+        this.load.spritesheet(this.transformUIkey,               this.transformUIpath);
 
         this.load.audio(this.levelMusicKey,           Prologue.LEVEL_MUSIC_PATH);
         this.load.audio(this.jumpAudioKey,            Prologue.JUMP_AUDIO_PATH);
         this.load.audio(this.tileDestroyedAudioKey,   Prologue.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,        Prologue.LEVEL_END_AUDIO_PATH);
         this.load.audio(Prologue.TRANSFORM_AUDIO_KEY, Prologue.TRANSFORM_AUDIO_PATH);
-        this.load.spritesheet("mountainmap_background", "game_assets/tilemaps/backgrounds/mountainmap_background.json");
+
+        this.load.spritesheet("mountainmap_background",
+            "game_assets/tilemaps/backgrounds/mountainmap_background.json");
+
         this.loadEndScreenAssets();
-
-
     }
 
     public unloadScene(): void {
@@ -133,55 +122,144 @@ export default class Prologue extends MBLevel {
         this.addParallaxLayer(MBLayers.BACKGROUND, new Vec2(0.1, 0.1), -1);
         super.startScene();
 
-        this.nextLevel = WinterLevel;   
-
+        this.nextLevel = WinterLevel;
         GameState.getInstance().unlockLevel("SKYTEMPLE");
-        GameState.getInstance().resetLevelStats(5);
+        GameState.getInstance().resetLevelStats(0);
 
         const ctrl = this.player._ai as PlayerController;
         ctrl.transformations.unlockForm("GRENINJA");
-        
+        ctrl.transformations.unlockForm("CHARIZARD");
         ctrl.transformations.activate();
-
         this.updateTransformRing("GRENINJA");
+
+        this.respawnPosition = this.playerSpawn.clone();
+
+        const bg = this.add.animatedSprite("mountainmap_background", MBLayers.BACKGROUND);
+        bg.position.set(600, 140);
+        bg.animation.play("IDLE", true);
+
+        // Hide all HUD — prologue has no gameplay UI
+        this.UI_transformationSprite.visible = false;
+        this.UI_escapeSprite.visible         = false;
 
         this.initializePKMN();
         this.initializeEntities();
-        this.respawnPosition = this.playerSpawn.clone();
-        const bg = this.add.animatedSprite("mountainmap_background", MBLayers.BACKGROUND);
-        bg.position.set(600, 140); 
-        
-        bg.animation.play("IDLE", true);
-        
+        this.initializeCutscene();
     }
 
-    protected initializePKMN(): void {
-        // Rotom disabled
-    }
+    // ── Override LEVEL_START ──────────────────────────────────────
+    // Skip countdown entirely. Enable input immediately so the player
+    // can advance dialogue. Player movement is still blocked by
+    // ctrl.isPaused = true set in initializeCutscene().
 
-    protected initializeEntities(): void {
-        // Note: never pass a class directly to spawnEntity.
-        // Always use a factory lambda: (sprite) => new Foo(sprite)
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(35 * 16, 76 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(113 * 16, 18 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(168  * 16, 39 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(313  * 16, 28 * 16));
-        this.spawnEntity((sprite) => new RareCandy(sprite), RareCandy.SPRITE_KEY, new Vec2(389  * 16, 42 * 16));
+    protected handleEvent(event: GameEvent): void {
+        if (event.type === MBEvents.LEVEL_START) {
+            // Start music at reduced volume
+            this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+                key: this.levelMusicKey,
+                loop: true,
+                holdReference: true
+            });
+            AudioManager.setVolume(AudioChannelType.MUSIC, 0.3);
 
-        this.spawnEntity((sprite) => new Snorlax(sprite), Snorlax.SPRITE_KEY, new Vec2(292 * 16, 45.5 * 16), true);
+            // Enable input NOW so dialogue advance keys work
+            Input.enableInput();
+            return;
+        }
+
         
-        this.spawnPatroller(new Vec2(63 * 16, 29 * 16), 80, 60, 2, 1);
-        this.spawnPatroller(new Vec2(21 * 16, 31 * 16), 23, 50, 2, 1);
-        this.spawnPatroller(new Vec2(292 * 16, 37 * 16), 45, 50, 2, 1);
-        this.spawnPatroller(new Vec2(330 * 16, 56 * 16), 45, 50, 2, 1);
-        this.spawnPatroller(new Vec2(335 * 16, 23 * 16), 45, 50, 2, 1);
-        this.spawnPatroller(new Vec2(374 * 16, 66 * 16), 45, 50, 2, 1);
-        // this.spawnShooter(new Vec2(17 * 16, 32 * 16), SNOWBALL);
-        // this.spawnShooter(new Vec2(190 * 16, 22 * 16), FIREBALL, 4, 3.0, 3, 250);
+        super.handleEvent(event);
     }
+
+    
+
+    protected handleEnteredLevelEnd(): void {
+        if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
+            this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+            this.levelTransitionScreen.tweens.play("fadeIn");
+        }
+    }
+
+    // ── Cutscene setup ────────────────────────────────────────────
+
+    private initializeCutscene(): void {
+        const ctrl = this.player._ai as PlayerController;
+
+        this.cryoGreninjaSprite = this.add.animatedSprite(
+            Prologue.CRYO_GRENINJA_SPRITE_KEY,
+            MBLayers.PRIMARY
+        ) as unknown as MBAnimatedSprite;
+
+        this.cryoGreninjaSprite.position.set(
+            Prologue.PLAYER_SPAWN.x,
+            Prologue.PLAYER_SPAWN.y
+        );
+        this.cryoGreninjaSprite.animation.play("IDLE", true);
+        this.cryoGreninjaSprite.visible = true;
+
+        // Hide the real player — cryo-greninja stands in during cutscene
+        this.player.visible = false;
+        // Freeze movement (input itself is enabled so keys register)
+        ctrl.isPaused = true;
+
+        const lines = [
+            PrologueLines.LINE_0,
+            PrologueLines.LINE_1,
+            PrologueLines.LINE_2,
+            PrologueLines.LINE_3,
+            PrologueLines.LINE_4,
+        ];
+
+        this.cutscene = new CutsceneSystem({
+            scene:           this,
+            uiLayerName:     MBLayers.UI,
+            lines,
+            iceSprite:       this.cryoGreninjaSprite as unknown as import("../../Wolfie2D/Nodes/Sprites/AnimatedSprite").default,
+            pressesPerLayer: 2,
+            totalLayers:     4,
+
+            onPlayAudio: (key: string) => {
+                this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+                    key,
+                    loop: false,
+                    holdReference: false
+                });
+            },
+
+            onFree: () => {
+                // All ice broken — hand control back to the real player
+                this.cryoGreninjaSprite.visible = false;
+                this.player.visible = true;
+                ctrl.isPaused = false;
+
+                // 3 seconds of free movement then fade to WinterLevel
+                new Timer(3000, () => {
+                    this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                    this.levelTransitionScreen.tweens.play("fadeIn");
+                }).start();
+            },
+        });
+
+        this.cutscene.start();
+    }
+
+    // ── Update ────────────────────────────────────────────────────
+
+    public updateScene(deltaT: number): void {
+        if (this.cutscene && this.cutscene.isActive) {
+            this.cutscene.repositionTextbox();
+            this.cutscene.update(deltaT);
+        }
+        super.updateScene(deltaT);
+    }
+
+    // ── Boilerplate ───────────────────────────────────────────────
+
+    protected initializePKMN(): void { /* none */ }
+    protected initializeEntities(): void { /* none in prologue */ }
 
     protected initializeViewport(): void {
         super.initializeViewport();
-        this.viewport.setBounds(0, 0, 400 * 16, 80 * 16);
+        this.viewport.setBounds(0, 0, 50 * 16, 40 * 16);
     }
 }
