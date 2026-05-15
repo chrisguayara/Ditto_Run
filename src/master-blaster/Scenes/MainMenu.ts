@@ -14,11 +14,13 @@ import ControlsMenu from "./ControlsMenu";
 import CheatsMenu from "./CheatsMenu";
 import { MenuAssets } from "./MenuAssets";
 import WinterLevel from "./WinterLevel";
+import StatsScreen from "./StatsScreen";
 
 export const MenuLayers = {
     BACKGROUND: "BACKGROUND",
     PANEL:      "PANEL",
     MAIN:       "MAIN",
+    
 } as const;
 
 const COL_PANEL_BG   = new Color( 22,  20,  40, 0.88);
@@ -86,7 +88,7 @@ export default class MainMenu extends Scene {
         titleLabel.backgroundColor = new Color(0, 0, 0, 0);
 
         // Buttons, START always goes to WinterLevel
-        const BUTTONS = ["START", "LEVELS", "CONTROLS", "CHEATS"];
+        const BUTTONS = ["START", "LEVELS", "CONTROLS", "CHEATS","STATS"];
         BUTTONS.forEach((label, i) => {
             const y = (CY - ((BUTTONS.length - 1) * BTN_SPACING) / 2) + i * BTN_SPACING;
             this.makeButton(label, CX, y, () => this.onButtonClick(label));
@@ -125,6 +127,8 @@ export default class MainMenu extends Scene {
             case "LEVELS":   this.navigateTo(LevelSelectMenu); break;
             case "CONTROLS": this.navigateTo(ControlsMenu);   break;
             case "CHEATS":   this.navigateTo(CheatsMenu);     break;
+            case "STATS": this.navigateTo(StatsScreen); break;
+
         }
     }
 

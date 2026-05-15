@@ -20,6 +20,8 @@ const START_DELAY     = 0.6;
 const AUTO_ADVANCE    = 30;
 /** SFX key*/
 const TICK_SFX        = "SELECT_AUDIO_KEY";
+const COL_GOLD = new Color(255, 215, 0);
+
 
 export default class LevelEndScreen {
 
@@ -42,6 +44,9 @@ export default class LevelEndScreen {
     private done:           boolean = false;  // counting finished
     private timer:          number  = 0;
     private tickTimer:      number  = 0;
+    private cheatsWereOn: boolean = false;
+    private isNewBest:    boolean = false;
+    private cheatLabel!: Label;
 
     // Countdown to auto-advance 
     private autoTimer:      number  = AUTO_ADVANCE;
@@ -118,12 +123,16 @@ export default class LevelEndScreen {
 
         // Prompt
         this.promptLabel = make("ENTER to continue",   cx,      cy + 60,  20, CYAN);
+
+        this.cheatLabel = make("CHEATS ON, score not saved", cx, cy + 72, 9, new Color(255, 80, 80));
+
     }
 
     // public api
 
     /** Call this when the level-end zone is triggered */
     public show(
+        levelKey:        string, 
         elapsedSeconds: number,
         candyCollected: number,
         candyTotal:     number,
@@ -131,6 +140,15 @@ export default class LevelEndScreen {
         maxHealth:      number
     ): void {
         const state = GameState.getInstance();
+        const isNewBest = !state.cheatsEnabled && state.recordScore(
+            levelKey,           
+            this.targetScore,
+            elapsedSeconds,
+            candyCollected,
+            healthRemaining
+        );
+        this.cheatsWereOn = state.cheatsEnabled;
+        this.isNewBest    = isNewBest;
         state.levelHealthAtEnd = healthRemaining;
         state.levelMaxHealth   = maxHealth;
 
@@ -169,7 +187,6 @@ export default class LevelEndScreen {
 
         this.timer += deltaT;
         if (this.timer < START_DELAY) return;
-
         // score counter
         if (!this.done) {
             this.tickTimer += deltaT;
@@ -177,7 +194,10 @@ export default class LevelEndScreen {
                 this.tickTimer = 0;
                 this.displayScore = Math.min(this.targetScore, this.displayScore + SCORE_PER_TICK);
                 this.updateScoreLabel();
-
+                if (this.isNewBest) {
+                    this.promptLabel.text = "★ NEW BEST! ★";
+                    this.promptLabel.textColor = COL_GOLD;
+                }
                 if (this.displayScore % 40 < SCORE_PER_TICK) {
                     this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
                         key: TICK_SFX,
@@ -222,7 +242,7 @@ export default class LevelEndScreen {
     public get isVisible(): boolean { return this.visible; }
 
     // Helpers
-    
+
     private updateScoreLabel(): void {
         const score = this.displayScore;
 
@@ -248,5 +268,7 @@ export default class LevelEndScreen {
         this.scoreTitleLabel.visible = v;
         this.scoreLabel.visible      = v;
         this.promptLabel.visible     = v;
+        this.cheatLabel.visible = v && this.cheatsWereOn;
+
     }
 }

@@ -95,7 +95,7 @@ export default abstract class MBLevel extends Scene {
     protected originalWeaponSystem!: PlayerWeapon;
     protected sludgePool: SludgeWeapon[] = [];
     protected levelEndScreen!: LevelEndScreen;
-    
+    protected levelKey: string = "UNKNOWN";
     protected totalCandiesInLevel: number = 0;
 
 
@@ -300,6 +300,7 @@ export default abstract class MBLevel extends Scene {
         
         this.load.spritesheet(MBLevel.PAUSE_BG_KEY, MBLevel.PAUSE_BG_PATH);
         this.load.spritesheet(MBLevel.MENU_BTN_KEY, MBLevel.MENU_BTN_PATH);
+        this.load.spritesheet(MBLevel.COUNTDOWN_KEY,  MBLevel.COUNTDOWN_PATH);
         
     }
     protected loadSharedSprites(): void {
@@ -1118,6 +1119,7 @@ export default abstract class MBLevel extends Scene {
 
         
         this.levelEndScreen.show(
+            this.levelKey, 
             this.levelTimer,
             state.levelCandyCollected,
             state.levelCandyTotal,

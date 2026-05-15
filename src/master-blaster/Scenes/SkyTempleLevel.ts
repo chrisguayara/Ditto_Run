@@ -60,7 +60,7 @@ export default class SkyTempleLevel extends MBLevel {
         options: Record<string, any>
     ) {
         super(viewport, sceneManager, renderingManager, options);
-
+        this.levelKey = "SKY_TEMPLE";
         this.tilemapKey      = SkyTempleLevel.TILEMAP_KEY;
         this.tilemapScale    = SkyTempleLevel.TILEMAP_SCALE;
         this.wallsLayerKey   = SkyTempleLevel.WALLS_LAYER_KEY;

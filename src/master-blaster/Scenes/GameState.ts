@@ -1,5 +1,5 @@
 // src/mb_game/Scenes/GameState.ts
-
+import ScoreManager from "./ScoreManager";
 export default class GameState {
     private static instance: GameState;
 
@@ -49,5 +49,26 @@ export default class GameState {
             : 200; // no candies in level = free points
         const healthScore  = Math.round((this.levelHealthAtEnd / this.levelMaxHealth) * 200);
         return Math.min(1000, timeScore + candyScore + healthScore);
+    }
+    public recordScore(
+        level:   string,
+        score:   number,
+        time:    number,
+        candy:   number,
+        health:  number
+    ): boolean {
+        const sm = ScoreManager.getInstance();
+        return sm.tryRecord(
+            level as any,
+            score,
+            time,
+            candy,
+            health,
+            this.cheatsUnlockAll || this.cheatsInfiniteHealth
+        );
+    }
+
+    public get cheatsEnabled(): boolean {
+        return this.cheatsUnlockAll || this.cheatsInfiniteHealth;
     }
 }

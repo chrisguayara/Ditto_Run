@@ -61,7 +61,7 @@ export default class CastleLevel extends MBLevel {
         options: Record<string, any>
     ) {
         super(viewport, sceneManager, renderingManager, options);
-
+        this.levelKey = "CASTLE";
         this.tilemapKey      = CastleLevel.TILEMAP_KEY;
         this.tilemapScale    = CastleLevel.TILEMAP_SCALE;
         this.wallsLayerKey   = CastleLevel.WALLS_LAYER_KEY;

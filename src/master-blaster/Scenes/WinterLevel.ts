@@ -65,7 +65,7 @@ export default class WinterLevel extends MBLevel {
         options: Record<string, any>
     ) {
         super(viewport, sceneManager, renderingManager, options);
-
+        this.levelKey = "WINTER";
         this.tilemapKey          = WinterLevel.TILEMAP_KEY;
         this.tilemapScale        = WinterLevel.TILEMAP_SCALE;
         this.wallsLayerKey       = WinterLevel.WALLS_LAYER_KEY;

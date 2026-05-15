@@ -60,7 +60,7 @@ export default class MountainLevel extends MBLevel {
         options: Record<string, any>
     ) {
         super(viewport, sceneManager, renderingManager, options);
-
+        this.levelKey = "MOUNTAIN";
         this.tilemapKey      = MountainLevel.TILEMAP_KEY;
         this.tilemapScale    = MountainLevel.TILEMAP_SCALE;
         this.wallsLayerKey   = MountainLevel.WALLS_LAYER_KEY;
