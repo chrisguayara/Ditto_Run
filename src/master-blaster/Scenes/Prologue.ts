@@ -26,7 +26,7 @@ export default class Prologue extends MBLevel {
     public static readonly PLAYER_SPAWN      = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
     public static readonly CUTSCENE_MUSIC_KEY  = "CUTSCENE_MUSIC";
-    public static readonly CUTSCENE_MUSIC_PATH = "game_assets/music/jean parker - ultra [137].mp3"; 
+    public static readonly CUTSCENE_MUSIC_PATH = "game_assets/music/windsound.wav"; 
     public static readonly TILEMAP_KEY      = "Prologuemap";
     public static readonly TILEMAP_PATH     = "game_assets/tilemaps/prologue.json";
     public static readonly TILEMAP_SCALE    = new Vec2(1, 1);
