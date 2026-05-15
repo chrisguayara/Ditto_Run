@@ -25,7 +25,8 @@ export default class Prologue extends MBLevel {
 
     public static readonly PLAYER_SPAWN      = CHECKPOINTS.SPAWN;
     public static readonly PLAYER_SPRITE_KEY = "PLAYER_SPRITE_KEY";
-
+    public static readonly CUTSCENE_MUSIC_KEY  = "CUTSCENE_MUSIC";
+    public static readonly CUTSCENE_MUSIC_PATH = "game_assets/music/jean parker - ultra [137].mp3"; 
     public static readonly TILEMAP_KEY      = "Prologuemap";
     public static readonly TILEMAP_PATH     = "game_assets/tilemaps/prologue.json";
     public static readonly TILEMAP_SCALE    = new Vec2(1, 1);
@@ -102,6 +103,7 @@ export default class Prologue extends MBLevel {
         this.load.audio(this.tileDestroyedAudioKey,   Prologue.TILE_DESTROYED_PATH);
         this.load.audio(this.levelEndAudioKey,        Prologue.LEVEL_END_AUDIO_PATH);
         this.load.audio(Prologue.TRANSFORM_AUDIO_KEY, Prologue.TRANSFORM_AUDIO_PATH);
+        this.load.audio(Prologue.CUTSCENE_MUSIC_KEY, Prologue.CUTSCENE_MUSIC_PATH);
 
         this.load.spritesheet("mountainmap_background",
             "game_assets/tilemaps/backgrounds/mountainmap_background.json");
@@ -155,11 +157,10 @@ export default class Prologue extends MBLevel {
     protected handleEvent(event: GameEvent): void {
         if (event.type === MBEvents.LEVEL_START) {
             // Start music at reduced volume
-            this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
-                key: this.levelMusicKey,
-                loop: true,
-                holdReference: true
-            });
+         if (event.type === MBEvents.LEVEL_START) {
+            Input.enableInput();
+            return;
+        }
             AudioManager.setVolume(AudioChannelType.MUSIC, 0.3);
 
             // Enable input NOW so dialogue advance keys work
@@ -175,7 +176,7 @@ export default class Prologue extends MBLevel {
 
     protected handleEnteredLevelEnd(): void {
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
-            this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+            this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: Prologue.CUTSCENE_MUSIC_KEY });
             GameState.getInstance().markPrologueSeen();
             this.levelTransitionScreen.tweens.play("fadeIn");
         }
@@ -227,21 +228,25 @@ export default class Prologue extends MBLevel {
                 });
             },
 
-            onFree: () => {
-                // All ice broken — hand control back to the real player
+           onFree: () => {
                 this.cryoGreninjaSprite.visible = false;
                 this.player.visible = true;
                 ctrl.isPaused = false;
 
-                // 3 seconds of free movement then fade to WinterLevel
                 new Timer(3000, () => {
-                    this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+                    this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: Prologue.CUTSCENE_MUSIC_KEY });
                     this.levelTransitionScreen.tweens.play("fadeIn");
                 }).start();
             },
         });
 
         this.cutscene.start();
+        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+            key:           Prologue.CUTSCENE_MUSIC_KEY,
+            loop:          true,
+            holdReference: true,
+        });
+        AudioManager.setVolume(AudioChannelType.MUSIC, 0.3);
     }
 
     // ── Update ────────────────────────────────────────────────────

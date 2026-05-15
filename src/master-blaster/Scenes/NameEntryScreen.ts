@@ -170,9 +170,9 @@ export default class NameEntryScreen extends Scene {
             const name = this.charValues.map(i => CHARS[i]).join("");
             GameState.getInstance().setPlayerName(name);
             this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: MenuAssets.SELECT_AUDIO_KEY });
+            this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: MenuAssets.MUSIC_KEY });
             this.sceneManager.changeToScene(Prologue);
         }
-
         // ── Back — skip name entry (will be asked again next session) ──
         if (Input.isJustPressed(MBControls.PAUSE)) {
             this.sceneManager.changeToScene(MainMenu);
