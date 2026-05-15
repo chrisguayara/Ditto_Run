@@ -175,9 +175,10 @@ export default class Prologue extends MBLevel {
 
     protected handleEnteredLevelEnd(): void {
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
-            this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
+            
             this.levelTransitionScreen.tweens.play("fadeIn");
         }
+        this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
     }
 
     // ── Cutscene setup ────────────────────────────────────────────
