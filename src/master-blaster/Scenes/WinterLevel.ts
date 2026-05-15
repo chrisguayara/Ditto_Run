@@ -137,10 +137,11 @@ export default class WinterLevel extends MBLevel {
         GameState.getInstance().unlockLevel("STRONGHOLD");
 
         (this.player._ai as PlayerController).transformations.unlockForm("GRENINJA");
-        (this.player._ai as PlayerController).transformations.unlockForm("CHARIZARD");
-        (this.player._ai as PlayerController).transformations.activate();
-
+        // (this.player._ai as PlayerController).transformations.unlockForm("CHARIZARD");
+        // (this.player._ai as PlayerController).transformations.activate();
+        
         this.updateTransformRing("GRENINJA");
+        this.UI_transformationSprite.animation.play("Charizard_Locked", true);
 
         this.initializePKMN();
         this.initializeEntities();
@@ -179,4 +180,11 @@ export default class WinterLevel extends MBLevel {
         super.initializeViewport();
         this.viewport.setBounds(0, 0, 1600, 1600);
     }
+    protected updateTransformRing(formName: string): void {
+    if (formName === "CHARIZARD") {
+        this.UI_transformationSprite.animation.play("CHARIZARD_LOCKED", true);
+        return;
+    }
+    super.updateTransformRing(formName);
+}
 }

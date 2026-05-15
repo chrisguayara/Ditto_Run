@@ -128,8 +128,8 @@ export default class CastleLevel extends MBLevel {
 
         const ctrl = this.player._ai as PlayerController;
         ctrl.transformations.unlockForm("GRENINJA");
-        ctrl.transformations.unlockForm("CHARIZARD");
-        ctrl.transformations.activate();
+        // ctrl.transformations.unlockForm("CHARIZARD");
+        // ctrl.transformations.activate();
 
         this.updateTransformRing("GRENINJA");
 

@@ -1104,6 +1104,9 @@ export default abstract class MBLevel extends Scene {
             case "GRENINJA":
                 this.UI_transformationSprite.animation.play(DittoForms.GRENINJA, true);
                 break;
+            case "CHARIZARD_LOCKED":
+                this.UI_transformationSprite.animation.play("Charizard_Locked", true);
+                break;
             default:
                 this.UI_transformationSprite.animation.play(DittoForms.DITTO, true);
                 break;

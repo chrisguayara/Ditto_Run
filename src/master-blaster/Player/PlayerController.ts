@@ -124,7 +124,7 @@ export default class PlayerController extends StateMachineAI {
     
         // Always start as Greninja, Charizard available via toggle
         this._transformations.unlockForm("GRENINJA");
-        this._transformations.unlockForm("CHARIZARD");
+        // this._transformations.unlockForm("CHARIZARD");
         this._transformations.forceActivate("GRENINJA");
     
         this.addState(PlayerStates.IDLE, new Idle(this, this.owner));
