@@ -382,7 +382,7 @@ export default class StatsScreen extends Scene {
             structuredQuery: {
                 from:    [{ collectionId: "Leaderboard" }],
                 orderBy: [{ field: { fieldPath: "score" }, direction: "DESCENDING" }],
-                limit:   10,
+                limit:   8,
             },
         };
 
