@@ -1,0 +1,25 @@
+{
+  "name": "Arrow",
+  "spriteSheetImage": "Arrow.png",
+  "spriteWidth": 32,
+  "spriteHeight": 32,
+  "columns": 2,
+  "rows": 1,
+  "durationType": "time",
+  "animations": [
+    {
+      "name": "IDLE",
+      "repeat": true,
+      "frames": [
+        {
+          "index": 0,
+          "duration": 250
+        },
+        {
+          "index": 1,
+          "duration": 250
+        }
+      ]
+    }
+  ]
+}
