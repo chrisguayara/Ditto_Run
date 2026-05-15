@@ -28,7 +28,7 @@ export default class LevelEndScreen {
     private scene:    Scene;
     private emitter:  Emitter;
     private layer:    string;
-
+    private isTopThree: boolean = false;
     // UI refs
     private bg!:           AnimatedSprite;
     private titleLabel!:   Label;
@@ -140,15 +140,16 @@ export default class LevelEndScreen {
         maxHealth:      number
     ): void {
         const state = GameState.getInstance();
-        const isNewBest = !state.cheatsEnabled && state.recordScore(
-            levelKey,           
+        const result = state.recordScore(
+            levelKey,
             this.targetScore,
             elapsedSeconds,
             candyCollected,
             healthRemaining
         );
-        this.cheatsWereOn = state.cheatsEnabled;
-        this.isNewBest    = isNewBest;
+        this.cheatsWereOn  = state.cheatsEnabled;
+        this.isNewBest     = result === "new_best";
+        this.isTopThree    = result === "top_three";
         state.levelHealthAtEnd = healthRemaining;
         state.levelMaxHealth   = maxHealth;
 
@@ -210,6 +211,14 @@ export default class LevelEndScreen {
                     this.displayScore = this.targetScore;
                     this.done = true;
                     this.updateScoreLabel();
+
+                    if (this.isNewBest) {
+                        this.promptLabel.text      = "★ NEW BEST SCORE! ★";
+                        this.promptLabel.textColor = COL_GOLD;
+                    } else if (this.isTopThree) {
+                        this.promptLabel.text      = "★ TOP 3 SCORE! ★";
+                        this.promptLabel.textColor = new Color(180, 230, 100);
+                    }
                     this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
                         key: "LEVEL_END_AUDIO_KEY",
                         loop: false,

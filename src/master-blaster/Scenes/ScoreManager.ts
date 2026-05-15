@@ -1,19 +1,16 @@
-// src/master-blaster/Scenes/ScoreManager.ts
-
 const STORAGE_KEY = "ditto_run_scores";
+const TOP_N = 3;
 
 export interface LevelScore {
-    score:   number;
-    time:    number;   // seconds
-    candy:   number;
-    health:  number;
+    score:  number;
+    time:   number;
+    candy:  number;
+    health: number;
 }
 
 export interface ScoreData {
-    // Best score per level
-    levels: Record<string, LevelScore>;
-    // Cumulative total of all best scores added together
-    total: number;
+    levels: Record<string, LevelScore[]>; // top N scores per level
+    total:  number;                       // sum of #1 scores across all levels
 }
 
 const LEVEL_KEYS = ["WINTER", "CASTLE", "MOUNTAIN", "SKY_TEMPLE"] as const;
@@ -24,9 +21,7 @@ export default class ScoreManager {
     private static instance: ScoreManager;
     private data: ScoreData;
 
-    private constructor() {
-        this.data = this.load();
-    }
+    private constructor() { this.data = this.load(); }
 
     public static getInstance(): ScoreManager {
         if (!ScoreManager.instance) {
@@ -37,45 +32,69 @@ export default class ScoreManager {
 
     // ── Read ──────────────────────────────────────────────────────
 
+    /** Top N scores for a level, sorted best first */
+    public getTopScores(level: LevelKey): LevelScore[] {
+        return this.data.levels[level] ?? [];
+    }
+
+    /** Convenience — just the #1 score */
     public getBestScore(level: LevelKey): LevelScore | null {
-        return this.data.levels[level] ?? null;
+        return this.getTopScores(level)[0] ?? null;
     }
 
-    public getCumulativeTotal(): number {
-        return this.data.total;
-    }
-
-    public getAllLevelKeys(): readonly string[] {
-        return LEVEL_KEYS;
-    }
+    public getCumulativeTotal(): number { return this.data.total; }
+    public getAllLevelKeys(): readonly string[] { return LEVEL_KEYS; }
 
     // ── Write ─────────────────────────────────────────────────────
 
     /**
-     * Attempt to record a score for a level.
-     * Returns false and does nothing if cheats are enabled.
-     * Returns true if the score was a new best and was saved.
+     * Returns "new_best" | "top_three" | "none"
+     * "new_best"   — beat #1 score
+     * "top_three"  — made the top 3 but not #1
+     * "none"       — cheats on, or score didn't make the list
      */
     public tryRecord(
-        level:       LevelKey,
-        score:       number,
-        time:        number,
-        candy:       number,
-        health:      number,
-        cheatsOn:    boolean,
-    ): boolean {
-        if (cheatsOn) return false;
+        level:    LevelKey,
+        score:    number,
+        time:     number,
+        candy:    number,
+        health:   number,
+        cheatsOn: boolean,
+    ): "new_best" | "top_three" | "none" {
+        if (cheatsOn) return "none";
 
-        const prev = this.data.levels[level];
-        if (prev && prev.score >= score) return false; // not a new best
+        const entry: LevelScore = { score, time, candy, health };
+        const list = this.data.levels[level] ?? [];
 
-        // Remove old best from total before adding new one
-        if (prev) this.data.total -= prev.score;
-        this.data.total += score;
+        // Insert in sorted order (highest score first)
+        const insertIdx = list.findIndex(s => s.score < score);
+        if (insertIdx === -1) {
+            if (list.length < TOP_N) {
+                list.push(entry);
+            } else {
+                return "none"; // didn't make the list
+            }
+        } else {
+            list.splice(insertIdx, 0, entry);
+        }
 
-        this.data.levels[level] = { score, time, candy, health };
+        // Keep only top N
+        if (list.length > TOP_N) list.splice(TOP_N);
+        this.data.levels[level] = list;
+
+        // Update cumulative total using new #1
+        const oldBest = insertIdx === 0 
+            ? (list[1]?.score ?? 0)   // we just displaced the old #1
+            : (list[0]?.score ?? 0);  // #1 didn't change
+
+        if (insertIdx === 0) {
+            // New #1 — update total
+            const displaced = list[1]?.score ?? 0;
+            this.data.total = this.data.total - displaced + score;
+        }
+
         this.save();
-        return true;
+        return insertIdx === 0 ? "new_best" : "top_three";
     }
 
     public clearAll(): void {
@@ -83,19 +102,28 @@ export default class ScoreManager {
         this.save();
     }
 
-    // ── localStorage ──────────────────────────────────────────────
-
     private load(): ScoreData {
         try {
             const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) return JSON.parse(raw) as ScoreData;
-        } catch { /* ignore parse errors */ }
+            if (raw) {
+                const parsed = JSON.parse(raw) as any;
+                // Migrate old format (single best score) to new format (array)
+                if (parsed.levels) {
+                    for (const key of Object.keys(parsed.levels)) {
+                        if (!Array.isArray(parsed.levels[key])) {
+                            parsed.levels[key] = [parsed.levels[key]];
+                        }
+                    }
+                }
+                return parsed as ScoreData;
+            }
+        } catch { /* ignore */ }
         return { levels: {}, total: 0 };
     }
 
     private save(): void {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-        } catch { /* storage full or blocked */ }
+        } catch { /* storage full */ }
     }
 }

@@ -85,16 +85,16 @@ export default class StatsScreen extends Scene {
 
         // Tabs row
         const tabY    = CY - 158;
-        const tabW    = 440 / this.tabs.length;
+        const tabW    = 640 / this.tabs.length;
         this.tabBtns  = [];
 
         this.tabs.forEach((tab, i) => {
             const lbl = <Label>this.add.uiElement(UIElementType.LABEL, Layers.MAIN, {
-                position: new Vec2(CX - 200 + tabW * i + tabW / 2, tabY),
+                position: new Vec2(CX - 300 + tabW * i + tabW / 2, tabY),
                 text: TAB_LABELS[tab],
             });
             lbl.font            = FONT;
-            lbl.fontSize        = 11;
+            lbl.fontSize        = 16;
             lbl.backgroundColor = new Color(0, 0, 0, 0);
             lbl.textColor       = i === this.activeTab ? COL_TAB_ACTIVE : COL_TAB_IDLE;
             this.tabBtns.push(lbl);
@@ -107,7 +107,7 @@ export default class StatsScreen extends Scene {
                 text: "",
             });
             lbl.font            = FONT;
-            lbl.fontSize        = 14;
+            lbl.fontSize        = 26;
             lbl.backgroundColor = new Color(0, 0, 0, 0);
             lbl.textColor       = COL_GRAY;
             this.statLabels.push(lbl);
@@ -124,7 +124,7 @@ export default class StatsScreen extends Scene {
         back.setPadding(new Vec2(60, 8));
         back.textColor       = COL_BACK;
         back.font            = FONT;
-        back.fontSize        = 16;
+        back.fontSize        = 20;
         back.onClick         = () => this.goBack();
 
         this.refreshStats();
@@ -166,6 +166,7 @@ export default class StatsScreen extends Scene {
         this.statLabels.forEach(l => {
             l.text      = "";
             l.textColor = COL_GRAY;
+             l.fontSize  = 26;
         });
 
         if (tab === "TOTAL") {
@@ -176,30 +177,41 @@ export default class StatsScreen extends Scene {
     }
 
     private showLevel(sm: ScoreManager, level: LevelKey): void {
-        const best = sm.getBestScore(level);
+        const scores = sm.getTopScores(level);
 
-        if (!best) {
+        if (scores.length === 0) {
             this.statLabels[0].text      = "NO SCORE YET";
             this.statLabels[0].textColor = COL_NONE;
             return;
         }
 
-        const mins = Math.floor(best.time / 60);
-        const secs = Math.floor(best.time % 60);
-        const ms   = Math.floor((best.time % 1) * 100);
-        const pad  = (v: number) => v < 10 ? "0" + v : "" + v;
+        const pad = (v: number) => v < 10 ? "0" + v : "" + v;
+        const fmtTime = (t: number) => {
+            const mins = Math.floor(t / 60);
+            const secs = Math.floor(t % 60);
+            const ms   = Math.floor((t % 1) * 100);
+            return `${mins}:${pad(secs)}.${pad(ms)}`;
+        };
 
-        const rows: [string, string, Color][] = [
-            ["BEST SCORE",  `${best.score}`,                    COL_GOLD ],
-            ["BEST TIME",   `${mins}:${pad(secs)}.${pad(ms)}`,  COL_VALUE],
-            ["CANDY",       `${best.candy}`,                     COL_VALUE],
-            ["HEARTS LEFT", `${best.health}`,                    COL_VALUE],
-        ];
+        const medals = ["★", "②", "③"];
 
-        rows.forEach(([label, value, color], i) => {
-            this.statLabels[i].text      = `${label}   ${value}`;
+        scores.forEach((s, i) => {
+            const color = i === 0 ? COL_GOLD : i === 1
+                ? new Color(180, 180, 200)
+                : new Color(140, 100, 60);
+            const fontSize = i === 0 ? 32 : i === 1 ? 26 : 20;  // gold > silver > bronze
+
+            this.statLabels[i].text = 
+                `${medals[i]}  ${s.score.toString().padStart(4)}  ${fmtTime(s.time)}  ♥${s.health}  ✦${s.candy}`;
             this.statLabels[i].textColor = color;
+            this.statLabels[i].fontSize  = fontSize;
         });
+
+        // Fill remaining slots with dashes
+        for (let i = scores.length; i < 3; i++) {
+            this.statLabels[i].text      = `${medals[i]}  ---`;
+            this.statLabels[i].textColor = COL_NONE;
+        }
     }
 
     private showTotal(sm: ScoreManager): void {
@@ -208,7 +220,7 @@ export default class StatsScreen extends Scene {
 
         this.statLabels[1].text      = `${sm.getCumulativeTotal()}`;
         this.statLabels[1].textColor = COL_GOLD;
-        this.statLabels[1].fontSize  = 28;
+        this.statLabels[1].fontSize  = 16;
 
         // Per-level breakdown
         const keys: LevelKey[] = ["WINTER", "CASTLE", "MOUNTAIN", "SKY_TEMPLE"];

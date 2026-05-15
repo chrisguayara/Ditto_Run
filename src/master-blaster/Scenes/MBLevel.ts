@@ -1111,26 +1111,25 @@ export default abstract class MBLevel extends Scene {
      * Handle the event when the player enters the level end area.
      */
     protected handleEnteredLevelEnd(): void {
-    if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
-        this.timerRunning = false;
+        if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
+            this.timerRunning = false;
+            const ctrl = this.player._ai as PlayerController;
+            const state = GameState.getInstance();
 
-        const ctrl = this.player._ai as PlayerController;
-        const state = GameState.getInstance();
-        ctrl.isPaused = true;
-        Input.disableInput();
-        
-        this.levelEndScreen.show(
-            this.levelKey, 
-            this.levelTimer,
-            state.levelCandyCollected,
-            state.levelCandyTotal,
-            ctrl.health,
-            ctrl.maxHealth
-        );
+            // Freeze player but keep Input alive so CONFIRM still registers
+            ctrl.isPaused = true;
+
+            this.levelEndScreen.show(
+                this.levelKey,
+                this.levelTimer,
+                state.levelCandyCollected,
+                state.levelCandyTotal,
+                ctrl.health,
+                ctrl.maxHealth
+            );
+        }
     }
-}
-
-    
+        
 
     private updateCooldownBar(progress: number): void {
         // progress is 0–1, treat it like energy where 1 = full bar
@@ -1436,7 +1435,8 @@ export default abstract class MBLevel extends Scene {
             endBg,
             () => {
                 // This fires when player confirms, transition to next level
-                Input.enableInput();
+                const ctrl = this.player._ai as PlayerController;
+                ctrl.isPaused = false;
                 this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.sceneManager.changeToScene(this.nextLevel);
             }

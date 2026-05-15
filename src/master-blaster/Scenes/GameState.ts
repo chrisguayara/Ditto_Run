@@ -51,20 +51,13 @@ export default class GameState {
         return Math.min(1000, timeScore + candyScore + healthScore);
     }
     public recordScore(
-        level:   string,
-        score:   number,
-        time:    number,
-        candy:   number,
-        health:  number
-    ): boolean {
+    level: string, score: number, time: number,
+    candy: number, health: number
+    ): "new_best" | "top_three" | "none" {
         const sm = ScoreManager.getInstance();
         return sm.tryRecord(
-            level as any,
-            score,
-            time,
-            candy,
-            health,
-            this.cheatsUnlockAll || this.cheatsInfiniteHealth
+            level as any, score, time, candy, health,
+            this.cheatsEnabled
         );
     }
 
