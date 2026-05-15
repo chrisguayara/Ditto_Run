@@ -72,7 +72,12 @@ export default abstract class MBLevel extends Scene {
     public static readonly MENU_BTN_KEY = "MENU_BUTTONS";
     public static readonly MENU_BTN_PATH = "game_assets/spritesheets/menubuttons.json";
     public static readonly PLAYER_SPRITE_PATH = "game_assets/spritesheets/GreninjaSplitSteam.json";
+    public static readonly COUNTDOWN_KEY  = "COUNTDOWN";
+    public static readonly COUNTDOWN_PATH = "game_assets/spritesheets/countdown.json";
 
+    protected countdownSprite!: AnimatedSprite;
+    protected countdownTimer!: Timer;
+    protected levelStarted: boolean = false;
 
     // ── Pause state ───────────────────────────────────────────────
     protected isPaused: boolean = false;
@@ -349,12 +354,12 @@ export default abstract class MBLevel extends Scene {
 
         Input.disableInput();
         this.levelTransitionScreen.tweens.play("fadeOut");
-        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
-            key: this.levelMusicKey,
-            loop: true,
-            holdReference: true,
-            volume: 0.1,
-        });
+        // this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+        //     key: this.levelMusicKey,
+        //     loop: true,
+        //     holdReference: true,
+        //     volume: 0.1,
+        // });
     }
 
     /* Update method for the scene */
@@ -368,8 +373,10 @@ export default abstract class MBLevel extends Scene {
             this.timerLabel.text = `${mins}:${secs.toString()}:${ms.toString()}`;
         }
         
-
-        
+        if (this.countdownSprite?.visible) {
+            this.repositionCountdown();
+        }
+                
         if (Input.isJustPressed(MBControls.PAUSE)) {
             if (this.isPaused && (this.showingControlsScreen || this.showingCheatsScreen)) {
                 //fall through
@@ -722,6 +729,15 @@ export default abstract class MBLevel extends Scene {
         this.pauseNavHintLabel.backgroundColor = new Color(0, 0, 0, 0);
         this.pauseNavHintLabel.visible   = false;
         this.initializeControlsScreen();
+        // Countdown — same layer as pause bg
+        this.countdownSprite = this.add.animatedSprite(MBLevel.COUNTDOWN_KEY, MBLayers.PAUSE_BG);
+        this.countdownSprite.scale.set(0.5, 0.5);
+        this.countdownSprite.visible = false;
+        this.repositionCountdown();
+    }
+    protected repositionCountdown(): void {
+        const c = this.getViewportCenter();
+        this.countdownSprite.position.set(c.x, c.y);
     }
     protected initializeControlsScreen(): void {
     const screen = this.viewport.getHalfSize().scaled(2);
@@ -813,12 +829,26 @@ export default abstract class MBLevel extends Scene {
                 console.log("Entered Level End");
                 break;
             }
-            case MBEvents.LEVEL_START: {
-                this.timerRunning = true;
+           case MBEvents.LEVEL_START: {
                 const ctrl = this.player._ai as PlayerController;
                 this.handleHealthChange(ctrl.health, ctrl.maxHealth);
-                
-                Input.enableInput();
+
+                // Show countdown, keep input disabled until it finishes
+                this.countdownSprite.visible = true;
+                this.countdownSprite.animation.play("COUNTDOWN", false);
+
+                new Timer(4000, () => {
+                    this.countdownSprite.visible = false;
+                    this.timerRunning = true;
+                    Input.enableInput();
+                    this.emitter.fireEvent(GameEventType.PLAY_SOUND, {
+                    key: this.levelMusicKey,
+                    loop: true,
+                    holdReference: true,
+                    volume: 0.1,
+                });
+                }).start();
+
                 break;
             }
             
@@ -1409,8 +1439,12 @@ export default abstract class MBLevel extends Scene {
         );
 
         
-
-        
+        this.countdownSprite = <AnimatedSprite>this.add.animatedSprite(
+            MBLevel.COUNTDOWN_KEY, MBLayers.UI
+        );
+        this.countdownSprite.position.set(600, 400);
+        this.countdownSprite.visible = false;
+                
 
         
     }

@@ -92,6 +92,7 @@ export default class WinterLevel extends MBLevel {
     public loadScene(): void {
         // Shared enemy/item sprites
         this.loadSharedSprites();
+        this.load.spritesheet(MBLevel.COUNTDOWN_KEY, MBLevel.COUNTDOWN_PATH);
 
         this.load.tilemap(this.tilemapKey, WinterLevel.TILEMAP_PATH);
         this.loadPauseMenuAssets();
